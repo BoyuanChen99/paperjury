@@ -1,7 +1,7 @@
 ---
 name: paperjury
 description: Three modes for CS-conference papers (CVPR/ICCV/ECCV vision, ACL/EMNLP/NAACL NLP, ICLR/NeurIPS/ICML/AAAI ML). DIRECT-EDIT mode (common): the user describes a change in Chinese or English and the LaTeX is edited directly through a CS-venue writing toolkit with author sign-off (use for 改这段 / 把中文想法写成 latex / polish / de-AI / translate / compress a passage). REVIEW mode (occasional, pre-submission): harden the paper through an adversarial courtroom review engine (N holistic domain reviewers / contestability routing / two-sided trial / three-way verdict / clerk-converged multi-round loop) with consensus-gated, author-signed revisions (use for review / critique / 审稿 / 评审 / mock-review). AUTO mode (unattended, opt-in via /goal): run the review-revise loop toward a verifiable goal, applying safe fixes under a drift-bounded policy and queueing risky ones. Resolves all inputs at runtime, no hardcoded paths. Not a from-scratch drafter (use ml-paper-writing) and not an official-venue rebuttal.
-version: 1.0.0
+version: 1.1.0
 author: Yiran Wang
 license: MIT
 tags: [Academic Writing, Peer Review, Adversarial Review, CVPR, ICCV, ECCV, ACL, EMNLP, NAACL, ICLR, NeurIPS, ICML, AAAI, Workflow, LaTeX]
@@ -48,7 +48,10 @@ Three modes, one skill. Pick by what the user is asking for:
 - **Auto mode (unattended).** The user opts in via `/goal` (or config `mode: auto`)
   to run the review-revise loop AFK toward a verifiable goal. Establish the spine
   up front (the one human step), then the engine applies safe fixes under the
-  bounded-aggressive policy and queues the rest. See `references/auto-mode.md`.
+  bounded-aggressive policy and queues the rest. The drafter input passes the
+  significance floor (`node scripts/ledger.js floor`: valid-fixable majors only) and
+  the ledger view is initialized collapsed (`--display collapse`: minors fold into a
+  Minor digest, majors stay itemized). See `references/auto-mode.md`.
   Never self-detect auto; it is explicit only.
 
 Do NOT use for: writing a paper from scratch (use `ml-paper-writing`), figure or
@@ -199,8 +202,12 @@ orchestrator seams: `references/review-engine-v3.md`. `[WF]` = Workflow step,
    reverted and queued. Revision logs / back-translations stay author-side.
 10. **`[WF]` clerk + report.** The clerk reconciles the round boundary (carried
     open-questions vs this round's edits, via a passage_id + similarity merge key) and
-    emits convergence counts. Summarize new/closed counts; in review mode do not
-    auto-start the next round (auto mode drives the outer loop via `/goal`).
+    emits convergence counts. Summarize new/closed counts with the minor/polish part
+    as a one-line digest (counts), never per-item paragraphs; in review mode do not
+    auto-start the next round (auto mode drives the outer loop via `/goal`). The
+    rendered `LEDGER.md` obeys `meta.display_mode` (flip anytime:
+    `node scripts/ledger.js mode <ledger.json> <show|collapse>`; review defaults to
+    the flat table, auto initializes collapsed).
 
 GATE: `node scripts/ledger.js gate` = 0 gate-blocking active major (gate-blocking =
 {raised, in-trial, re-trial, valid-fixable}; author-required / queued / dropped /
@@ -261,7 +268,7 @@ runs low.
 
 ## Capabilities and status
 
-Built: the review engine; the submission-readiness checker (deterministic desk-reject screening plus a real LaTeX compile, degrading to a structural lint when no toolchain is present); and auto mode (the review-revise loop toward a goal under a drift-bounded policy, applying safe fixes and queueing risky ones for author review). Roadmap: vision-based layout verification, automatic venue detection from the class file, and reviewer personas tuned to each venue community.
+Built: the review engine; the submission-readiness checker (deterministic desk-reject screening plus a real LaTeX compile, degrading to a structural lint when no toolchain is present); auto mode (the review-revise loop toward a goal under a drift-bounded policy, applying safe fixes and queueing risky ones for author review); and the significance floor (`ledger.js floor` gates the drafter to valid-fixable majors; the collapsed ledger view folds minors into a digest so trivia never floods the author's attention -- render-only, full detail kept in `LEDGER.json`). Roadmap: vision-based layout verification, automatic venue detection from the class file, and reviewer personas tuned to each venue community.
 
 ## Related skills
 

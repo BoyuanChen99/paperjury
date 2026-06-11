@@ -2,6 +2,43 @@
 
 All notable changes to PaperJury are documented in this file.
 
+## [1.1.0] - 2026-06-12
+
+The trivia-flood fix (F3), from real user feedback: "阻断 AI 去关注非常细微没有价值的
+问题" (stop the AI from chasing tiny, worthless issues). Backward-compatible; no
+schema bump, existing ledgers render identically until a mode is set.
+
+### Added
+
+- **The significance floor, now in code.** `node scripts/ledger.js floor
+  <ledger.json>` returns `{fixable, excluded}`: the drafter's input is exactly the
+  valid-fixable MAJOR rows, and any valid-fixable non-major is excluded with its id
+  reported (read-only, never silent). This is the floor `references/auto-mode.md`
+  had promised; it is now the normative builder of the drafter's fixable set
+  (review-engine-v3.md step 13 / SEAM 4). A polish item escalated to trial is
+  promoted to `significance: major` as part of the escalation contract, so a
+  later valid-fixable verdict on it passes the floor.
+- **Collapsed ledger view.** `LEDGER.json` meta gains an optional `display_mode`
+  (`show`|`collapse`; absent = `show`, the previous behavior byte-for-byte). In
+  `collapse`, `LEDGER.md` keeps majors as itemized table rows and folds minors
+  into a "Minor digest": open/queued minors one compact line each (a pending
+  decision is never hidden), terminal minors as per-status count lines, plus a
+  never-drop footer. Render-only -- counts, the completion gate, statuses, and
+  routing are untouched, and full detail stays in `LEDGER.json`. New commands:
+  `node scripts/ledger.js mode <ledger.json> <show|collapse>` and
+  `node scripts/ledger.js init ... --display <show|collapse>`. Auto mode
+  initializes collapsed; review mode keeps the flat table by default.
+
+### Notes
+
+- The minor/mechanical fixes themselves still happen (the polish track is
+  unchanged); the flood is treated at the presentation layer, never by dropping
+  work. Issues are never silently dropped.
+- `reason_code: batched-nit` remains in the schema as RESERVED: the composite-
+  packing design it anticipated was evaluated against real run data and rejected
+  (see `docs/AUTO_MODE_DESIGN.md` changelog, 2026-06-12, which also records the
+  formal override of the 2026-06-10 design-debate archive's ship recommendation).
+
 ## [1.0.0] - 2026-06-10
 
 First stable release, aligned with the Codex port's v1.0.

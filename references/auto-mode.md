@@ -39,10 +39,19 @@ rounds-touched cap + the minimal-edit drafter so the core cannot drift. Always q
 anchor-touching, drift, compile-failed, needs-data (author-required), passages at their cap,
 and (review) the whole polish track as an author checklist.
 
-**Deterministic envelope checks (script, not model).** Before applying, the orchestrator
-runs `node journal.js within-cap <journal> <passage_id>` (rounds-touched cap) and keeps only
-major valid-fixable verdicts (the significance floor is a one-line filter). These make the
-safety envelope auditable without trusting the model's bookkeeping (the D5 mitigation).
+**Deterministic envelope checks (script, not model).** Before drafting, the orchestrator
+runs `node ledger.js floor <ledger.json>` and feeds ONLY `.fixable` (the valid-fixable
+MAJORS) to the drafter -- the significance floor, deterministic and auditable; `.excluded`
+ids are logged, never silently dropped. Before applying, it runs `node journal.js
+within-cap <journal> <passage_id>` (rounds-touched cap). These make the safety envelope
+auditable without trusting the model's bookkeeping (the D5 mitigation).
+
+**Presentation floor (the trivia-flood fix, F3).** Auto initializes the ledger with
+`--display collapse`: minors render as a single "Minor digest" section of `LEDGER.md`
+(open/queued items enumerated one line each, terminal items counted); the majors table
+stays itemized. Render-only -- counts, the gate, statuses, and routing are unaffected,
+and full detail remains in `LEDGER.json` (never-drop). Flip the view anytime:
+`node ledger.js mode <ledger.json> show`.
 
 ## The round loop (under /goal)
 Each round runs the v3 sequence (`review-engine-v3.md`) in the AUTO variant:
@@ -83,6 +92,8 @@ lets the gate read true AFTER a full round's ledger update, never mid-flight.
 ## What comes back (one human pass at 终审)
 - **Applied**: the meaning-preserved fixes that landed (each revertable via the journal).
 - **Queue (reconciled)**: live / dropped-with-reason / re-drafted, ready to approve/reject.
+  In the collapsed view, queued MAJORS stay itemized table rows; queued minors return as the
+  enumerated lines of the Minor digest (every pending decision visible, just compact).
 - **author-required (accumulated)**: the charges needing new data / author judgment.
 - **Drift report**: each anchor before vs after + the meaning/edit-audit verdicts, so the author
   confirms the core did not move.

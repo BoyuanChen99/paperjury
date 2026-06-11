@@ -25,12 +25,25 @@ orchestrator-side between workflow calls).
 {
   "schema": 1,
   "meta": { "manuscript": "<path>", "venue_family": "vision|nlp|ml",
-            "created_round": 1, "assignment_unverified": ["R2"] },
+            "created_round": 1, "assignment_unverified": ["R2"],
+            "display_mode": "show|collapse  (optional; absent = show)" },
   "issues": [ <row>, ... ]
 }
 ```
 `meta.assignment_unverified` lists reviewer_ids that assign-reviewers degraded to a
 generic gatekeeper for this run (review-engine-v3.md §3.1).
+
+`meta.display_mode` (optional, `show`|`collapse`; absent = `show`) is RENDER-ONLY: it
+never affects counts, the gate, statuses, or routing. In `collapse`, `LEDGER.md` keeps
+the majors table itemized and folds every minor (sigOf = minor, any kind) into a
+"Minor digest" section -- open/queued minors enumerated one compact line each (a pending
+decision is never hidden), terminal minors (closed/dropped/withdrawn/override) as
+per-status count lines with id lists, plus a never-drop footer. The `Active:`/gate
+header lines are computed from the JSON identically in both modes. Set at init
+(`node ledger.js init ... --display collapse`, auto's default) or anytime
+(`node ledger.js mode <ledger.json> <show|collapse>`). Old `ledger.js` versions reading
+a ledger that carries the key simply render the flat table (cosmetic-only downgrade);
+no schema bump.
 
 ## Row (one per issue = one charge in the courtroom)
 
@@ -51,7 +64,7 @@ is `null`/absent when its phase has not set it.
 | `close_criterion` | string\|null | judge (valid-fixable) / polish | null at intake; REQUIRED at `valid-fixable`; one sentence an edit must satisfy |
 | `status` | enum | orchestrator | lifecycle, see the state machine below |
 | `verdict` | enum\|null | trial | `invalid-drop` \| `valid-fixable` \| `author-required` \| `escalate` (escalate is transient) |
-| `reason_code` | enum\|null | auto queue / polish | `anchor-touching` \| `hit-passage-cap` \| `claim-meaning-change` \| `batched-nit` \| `compile-failed` \| `needs-human-input` \| `polish-review` |
+| `reason_code` | enum\|null | auto queue / polish | `anchor-touching` \| `hit-passage-cap` \| `claim-meaning-change` \| `batched-nit` (RESERVED: kept for compatibility; no code path sets it -- the composite-packing design it anticipated was rejected for F3, 2026-06-12) \| `compile-failed` \| `needs-human-input` \| `polish-review` |
 | `tally` | {valid,invalid,context_limited}\|null | trial | jury tally (recall Mode B consensus filter reads it) |
 | `escalated` | bool | trial | did this charge go to the 12-juror tier (recall Mode B filter: strong consensus = `!escalated`) |
 | `reviewer_confidence` | int\|null | merge | MAX `overall_confidence` of the reviewers who raised it (priority tie-break + recall Mode B) |
@@ -97,6 +110,11 @@ otherwise false-block the gate).
 - `unadjudicated(led)` = active majors with no verdict (`raised`/`in-trial`/`re-trial`,
   verdict null). Must be empty at completion: budget exhaustion / a stalled trial cannot
   fake the gate.
+- `floorFixable(led)` (`node ledger.js floor <ledger.json>`) = the significance floor:
+  `{ fixable: [valid-fixable rows with sigOf = major], excluded: [ids of valid-fixable
+  non-majors] }`. READ-ONLY (never mutates a status); the NORMATIVE builder of the
+  drafter's fixable set (review-engine-v3.md step 13 / SEAM 4); `excluded` is logged by
+  the orchestrator, never silently dropped.
 
 ### Mode -> which statuses appear
 - **review v3 / courtroom**: raised -> in-trial -> verdict {invalid-drop -> recall -> {dropped |

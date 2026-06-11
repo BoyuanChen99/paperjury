@@ -26,7 +26,18 @@
 //   node ledger.js docket <ledger.json> [--round N]      # carried open-questions for the clerk
 //   node ledger.js unadjudicated <ledger.json>           # active majors with no verdict yet
 //   node ledger.js render <ledger.json>                  # (re)write the .md view
+//   node ledger.js mode   <ledger.json> <show|collapse>  # set the .md view's display_mode
+//   node ledger.js floor  <ledger.json>                  # the significance floor: {fixable, excluded}
 // Every mutating command re-renders the .md view next to the .json.
+// `init` also takes --display show|collapse (auto initializes with collapse).
+//
+// F3 (2026-06-12, user-feedback trivia-flood fix): the flood is treated at the
+// PRESENTATION layer only. `meta.display_mode: 'collapse'` folds minor rows into a
+// "Minor digest" section of the .md view (open/queued minors enumerated one line
+// each, terminal minors counted) -- counts, gate, statuses, and routing are NEVER
+// affected, and full detail stays in the .json (never-drop). `floor` is the
+// deterministic significance floor auto-mode.md promises: the drafter's fixable
+// set = valid-fixable MAJORS only, excluded ids reported, read-only.
 
 'use strict'
 const fs = require('fs')
@@ -35,6 +46,7 @@ const path = require('path')
 const SEVERITIES = ['blocker', 'major', 'minor', 'nit']   // v2 legacy, retired in v3
 const SIGNIFICANCES = ['major', 'minor']                  // v3 intrinsic importance
 const KINDS = ['mechanical', 'substantive']               // v3 contestability routing
+const DISPLAY_MODES = ['show', 'collapse']                // .md view only; absent = show
 
 // Lifecycle-ACTIVE: the row still demands work (not terminal). Includes
 // author-required (a human will handle it) and the v2 review-mode discussion states.
@@ -96,6 +108,25 @@ function sigOf(row) {
   return null
 }
 
+// A row the collapse view folds into the Minor digest: v3 minor (ANY kind -- the
+// real flood is mostly minor-substantive) or a legacy v2 minor|nit via sigOf. A row
+// whose significance cannot be resolved is NOT trivia (conservative: main table).
+function isTriviaRow(row) { return sigOf(row) === 'minor' }
+
+// The significance floor (auto-mode.md): the drafter's fixable set is EXACTLY the
+// valid-fixable majors. A valid-fixable minor (mis-routed past polish) is excluded
+// -- never silently: its id is returned so the orchestrator logs it. Read-only.
+function floorFixable(led) {
+  const fixable = []
+  const excluded = []
+  for (const r of led.issues) {
+    if (r.status !== 'valid-fixable') continue
+    if (sigOf(r) === 'major') fixable.push(r)
+    else excluded.push(r.id)
+  }
+  return { fixable, excluded }
+}
+
 function nextId(led) {
   let max = 0
   for (const r of led.issues) {
@@ -121,6 +152,9 @@ function normalizeRow(row, led, round) {
     throw new Error('bad kind: ' + row.kind)
   }
   const status = row.status || 'raised'
+  if (!ALL_STATUS.has(status)) {
+    throw new Error('unknown status: ' + status)
+  }
   if (status === 'valid-fixable' && !(row.close_criterion && String(row.close_criterion).trim())) {
     throw new Error('valid-fixable row requires a close_criterion: ' + JSON.stringify(row.summary || row))
   }
@@ -249,6 +283,10 @@ function renderMarkdown(led) {
     (isActive(b) - isActive(a)) || ((rank[sigOf(a)] ?? 9) - (rank[sigOf(b)] ?? 9)) ||
     String(a.id).localeCompare(String(b.id)))
   const c = activeCounts(led)
+  // collapse is RENDER-ONLY: the header lines below are computed from the json the
+  // same way in both modes, so counts/gate stay byte-identical across a mode flip.
+  const collapse = led.meta.display_mode === 'collapse'
+  const tableRows = collapse ? rows.filter((r) => !isTriviaRow(r)) : rows
   const out = []
   out.push('# Ledger (rendered view -- do not edit; source of truth is the .json)')
   out.push('')
@@ -263,12 +301,36 @@ function renderMarkdown(led) {
   out.push('')
   out.push('| id | sig | kind | status | section | summary | close_criterion | by | rounds |')
   out.push('|----|-----|------|--------|---------|---------|-----------------|----|--------|')
-  for (const r of rows) {
+  for (const r of tableRows) {
     out.push('| ' + [
       cell(r.id), cell(sigOf(r)), cell(r.kind), statusCell(r), cell(r.section),
       cell(r.summary), cell(r.close_criterion), cell((r.raised_by || []).join(',')),
       cell([r.round_raised, r.round_closed].filter((x) => x != null).join('->')),
     ].join(' | ') + ' |')
+  }
+  const minors = collapse ? rows.filter(isTriviaRow) : []
+  if (minors.length) {
+    // Exhaustive by construction: anything NOT in the counted terminal buckets is
+    // enumerated, so enumerated + counted always sums to minors.length. Open/queued
+    // minors stay individually visible (the queue is the human gate; collapse
+    // compresses attention, it never hides a pending decision), and an unknown /
+    // legacy status degrades to a visible line, never to silence.
+    const COUNTED = ['closed', 'dropped', 'withdrawn', 'override']
+    const open = minors.filter((r) => !COUNTED.includes(r.status))
+      .slice().sort((a, b) => String(a.id).localeCompare(String(b.id)))
+    out.push('')
+    out.push('## Minor digest')
+    out.push('')
+    for (const r of open) {
+      out.push(`- ${cell(r.id)} [${statusCell(r)}] ${cell(r.section)}: ${cell(r.summary)}`)
+    }
+    for (const status of COUNTED) {
+      const grp = minors.filter((r) => r.status === status)
+      if (grp.length) out.push(`- ${status}: ${grp.length} (${grp.map((r) => r.id).join(', ')})`)
+    }
+    out.push('')
+    out.push(`_${minors.length} minor row(s) collapsed into this digest -- never-drop: ` +
+      'full detail in LEDGER.json. Switch view: node ledger.js mode <ledger.json> show_')
   }
   out.push('')
   return out.join('\n')
@@ -296,7 +358,7 @@ function readStdin() {
 function main() {
   const [cmd, file, ...rest] = process.argv.slice(2)
   if (!cmd || !file) {
-    console.error('usage: node ledger.js <init|add|set|count|gate|get|docket|unadjudicated|render> <ledger.json> [...]')
+    console.error('usage: node ledger.js <init|add|set|count|gate|get|docket|unadjudicated|render|mode|floor> <ledger.json> [...]')
     process.exit(2)
   }
   const { flags, pos } = parseFlags(rest)
@@ -307,6 +369,10 @@ function main() {
       venue_family: flags.venue || null,
       created_round: flags.round ? parseInt(flags.round, 10) : 1,
     })
+    if (flags.display != null) {
+      if (!DISPLAY_MODES.includes(flags.display)) throw new Error('bad display_mode: ' + flags.display + ' (use show|collapse)')
+      led.meta.display_mode = flags.display
+    }
     const md = save(file, led)
     console.log(JSON.stringify({ ok: true, ledger: file, view: md }))
     return
@@ -352,6 +418,14 @@ function main() {
   } else if (cmd === 'render') {
     const md = save(file, led)
     console.log(JSON.stringify({ ok: true, view: md }))
+  } else if (cmd === 'mode') {
+    const m = pos[0]
+    if (!DISPLAY_MODES.includes(m)) throw new Error('bad display_mode: ' + m + ' (use show|collapse)')
+    led.meta.display_mode = m
+    const md = save(file, led)
+    console.log(JSON.stringify({ ok: true, display_mode: m, view: md }))
+  } else if (cmd === 'floor') {
+    console.log(JSON.stringify(floorFixable(led), null, 2))
   } else {
     console.error('unknown command: ' + cmd)
     process.exit(2)
@@ -363,5 +437,6 @@ if (require.main === module) main()
 module.exports = {
   emptyLedger, load, save, renderMarkdown, addIssues, setStatus, normalizeRow,
   activeCounts, gatePass, query, docket, unadjudicated, isActive, sigOf, nextId,
-  SEVERITIES, SIGNIFICANCES, KINDS, ACTIVE, GATE_BLOCKING, TERMINAL, VERDICTS, REASON_CODES,
+  isTriviaRow, floorFixable,
+  SEVERITIES, SIGNIFICANCES, KINDS, DISPLAY_MODES, ACTIVE, GATE_BLOCKING, TERMINAL, VERDICTS, REASON_CODES,
 }

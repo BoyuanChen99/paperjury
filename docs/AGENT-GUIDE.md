@@ -199,7 +199,9 @@ polish               [WF]   off-gate track for mechanical + minor-substantive; a
                             PARALLEL tracks — polish vs trial — not a single linear sequence)
 recall-audit         [WF]   Mode A revives wrongly-dropped charges; Mode B spot-checks
                             strong-consensus majors BEFORE the edit. Runs BEFORE the drafter.
-drafter              [WF]   minimal-edit patch per surviving valid-fixable
+drafter              [WF]   minimal-edit patch per `ledger.js floor` .fixable (the
+                            significance floor: valid-fixable MAJORS only, run AFTER the
+                            recall transitions land; log .excluded ids if non-empty)
 edit-safety          [det+WF] anchor-diff + cross-ref pre-filter: LOW → apply under compile-
                             guard; RISKY anchor → meaning-audit (four-state); RISKY non-anchor
                             → edit-audit; drift → revert + queue
@@ -213,7 +215,9 @@ clerk                [WF]   round boundary: reconcile carried open-questions vs 
   where gate-blocking = {raised, in-trial, re-trial, valid-fixable}; author-required / queued
   / dropped / closed are gate-OK and author-required ACCUMULATES to the human queue.
 - `review` stops at the human gates and does not auto-advance. `auto` runs the outer loop
-  under `/goal` until clerk convergence / applied-quiescence / a hard limit.
+  under `/goal` until clerk convergence / applied-quiescence / a hard limit, and initializes
+  the ledger with `--display collapse` (the rendered `LEDGER.md` obeys `meta.display_mode`:
+  minors fold into a Minor digest; render-only, full detail stays in `LEDGER.json`).
 
 DELETED vs the older v2 engine: a `grand-jury` screen (its "addressed elsewhere" catch moved
 into the trial's whole-paper defense). If you find v2-era wording elsewhere (e.g. a
@@ -229,7 +233,7 @@ Run these between fan-out steps; never inside a workflow. CLI + module API each.
 | script | role |
 |---|---|
 | `scripts/decompose.js` | manuscript → reading units + stable `passage_id`s + canonical section list |
-| `scripts/ledger.js` | JSON ledger + MD view; `gate` = the completion fact; `docket`/`unadjudicated` queries |
+| `scripts/ledger.js` | JSON ledger + MD view (`mode` sets the view's `display_mode`); `gate` = the completion fact; `floor` = the significance floor (the drafter's fixable set); `docket`/`unadjudicated` queries |
 | `scripts/journal.js` | append-only per-edit revert log |
 | `scripts/apply-patch.js` | atomic apply + journal of a drafted patch; exact-once guard on `before` text |
 | `scripts/anchor-diff.js` | locate frozen spine anchors; flag which need a meaning audit |

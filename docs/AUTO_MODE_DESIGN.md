@@ -58,6 +58,15 @@ them onto our loop. The literature supplies the rest.
 | **E** | **convergence guard**: per-passage edit-count limit + oscillation detection (same issue re-surfacing) + hard max-rounds | non-monotonic convergence | our churn note + /goal evaluator |
 | **F** | **minimal-edit, intent-preserving author policy**: smallest edit that meets the close_criterion AND preserves the surrounding claim; if it can't be fixed without changing a registered claim's meaning, do NOT auto-fix, queue it; reviewer over-reach -> refine the criterion, not full-accept | binary author | PaperSpine rationale-matrix + our toolkit guards |
 
+**[Guardrail C re-derived for v3, 2026-06-12 (F3).]** C predates v3: the severity enum
+is retired, and the BUILT v3 polish track DOES fix minors in-round (LOW applies under
+edit-safety; users praise exactly that), so "never auto-edited" no longer describes the
+shipped behavior. C's intent survives as two BUILT artifacts: the drafting floor
+(`node ledger.js floor` -- the drafter's fixable set = valid-fixable MAJORS only,
+excluded ids logged) and the presentation floor (`meta.display_mode: collapse`, auto's
+default -- minors render as the Minor digest; render-only, never-drop). v3 behavior is
+normative.
+
 ### The spine, concretely (A+B unified)
 
 The "spine" IS the 7 anchor sentences from PaperSpine's logic-transfer audit:
@@ -324,6 +333,12 @@ because the text changes each round, so neither exact text nor a bare ordinal
 survives an edit. The deterministic counter / oscillation guard keys on this ID.
 
 **Nits: Option B (terminal batched pass), not pure-queue.**
+**[Superseded by v3, 2026-06-12 (F3) -- kept as the v2-era rationale.]** The BUILT v3
+polish track fixes minors IN-ROUND (LOW applies under edit-safety, RISKY queues); there
+is no terminal batch, and the nit spiral is broken instead by the off-gate routing
+(minors never block the gate or extend the loop) + the presentation floor
+(`display_mode: collapse` folds them out of the human's view). v3 behavior is normative.
+Original Option B text:
 Nits accumulate but are NOT applied during rounds (so they never enter the loop).
 After the substantive loop terminates, one one-shot batch applies them, runs the
 meaning audit once, and freezes WITHOUT re-review (the no-re-review timing is what
@@ -439,6 +454,23 @@ recall dials above. A wall-clock figure may be surfaced as a soft estimate only,
 never as a hard control.
 
 ## Changelog
+- 2026-06-12 (F3, the trivia-flood user-feedback fix): the significance floor is BUILT
+  as `node ledger.js floor` (drafter input = valid-fixable majors only; excluded ids
+  logged, never silent) + the presentation floor (`meta.display_mode: collapse`, auto's
+  init default: minors render as LEDGER.md's Minor digest; render-only, counts/gate
+  untouched, full detail in LEDGER.json -- never-drop). Guardrail C (§2) and Nits
+  Option B (§8) re-derived for v3: polish fixes minors in-round; no terminal batch.
+  FORMAL OVERRIDE of the 2026-06-10 design-debate archive's release_suggestion /
+  top_decision_for_owner blocks (Mechanism B: a journal.js `filter-significance`
+  routing gate dropping minor-OR-mechanical rows): rejected because the archive's own
+  F3 item contradicts it, it is unimplementable against the code as built (ledger.js
+  has no route(); journal.js has no ledger access), its OR-predicate would pull
+  major-mechanical rows out of GATE_BLOCKING and fake the completion gate, and it
+  violates never-drop + polish-keeps-fixing. The composite-packing variant
+  (batched-nit composite rows with withdrawn members) was also rejected: verified
+  no-op on the real flood dataset and breaks the clerk's passage_id dedup
+  (see review-engine-v3.md SEAM 11 precondition). `reason_code: batched-nit` stays
+  in the enum as RESERVED.
 - 2026-06-01 v0.7 (BUILD): §9 intensity dials RE-DERIVED for v2 (D-04 resolved):
   panel-era dials (reviewer-N / inner dryStop+maxRounds / verify-angles) replaced by
   v2 knobs (reading loop-until-dry + lenses, grand-jury screen agents, trial-jury

@@ -21,7 +21,7 @@ Deterministic, orchestrator-side (Node):
 | script | role |
 |---|---|
 | `scripts/decompose.js` | split the manuscript into reading units + paragraph passages with stable `passage_id`s (anti-drift substrate + the canonical section list + juror/local-context source) |
-| `scripts/ledger.js` | JSON ledger + MD view; `gate` = the /goal completion fact; `docket`/`unadjudicated` queries |
+| `scripts/ledger.js` | JSON ledger + MD view (`mode` sets the view's display_mode); `gate` = the /goal completion fact; `floor` = the significance floor (drafter input); `docket`/`unadjudicated` queries |
 | `scripts/journal.js` | append-only per-edit revert log |
 | `scripts/apply-patch.js` | atomic apply + journal of a drafted patch, and revert (exact-once guard) |
 | `scripts/anchor-diff.js` | locate frozen anchors, flag which need a meaning audit (edit-safety, anchors) |
@@ -97,8 +97,11 @@ polish(items=polish-routed rows, paper, venueProfile)
         dropped:[{issue_id, reason}], escalate_to_trial:[{issue_id, reason}],
         flagged:[{issue_id, reason}] }
    [SEAM 6] flagged -> ledger.js set status `queued`, reason_code `polish-review` (NEVER dropped).
-   [orchestrator] escalate_to_trial -> ledger status `re-trial` -> ONE bounded in-round re-trial pass
-        (trial @ jurySize 5). dropped -> the DROPS pool (source 'polish').
+   [orchestrator] escalate_to_trial -> ledger status `re-trial` AND `--significance major`
+        (promotion is part of the escalation contract -- light-check's escalate asserts the item
+        is substantive-major, and an escalated charge that later wins valid-fixable must pass the
+        significance floor) -> ONE bounded in-round re-trial pass (trial @ jurySize 5).
+        dropped -> the DROPS pool (source 'polish').
 
 [SEAM 3] orchestrator CONSENSUS FILTER for recall Mode B: from the valid-fixable MAJORS, select
    those with tally.valid >= 0.8*jury_size AND escalated==false; enrich each with
@@ -113,12 +116,16 @@ recall-audit(drops=[{charge_id, significance, section, summary, close_criterion,
         (escalated:true). spotcheck 'to-author-required' -> setStatus(author-required,
         reason_code 'claim-meaning-change') AND remove from the drafter `fixable` input.
 
-drafter(fixable = surviving valid-fixable rows {charge_id, section, close_criterion, evidence_anchor},
+drafter(fixable = `ledger.js floor` .fixable rows {charge_id, section, close_criterion, evidence_anchor},
         units, spine, venueProfile)
    -> [ {charge_id, issue_id, before, after, rationale, touches_anchor, before_in_text, no_op} ]
-   [SEAM 4] orchestrator builds the apply-patch stdin = {issue_id, passage_id (from the ledger row),
-        before, after, close_criterion (from the ledger row), round (loop)} -- drafter emits none of
-        those three; the LEDGER ROW is the single source.
+   [SEAM 4] the fixable set MUST come from `node ledger.js floor <ledger.json>` -> .fixable
+        (the significance floor: valid-fixable MAJORS only, deterministic). Run it AFTER the
+        recall transitions land (step 12), so spotcheck removals are already reflected; log
+        .excluded ids if non-empty. The orchestrator then builds the apply-patch stdin =
+        {issue_id, passage_id (from the ledger row), before, after, close_criterion (from the
+        ledger row), round (loop)} -- drafter emits none of those three; the LEDGER ROW is the
+        single source.
 
 EDIT-SAFETY (per patch, BEFORE apply):
    [det] anchor-diff(spine, current, baseline) -> need_audit anchors.
@@ -134,7 +141,11 @@ EDIT-SAFETY (per patch, BEFORE apply):
 
 [round end] clerk:
    [SEAM 11] thisRound = ledger rows with round_raised == current_round (post-inner-loop, with
-        passage_id + status). carried = ledger.js docket(current_round). appliedEdits = this round's
+        passage_id + status; NO status filter). PRECONDITION for any future ledger-row
+        packing/withdrawal of same-round rows: add a non-terminal status filter here FIRST, or
+        the withdrawn members inflate genuinely_new_count and block convergence (recorded when
+        the F3 composite-packing variant was rejected, 2026-06-12).
+        carried = ledger.js docket(current_round). appliedEdits = this round's
         journal entries. [SEAM 14] every row (carried + this-round) must carry a passage_id (the
         clerk merge key is passage_id AND similarity).
 clerk(carried, thisRound, appliedEdits, paper, simThreshold=0.8)
@@ -175,17 +186,20 @@ dependency; never splice a phase-N tail with a phase-(N+1) head when batching.
     store tally + escalated. Collect `escalate` -> `[WF]` re-invoke trial(jurySize=12, escalated:true);
     deadlock @12 -> author-required.
 11. `[WF]` **polish**(polish set, paper, venueProfile). `[ledger]` flagged -> queued(polish-review);
-    escalate_to_trial -> re-trial; dropped -> DROPS(source polish). `[WF]` (if any re-trial) the
-    bounded re-trial pass.
+    escalate_to_trial -> re-trial + significance=major (the promotion contract; see SEAM 6 block);
+    dropped -> DROPS(source polish). `[WF]` (if any re-trial) the bounded re-trial pass.
 12. `[det]` **consensus filter** (SEAM 3) -> consensus_majors. `[WF]` **recall-audit**(drops,
     consensus_majors, paper, skeptics). `[ledger]` apply revived / confirmed_drops / spotcheck
     transitions (SEAM 7/8); drop the spotcheck->author-required rows from the fixable set.
-13. `[WF]` **drafter**(surviving valid-fixables, units, spine, venueProfile). Per patch, the
+13. `[WF]` **drafter**(fixable = `node ledger.js floor` -> .fixable, units, spine, venueProfile);
+    log .excluded ids if non-empty (the significance floor, SEAM 4). Per patch, the
     EDIT-SAFETY chain (SEAM 4 + 9 + 10): build apply-patch stdin from the ledger row; anchor-diff +
     cross-ref classify; LOW -> apply-patch + compile-guard; RISKY -> meaning-audit (anchor) /
     edit-audit (non-anchor); holds -> `[ledger]` closed; else revert + queue.
-14. `[det]` **report**: `node ledger.js render` + `count`. Review: stop, do not auto-advance.
-    Auto: proceed to the clerk + the outer loop.
+14. `[det]` **report**: `node ledger.js render` + `count` (`render` obeys `meta.display_mode`:
+    in `collapse` the minors fold into the Minor digest section). The round report's minor/polish
+    section is a one-line digest (counts + journal refs), never per-item paragraphs.
+    Review: stop, do not auto-advance. Auto: proceed to the clerk + the outer loop.
 15. `[WF]` **clerk** (round boundary; SEAM 11/12/14) -> reconciliation + convergence counts.
     `[ledger]` apply reconciled outcomes + merges. `[det]` compute the convergence + termination.
 
@@ -254,8 +268,11 @@ always runs; never-drop; deterministic gate + clerk convergence.
 
 ## Review v3 vs auto
 Same engine. REVIEW: step 13 needs per-edit sign-off; the polish track becomes an author
-CHECKLIST (queued, polish-review); meaning/edit-audit advisory; step 14 stops (no auto-advance).
-AUTO: edits apply under the bounded-aggressive + edit-safety rule (LOW applies, RISKY/anchor/
+CHECKLIST (queued, polish-review); meaning/edit-audit advisory; step 14 stops (no auto-advance);
+the ledger keeps the default flat `.md` view (flip anytime: `node ledger.js mode <ledger.json>
+collapse`). AUTO: the ledger is initialized with `--display collapse` (minors render as the
+Minor digest; full detail stays in the .json -- never-drop); edits apply under the
+bounded-aggressive + edit-safety rule (LOW applies, RISKY/anchor/
 drift queues); the polish track applies LOW non-anchor + queues RISKY; every human gate becomes
 a `queued` row; the outer loop runs under `/goal` until clerk convergence / applied-quiescence /
 a hard limit, then the gate flips PASS. See `auto-mode.md`.
