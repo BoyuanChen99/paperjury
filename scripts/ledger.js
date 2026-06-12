@@ -397,6 +397,15 @@ function main() {
         fields[k] = parseInt(v, 10)
       } else if (k === 'escalated') {
         fields[k] = v === 'true'
+      } else if (k === 'tally') {
+        // the trial tally {valid,invalid,context_limited}; SEAM 3's recall Mode B
+        // consensus filter reads tally.valid, so a malformed shape here would
+        // recreate the exact silent-zero-consensus failure this flag fix closed
+        const parsed = v === 'null' ? null : JSON.parse(v)
+        if (parsed !== null && (typeof parsed !== 'object' || Array.isArray(parsed) || typeof parsed.valid !== 'number')) {
+          throw new Error('bad tally: expected {valid, invalid, context_limited} with numeric valid')
+        }
+        fields[k] = parsed
       }
     }
     setStatus(led, id, status, fields)

@@ -81,8 +81,8 @@ is `null`/absent when its phase has not set it.
 | `raised_by_count` | int | merge / clerk | corroboration count (priority order + clarity-via-conflict only; NEVER feeds significance) |
 | `round_raised` | int | merge | round first raised (the clerk reads `round_raised == current_round` to build thisRound) |
 | `round_closed` | int\|null | close | round closed |
-| `rounds_touched` | int[] | drafter | distinct rounds an edit touched this passage (auto cap) |
-| `drafted_patch` | {before,after}\|null | drafter | a drafted-but-not-applied patch (queue entries carry this) |
+| `rounds_touched` | int[] | RESERVED (no code writes it) | the auto cap is computed on demand from `journal.jsonl` via `node journal.js passage-rounds` / `within-cap`; this row field stays its intake default |
+| `drafted_patch` | {before,after}\|null | orchestrator (optional, module API) | a drafted-but-not-applied patch the orchestrator MAY persist on a queued row; not written by any deterministic code path |
 | `journal_ref` | string\|null | apply | the `journal.jsonl` entry id when an edit landed (per-edit revert) |
 | `notes` | string | any | free text (override rationale, drop reason, "merged into I-xx") |
 

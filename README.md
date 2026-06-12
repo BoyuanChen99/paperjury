@@ -81,7 +81,7 @@ git clone https://github.com/u7079256/paperjury ~/.claude/skills/paperjury
 git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills\paperjury"
 ```
 
-(or under `<project>/.claude/skills/` to scope it to one project). Claude Code auto-discovers it through `SKILL.md` and it shows up as the `paperjury` skill. `node` is required (the deterministic checks run on it); a LaTeX toolchain is optional (the real-compile and layout checks use it, and degrade honestly when it is absent).
+(or under `<project>/.claude/skills/` to scope it to one project). Claude Code auto-discovers it through `SKILL.md` and it shows up as the `paperjury` skill. `node` is required (the deterministic checks run on it); a LaTeX toolchain is optional (the real-compile and layout checks use it, and degrade honestly when it is absent). To verify an install, run `npm run doctor` from the skill folder: it checks repo integrity, required tools, and that your manuscript can be detected.
 
 At the start of a PaperJury run, the skill performs a soft update check against stable GitHub release tags. If a newer tag exists, it prints how to update (re-run the plugin install, or `git pull` for clone installs); if GitHub is unreachable, it stays silent and continues. Set `PAPERJURY_DISABLE_UPDATE_CHECK=1` to disable this reminder. After updating, start a new session so the updated skill content is loaded.
 
@@ -161,15 +161,18 @@ The courtroom engine is `assign-reviewers → reading-check → coverage-auditor
 
 ### Deterministic stages (orchestrator-side, Node via Bash)
 
-1. `decompose`: split manuscript into reading units, the canonical section list, and stable `passage-id`s (which prevent text drift and give jurors local context).
-2. `spine` (auto only): extract anchors, author confirm, freeze → `spine.json`.
-3. `ledger.js`: JSON ledger plus MD view; **gate = `/goal` completion fact** (0 gate-blocking active major; author-required is gate-OK and accumulates to the human queue). CLI: init/add/set/count/gate/get/docket/unadjudicated/render.
-4. `journal.js`: append-only per-edit revert log (JSONL).
-5. `apply-patch.js`: atomic apply plus journal of a drafted patch, and revert (exact-once guard on `before` text).
-6. `anchor-diff.js`: locate frozen anchors; flag which `need_audit` when the support region changed.
-7. `cross-ref.js`: edit-safety risk pre-filter: does a changed salient token in a patch appear in other passages?
-8. `compile-guard.js`: real LaTeX compile (latexmk/pdflatex) or a degraded structural-lint path with `compiled:null` (it reports when it cannot verify).
-9. `compliance-check.js`: submission-readiness A: deterministic desk-reject screening.
+1. `decompose`: split manuscript (LaTeX or Markdown) into reading units, the canonical section list, and stable `passage-id`s (which prevent text drift and give jurors local context).
+2. `extract-docx.js`: one-time Word (.docx) → Markdown extraction with an honesty report of everything kept or dropped; the original Word file is never modified.
+3. `spine` (auto only): extract anchors, author confirm, freeze → `spine.json`.
+4. `ledger.js`: JSON ledger plus MD view; **gate = `/goal` completion fact** (0 gate-blocking active major; author-required is gate-OK and accumulates to the human queue). CLI: init/add/set/count/gate/get/docket/unadjudicated/render/mode/floor. `floor` is the significance floor (only major, fix-worthy findings reach the auto editor); `mode <ledger> collapse` folds minor findings into a digest so the report stays focused (full detail always kept in the JSON).
+5. `journal.js`: append-only per-edit revert log (JSONL).
+6. `apply-patch.js`: atomic apply plus journal of a drafted patch, and revert (exact-once guard on `before` text).
+7. `anchor-diff.js`: locate frozen anchors; flag which `need_audit` when the support region changed.
+8. `cross-ref.js`: edit-safety risk pre-filter: does a changed salient token in a patch appear in other passages?
+9. `rekey.js`: round-end re-link of open findings whose passage moved after edits.
+10. `compile-guard.js`: real LaTeX compile (latexmk/pdflatex) or a degraded structural-lint path with `compiled:null` (it reports when it cannot verify).
+11. `compliance-check.js`: submission-readiness A: deterministic desk-reject screening.
+12. `doctor.js`: install/repo health check (`npm run doctor`).
 
 ### Semantic stages (workflow fan-out)
 
@@ -252,7 +255,7 @@ Where this is going (planned, not yet shipped):
 - Ledger schema + status machine: `references/ledger-schema.md`
 - Submission compliance: `references/submission-compliance.md`
 - Design rationale: `docs/REVIEW_ENGINE_V3_DESIGN.md`
-- Scripts dir: `scripts/` (decompose, ledger, journal, apply-patch, anchor-diff, cross-ref, spine, compile-guard, compliance-check)
+- Scripts dir: `scripts/` (decompose, extract-docx, ledger, journal, apply-patch, anchor-diff, cross-ref, spine, rekey, compile-guard, compliance-check, doctor)
 - Workflows dir: `workflows/` (assign-reviewers, reading-check, coverage-auditor, merge, trial, polish, recall-audit, drafter, edit-audit, meaning-audit, clerk, review-panel)
 
 ---

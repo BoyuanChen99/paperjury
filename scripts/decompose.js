@@ -2,8 +2,9 @@
 // decompose.js -- a pragmatic, format-aware sectioner for the paperjury (LaTeX +
 // Markdown). Produces (a) section-level UNITS for the reading-check fan-out (one
 // agent reads one coherent unit) and (b) paragraph-level PASSAGES each with a
-// cross-round passage_id, which the auto per-passage rounds-touched counter and
-// the oscillation guard key on (AUTO_MODE_DESIGN §8). Dependency-free Node.
+// cross-round passage_id, which the auto per-passage rounds-touched counter
+// (AUTO_MODE_DESIGN §8) and the clerk's re-raise merge (review-engine-v3.md
+// SEAM 14) key on. Dependency-free Node.
 //
 // passage_id = `<section-path>#p<ordinal>#<anchor-hash>` where anchor-hash is a
 // sha1/8 of the nearest \label{...} in the paragraph (LaTeX only; Markdown has no

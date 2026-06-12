@@ -3,9 +3,21 @@
 Status: design v0.7 (2026-06-01). This doc is the RATIONALE; the operational protocol
 is `references/auto-mode.md`. BUILT: the v3 engine auto runs on, the spine + four-state
 meaning audit, and the deterministic safety-envelope helpers (`journal.js`
-passage-rounds / within-cap / applied-in-round; `ledger.js gate`). NOT yet run
-end-to-end on a real paper (a `/goal` dry-run is the remaining step). A third mode for
+passage-rounds / within-cap / applied-in-round; `ledger.js gate` / `floor`). Run
+end-to-end on a real manuscript 2026-06-05 (the dogfood AUTO run,
+`samples/dogfood/RUN_REPORT.md`); remaining open items are tracked engine TODOs
+(consistency sweep; plan-aware trial batching). A third mode for
 unattended / AFK runs, driven by Claude Code's `/goal`.
+
+**[Oscillation detection: superseded for v3, 2026-06-12.]** This doc describes an
+oscillation guard (§2 E, §3, §6, §8) as a deterministic mechanism; it was never
+built as a script. In the BUILT v3 engine its goal is covered by three mechanisms
+that do exist: the clerk's re-raise merge (a re-surfacing issue dedups into its
+carried row instead of churning), the per-passage rounds-touched cap
+(`journal.js within-cap`, default 2 -- an oscillating passage hits the cap and
+further edits queue), and the applied-quiescence backstop + `max_rounds`. The
+oscillation passages below are kept as v2-era rationale; no separate oscillation
+script exists or is planned.
 
 ## 0. What auto mode is
 
@@ -175,6 +187,13 @@ guardrails make a single rule both aggressive-where-safe and hard-bounded:
 > rounds-touched / convergence limit, and (e) it does NOT edit a spine anchor
 > sentence. Otherwise, QUEUE it.**
 
+**[Re-derived for v3, 2026-06-12.]** The v2-era rule above predates the v3 signal
+(`severity` is retired). The NORMATIVE apply rule lives in
+`references/auto-mode.md` ("bounded-aggressive"): a fix addresses a MAJOR (or a
+polish item), satisfies close_criterion, passes the risk-proportional edit-safety
+chain (not the always-on meaning audit), within the rounds-touched cap, never an
+anchor sentence.
+
 Aggressive on safe fixes (wording, polish, de-AI, captions, surfacing implicit
 logic, contained major fixes) so auto does real work; hard-bounded by A+B+C+E+F
 so core claims cannot drift, nits do not churn, and nothing runs away.
@@ -205,7 +224,10 @@ rounds-touched limit.
   `0 blocker and 0 major in ACTIVE ledger status`, ledger written this turn. By
   construction, after K dry applied-rounds the active blocker/major count is 0
   (every blocker is either applied-closed or queued-not-active), so this flips
-  true. The SEMANTIC guards (meaning audit, rounds-touched cap, oscillation) are
+  true. **[Re-derived for v3, 2026-06-12: the BUILT gate is `node ledger.js gate`
+  = 0 GATE-BLOCKING active major, where author-required is active but gate-OK;
+  see references/auto-mode.md, which is normative.]** The SEMANTIC guards
+  (meaning audit, rounds-touched cap, oscillation) are
   enforced by OUR loop and reflected INTO the ledger/queue (an unresolved drift
   becomes a queued issue, keeping the ledger non-clean until handled). This keeps
   the independent Haiku evaluator lightweight and trustworthy: it verifies a
@@ -384,13 +406,13 @@ completion condition flips true and the run winds down cleanly, with the unfixed
 issues sitting in the return queue (each noted, e.g. "needs new experiment").
 
 **Remaining build tasks (not decisions):**
-- Adapt PaperSpine's `logic-transfer-audit` 7-anchor mechanism into the per-round
-  meaning-audit agent (mechanism already fetched and read this design session).
-- When wiring auto into `SKILL.md`, add an explicit carve-out to hard rule 1: the
-  rule HOLDS; auto satisfies it via up-front policy sign-off (§4 spine confirm +
-  §5 policy) plus the queue, not per-edit sign-off. (The mechanism is already
-  designed across §4/§5/§6/§7; this is only the documentation carve-out so a reader
-  does not think rule 1 is silently broken.)
+- ~~Adapt PaperSpine's `logic-transfer-audit` 7-anchor mechanism into the per-round
+  meaning-audit agent~~ **DONE 2026-06-01**: shipped as
+  `workflows/meaning-audit.workflow.js` (four-state verdicts + arc check).
+- ~~When wiring auto into `SKILL.md`, add an explicit carve-out to hard rule 1~~
+  **DONE**: SKILL.md hard rule 1 carries the carve-out (up-front sign-off via the
+  spine confirmation + the pre-authorized bounded-aggressive policy plus the
+  return queue, not per-edit sign-off).
 - ~~RE-DERIVE §9's intensity dials for v2's architecture~~ **DONE 2026-06-01
   (D-04 resolved)**: §9 now carries the v2 knob set (reading loop-until-dry +
   lenses, grand-jury screen agents, trial-jury size/diversity, recall-auditor

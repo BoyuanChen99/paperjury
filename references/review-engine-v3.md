@@ -139,7 +139,12 @@ EDIT-SAFETY (per patch, BEFORE apply):
    [det] anchor-diff(spine, current, baseline) -> need_audit anchors.
    [det] cross-ref(patch) on current -> {risky, hits:[{token, passage_id}]}.
    LOW (no anchor flagged, not risky, compiles) -> apply-patch.js apply -> compile-guard -> close.
-   RISKY anchor   -> meaning-audit(anchors=need_audit, spine) -> {anchor_verdicts, arc};
+   RISKY anchor   -> [SEAM 13] the orchestrator ENRICHES each need_audit id into the full
+                     anchor object the workflow consumes: {anchor_id, type, frozen_text
+                     (= spine.anchors[].text), baseline_support (= anchor-diff
+                     baseline_support_text), current_support (= anchor-diff
+                     current_support_text), present_verbatim} ->
+                     meaning-audit(anchors=enriched, spine) -> {verdicts, arc};
                      any verdict != holds (auto) -> revert + queue (claim-meaning-change).
    RISKY non-anchor -> [SEAM 9] edit-audit(edits=[{issue_id, before, after,
                      cross_ref_hits = cross-ref hits}], passages = decompose(current))
@@ -151,6 +156,15 @@ EDIT-SAFETY (per patch, BEFORE apply):
    (same as no-toolchain machines today). md patches are applied with
    `apply-patch.js apply --guard-paragraphs` (a patch that splits/merges paragraphs is
    rejected and queued for the author); the flag is default OFF on .tex.
+   COMPLIANCE GUARD (auto, when the project has a template-constraints file): at round
+   start run `node scripts/compliance-check.js <working> <constraints.json>` once and
+   record its blockers (the BASELINE). After each applied edit, re-run it (add
+   `--pages <page_count>` ONLY when compile-guard returned a real page_count; on a
+   degraded compile omit the flag and the page check honestly skips); a blocker NOT in
+   the baseline -> revert + queue, exactly like a failed compile. Pre-existing blockers
+   are the author's to fix, never a reason to block an unrelated edit.
+   Anonymization and page limit are HARD: auto never trades them for a content fix
+   (submission-compliance.md). No constraints file -> the guard is skipped.
 
 [round end] clerk:
    [SEAM 11] thisRound = ledger rows with round_raised == current_round (post-inner-loop, with
@@ -219,7 +233,8 @@ dependency; never splice a phase-N tail with a phase-(N+1) head when batching.
     transitions (SEAM 7/8); drop the spotcheck->author-required rows from the fixable set.
 13. `[WF]` **drafter**(fixable = `node ledger.js floor` -> .fixable, units, spine, venueProfile);
     log .excluded ids if non-empty (the significance floor, SEAM 4). Per patch, the
-    EDIT-SAFETY chain (SEAM 4 + 9 + 10): build apply-patch stdin from the ledger row; anchor-diff +
+    EDIT-SAFETY chain (SEAM 4 + 9 + 10 + 13, plus the auto COMPLIANCE GUARD when a
+    constraints file exists): build apply-patch stdin from the ledger row; anchor-diff +
     cross-ref classify; LOW -> apply-patch + compile-guard; RISKY -> meaning-audit (anchor) /
     edit-audit (non-anchor); holds -> `[ledger]` closed; else revert + queue.
 14. `[det]` **report**: `node ledger.js render` + `count` (`render` obeys `meta.display_mode`:

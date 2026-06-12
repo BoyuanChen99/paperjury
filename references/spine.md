@@ -84,8 +84,9 @@ queue a `needs-human-input` note, never a fabricated figure.
 > (inventing a results headline before the experiments exist is fabrication). For
 > each found anchor return the exact sentence and where it is.
 
-Output schema: `{ anchors: [{ type, status: "frozen"|"not-yet-written", text|null }] }`.
-`scripts/spine.js freeze` then assigns `anchor_id` and resolves `passage_id` by locating
+Output schema: a BARE JSON array `[{ type, status: "frozen"|"not-yet-written", text|null }, ...]`
+(exactly what `scripts/spine.js freeze` reads on stdin -- not wrapped in an object).
+`spine.js freeze` then assigns `anchor_id` and resolves `passage_id` by locating
 each anchor's text via `decompose.js`, and writes `spine.json` after the author confirms.
 
 ## The four-state meaning audit (per round)

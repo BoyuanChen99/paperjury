@@ -49,6 +49,10 @@ directory** (`SKILL.md` at its root, plus `references/`, `workflows/`, `scripts/
    `~/.claude/skills/paperjury/`.)
 3. Verify: the skill should appear in the session's available-skills list as
    `paperjury`. No build step, no dependency install for the skill itself.
+   Health check (either route): `npm run doctor` (= `node scripts/doctor.js`) from the
+   skill root -- verifies repo integrity, JS/workflow syntax, doc links, required
+   tools, and manuscript detection; `--json` for machine parsing, `--project <dir>`
+   to point it at a paper project.
 
 Runtime tools the engine USES (must exist in the host environment, not bundled by the skill):
 `node` (all deterministic guards), `git` (diffing), and — only for the

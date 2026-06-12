@@ -168,6 +168,39 @@ test('floor keeps valid-fixable majors and excludes minors, without mutating', (
   assert.equal(JSON.stringify(led), snapshot)
 })
 
+test('CLI set persists --tally as parsed JSON (recall Mode B reads it)', () => {
+  const fs = require('node:fs')
+  const os = require('node:os')
+  const path = require('node:path')
+  const { spawnSync } = require('node:child_process')
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'paperjury-tally-'))
+  const file = path.join(dir, 'LEDGER.json')
+  try {
+    const led = ledger.emptyLedger()
+    ledger.addIssues(led, [{ summary: 'Major flaw.', section: 'S1', significance: 'major', kind: 'substantive' }], 1)
+    ledger.save(file, led)
+    const script = path.join(__dirname, '..', 'scripts', 'ledger.js')
+    const r = spawnSync(process.execPath, [script, 'set', file, 'I-01', 'valid-fixable',
+      '--verdict', 'valid-fixable', '--close_criterion', 'Scope the claim.',
+      '--tally', '{"valid":4,"invalid":1,"context_limited":0}', '--escalated', 'false'],
+      { encoding: 'utf8' })
+    assert.equal(r.status, 0, r.stdout + r.stderr)
+    const row = ledger.load(file).issues[0]
+    assert.deepEqual(row.tally, { valid: 4, invalid: 1, context_limited: 0 })
+    assert.equal(row.escalated, false)
+
+    // a malformed tally shape must fail loud, not store junk the consensus
+    // filter would silently read as zero consensus
+    const bad = spawnSync(process.execPath, [script, 'set', file, 'I-01', 'valid-fixable',
+      '--tally', '"not-an-object"'], { encoding: 'utf8' })
+    assert.notEqual(bad.status, 0)
+    assert.match(bad.stderr + bad.stdout, /bad tally/)
+    assert.deepEqual(ledger.load(file).issues[0].tally, { valid: 4, invalid: 1, context_limited: 0 })
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true })
+  }
+})
+
 test('display_mode survives save() re-renders across mutations', () => {
   const fs = require('node:fs')
   const os = require('node:os')

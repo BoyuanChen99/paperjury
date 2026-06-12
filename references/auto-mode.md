@@ -51,7 +51,13 @@ and (review) the whole polish track as an author checklist.
 runs `node ledger.js floor <ledger.json>` and feeds ONLY `.fixable` (the valid-fixable
 MAJORS) to the drafter -- the significance floor, deterministic and auditable; `.excluded`
 ids are logged, never silently dropped. Before applying, it runs `node journal.js
-within-cap <journal> <passage_id>` (rounds-touched cap). These make the safety envelope
+within-cap <journal> <passage_id>` (rounds-touched cap). When the project has a
+template-constraints file: one baseline `node scripts/compliance-check.js <working>
+<constraints.json>` run at round start records the pre-existing blockers; after each
+applied edit the checker re-runs (`--pages <page_count>` only when compile-guard
+returned a real count) and a blocker NOT in the baseline -> revert + queue, same as a
+failed compile; page limit and anonymization are HARD, never traded for a content fix
+(submission-compliance.md). These make the safety envelope
 auditable without trusting the model's bookkeeping (the D5 mitigation).
 
 **Presentation floor (the trivia-flood fix, F3).** Auto initializes the ledger with

@@ -3,7 +3,8 @@
 // into the single cumulative ledger and produces the DETERMINISTIC convergence inputs.
 // Two jobs:
 //   RECONCILE: each carried open-question (prior-round author-required / queued /
-//     valid-fixable / re-trial) vs this round's applied edits + the current paper ->
+//     valid-fixable; re-trial is intra-round, resolved before the clerk, never
+//     carried -- ledger-schema.md docket()) vs this round's applied edits + the current paper ->
 //     closed | invalidated | still-open. "invalidated-by-the-edit" = the evidence_anchor
 //     is no longer present verbatim (deterministic) AND no equivalent assertion remains
 //     (the clerk judges the latter).

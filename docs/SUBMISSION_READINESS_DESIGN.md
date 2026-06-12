@@ -44,9 +44,10 @@ confirmation" is really TWO things, and the shield is mostly the second:
     (`\vspace{-...}`, `\setlength` on margins / text dims); `\documentclass` options
     changed vs the pristine template; anonymization leaks (filled author block,
     `\thanks`, acknowledgments, self-reference patterns like "our prior work [X]",
-    `github.com` links); required sections present; reference style.
+    `github.com` links); required sections present.
   - semantic (agent): does this self-citation de-anonymize; is this acknowledgment
-    identity-revealing.
+    identity-revealing; reference style consistency (no deterministic bib-style
+    check ships in `compliance-check.js`).
 - **Where it lives (the project-independent split).** Generic PROCEDURE + checker
   script in the skill (proposed: `references/submission-compliance.md` + a `scripts/`
   checker). The extracted per-venue mandatory constraints live in the PROJECT

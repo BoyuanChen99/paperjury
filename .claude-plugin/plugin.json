@@ -1,6 +1,6 @@
 {
   "name": "paperjury",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Pre-submission AI review and editing for CS-conference papers: direct-edit LaTeX or Markdown (Word via one-time extraction), run an adversarial multi-agent courtroom review with consensus-gated revisions, or run it unattended toward a goal.",
   "author": {
     "name": "Yiran Wang"

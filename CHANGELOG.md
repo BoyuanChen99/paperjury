@@ -2,6 +2,53 @@
 
 All notable changes to PaperJury are documented in this file.
 
+## [1.2.1] - 2026-06-12
+
+A promise-vs-implementation audit of every doc against the code (the same gap
+class the 1.1.0 significance floor closed). Fixes, in order of weight:
+
+### Fixed
+
+- **`ledger.js set` now persists `--tally`** (JSON-parsed). The protocol says
+  "store tally and escalated on the row" and recall Mode B's consensus filter
+  reads `tally.valid`, but the CLI's field whitelist silently dropped the flag --
+  so the pre-edit consensus spot-check could silently select zero rows. Other
+  unknown flags keep today's ignore semantics.
+- **meaning-audit seam corrected** in `review-engine-v3.md`: the workflow
+  returns `{verdicts, arc}` (the doc said `anchor_verdicts`), and a new SEAM 15
+  spells out how the orchestrator enriches `need_audit` anchor ids into the full
+  objects the workflow consumes (frozen_text from spine.json, support texts from
+  anchor-diff). Following the old wording skipped the frozen-anchor revert gate.
+- **Auto compliance guard wired**: `submission-compliance.md` promised that an
+  edit pushing past the page limit or breaking anonymization is blocked in auto;
+  the loop never invoked the checker. `auto-mode.md` and the EDIT-SAFETY chain
+  now run `compliance-check.js --pages <count>` after compile-guard when a
+  constraints file exists; a new blocker reverts + queues. No constraints file,
+  no guard.
+- **Oscillation detection honestly retired**: described across
+  `AUTO_MODE_DESIGN.md` as a built deterministic guard, it was never
+  implemented. Now annotated as superseded by the clerk re-raise merge + the
+  rounds-touched cap + applied-quiescence; the phantom reference in
+  `decompose.js`'s header is gone.
+- Doc/protocol drift swept: config-template no longer calls auto "DESIGNED, not
+  built" (it shipped) and documents `mode: auto` + `intensity`; the v3 persona
+  default (runtime assign-reviewers, lenses as fallback) replaces the legacy
+  default; `writing-toolkit.md` keys on `valid-fixable` (v3) instead of the v2
+  `agreed-to-fix`; `spine.md` documents the bare-array stdin shape spine.js
+  actually reads; `ledger-schema.md` re-documents `rounds_touched` (derived from
+  the journal, row field reserved) and `drafted_patch` (optional, module API)
+  honestly; the clerk header no longer claims `re-trial` rows are carried;
+  machine-specific environment facts removed from `submission-compliance.md`;
+  "reference style" moved off the deterministic-checks list it never shipped on;
+  `AUTO_MODE_DESIGN.md`'s status header records the 2026-06-05 end-to-end run
+  and strikes two long-done build tasks; the legacy review-panel workflow's
+  reviewer/verifier prompts gain the ISOLATION line hard rule 2 promises.
+- Public copy caught up: READMEs document the significance floor + collapsed
+  digest view, the full `ledger.js` CLI (incl. `mode`/`floor`), the 1.2.0
+  scripts (`extract-docx`, `rekey`), and the `npm run doctor` health check
+  (previously documented nowhere); overview.html stops listing the shipped
+  plugin marketplace as a TODO and de-LaTeXes the direct-edit card.
+
 ## [1.2.0] - 2026-06-12
 
 Word (.docx) and Markdown support, from real user feedback. The LaTeX path is

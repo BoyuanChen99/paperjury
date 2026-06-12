@@ -17,15 +17,16 @@ All values below are PLACEHOLDERS. Do not commit real paths into the skill.
 
 target:
   manuscript: <path to the main .tex, .md, or .docx>  # .docx is extracted once to .paper-review/<name>.md; the working copy becomes the manuscript
-  mode: full                                # full | passage  (mode: auto + intensity: are DESIGNED, not built — see docs/AUTO_MODE_DESIGN.md)
+  mode: full                                # full | passage | auto  (auto = the unattended loop, see references/auto-mode.md; needs /goal as the driver)
+  intensity: standard                       # light | standard | thorough  (auto dials, see references/review-engine-v3.md "Intensity -> args")
   passage_anchor: <section/paragraph/claim> # only when mode = passage
 
 venue_family: <vision | nlp | ml>           # else: infer from the class/template / ask
 
 author: <who signs off on edits>            # every edit needs explicit authorization
 
-personas:                                   # else: the 3 default lenses in references/reviewer-personas.md
-  - { id: R1, lensName: Theory / Foundations, agentType: <optional named subagent> }
+personas:                                   # else: assign-reviewers names N domain reviewers at runtime (v3 default); the 3 generic lenses below are only the per-slot DEGRADE fallback
+  - { id: R1, lensName: Theory / Foundations, agentType: <optional named subagent> }   # pinning a slot here skips the runtime assignment for it
   - { id: R2, lensName: Empirical / Benchmark, agentType: <optional> }
   - { id: R3, lensName: Applied / Systems,     agentType: <optional> }
 
@@ -52,7 +53,9 @@ writing_toolkit:                            # which drafting prompts to enable (
 - venue_family: infer from the style/class file or content; if unclear, ask.
 - ledger: `<manuscript-dir>/.paper-review/LEDGER.json` (create if absent).
 - author: the current user (confirm before the first edit).
-- personas: the three default lenses; inline their prompts unless the project
-  defines named reviewer subagents to use as `agentType`.
+- personas: assigned at runtime by `assign-reviewers` (N domain reviewers from the
+  manuscript's subfields); the three generic lenses are only the per-slot degrade
+  fallback when a slot cannot be confirmed. A config entry pins a slot; `agentType`
+  pins a named reviewer subagent.
 - style_profile: the venue-family default from `references/reviewer-personas.md`,
   refined by any conventions recalled from memory.

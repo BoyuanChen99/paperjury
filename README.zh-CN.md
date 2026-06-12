@@ -81,7 +81,7 @@ git clone https://github.com/u7079256/paperjury ~/.claude/skills/paperjury
 git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills\paperjury"
 ```
 
-(也可以放在 `<项目>/.claude/skills/` 下，只对单个项目生效)。Claude Code 会通过 `SKILL.md` 自动发现它，随后以 `paperjury` 出现在 skill 列表里。需要 `node`（确定性检查跑在它上面）；LaTeX 工具链可选（真编译和版面检查会用到，没有时会诚实降级）。
+(也可以放在 `<项目>/.claude/skills/` 下，只对单个项目生效)。Claude Code 会通过 `SKILL.md` 自动发现它，随后以 `paperjury` 出现在 skill 列表里。需要 `node`（确定性检查跑在它上面）；LaTeX 工具链可选（真编译和版面检查会用到，没有时会诚实降级）。装好后可在 skill 目录里跑 `npm run doctor` 自检：它会检查仓库完整性、所需工具，以及能否找到你的论文文件。
 
 PaperJury 启动时会对 GitHub 上的稳定版 release tag 做一次软更新检查：有更新版本就提示怎么更新（重跑 plugin 安装，或 clone 安装直接 `git pull`）；连不上 GitHub 就保持沉默继续干活。设 `PAPERJURY_DISABLE_UPDATE_CHECK=1` 可关掉提醒。更新后请开新会话，新的 skill 内容才会生效。
 
@@ -161,15 +161,18 @@ PaperJury 启动时会对 GitHub 上的稳定版 release tag 做一次软更新�
 
 ### 确定性步骤
 
-1. **读稿分解**：把手稿切成阅读单元、规范段落列表和稳定段落编号（防漂移，也给评审提供局部上下文）。
-2. **核心声明**（仅 auto 模式）：提取核心声明，获得作者确认，冻结为配置。
-3. **账本**：活跃问题状态的机器可读源，跨轮次、跨会话持久化。包含 gate 逻辑（没有阻断 gate 的活跃 major 即完成；author-required 不阻断 gate，而是累计进人工队列）。
-4. **日志**：编辑历史只追加记录，支持回滚。
-5. **补丁应用**：原子性应用编辑，记录日志，支持恢复。
-6. **锚点追踪**：定位已冻结的核心声明；上下文变动时，标出需要重新审计的部分。
-7. **交叉引用检查**：编辑安全性预筛：改动关键词是否也出现在其他位置？如果出现，标记为需要语义审计。
-8. **编译检查**：尝试真实 LaTeX 编译；如果无法编译，降级到结构检查并诚实报告不可验证。
-9. **提交合规检查**：确定性的案前筛查。
+1. **读稿分解**：把手稿（LaTeX 或 Markdown）切成阅读单元、规范段落列表和稳定段落编号（防漂移，也给评审提供局部上下文）。
+2. **Word 提取**：把 .docx 一次性转成 Markdown 工作副本，并出一份「保留了什么、丢了什么」的诚实报告；原始 Word 文件绝不改动。
+3. **核心声明**（仅 auto 模式）：提取核心声明，获得作者确认，冻结为配置。
+4. **账本**：活跃问题状态的机器可读源，跨轮次、跨会话持久化。包含 gate 逻辑（没有阻断 gate 的活跃 major 即完成；author-required 不阻断 gate，而是累计进人工队列）。`floor` 子命令是重要性地板（只有 major 级、确认可修的问题进自动改稿）；`mode <ledger> collapse` 把 minor 折叠成摘要，让报告聚焦（完整明细始终在 JSON 里）。
+5. **日志**：编辑历史只追加记录，支持回滚。
+6. **补丁应用**：原子性应用编辑，记录日志，支持恢复。
+7. **锚点追踪**：定位已冻结的核心声明；上下文变动时，标出需要重新审计的部分。
+8. **交叉引用检查**：编辑安全性预筛：改动关键词是否也出现在其他位置？如果出现，标记为需要语义审计。
+9. **段落重链**：每轮结束后，重新对齐被编辑挪动的段落编号，问题不丢锚。
+10. **编译检查**：尝试真实 LaTeX 编译；如果无法编译，降级到结构检查并诚实报告不可验证。
+11. **提交合规检查**：确定性的案前筛查。
+12. **装机自检**：`npm run doctor`，检查仓库完整性、所需工具和手稿识别。
 
 ### 语义步骤
 
@@ -191,7 +194,7 @@ PaperJury 启动时会对 GitHub 上的稳定版 release tag 做一次软更新�
 ## 三原语：Skill + Workflow + Memory
 
 1. **Skill（入口 + 方法论）：** 协议、reviewer 分配、consensus gate、writing toolkit、人工 gate。详见 `references/review-engine-v3.md`、`references/reviewer-personas.md`、`references/writing-toolkit.md`。
-2. **Workflow（fan-out 引擎）：** 语义层、无人居中的步骤以 Workflow 运行（并行 + schema 校验输出）。简单 panel = `workflows/review-panel.workflow.js`；评审引擎 = `assign-reviewers → reading-check → coverage-auditor → merge → {trial ‖ polish} → recall-audit → drafter → {edit-audit | meaning-audit} → clerk`。确定性 guards 由 orchestrator 侧经 Bash 在各 workflow 调用之间运行，因为 Workflow sandbox 没有 fs；`scripts/` 里有 `decompose`、`ledger`、`journal`、`apply-patch`、`anchor-diff`、`cross-ref`、`spine`、`compile-guard`、`compliance-check`。
+2. **Workflow（fan-out 引擎）：** 语义层、无人居中的步骤以 Workflow 运行（并行 + schema 校验输出）。简单 panel = `workflows/review-panel.workflow.js`；评审引擎 = `assign-reviewers → reading-check → coverage-auditor → merge → {trial ‖ polish} → recall-audit → drafter → {edit-audit | meaning-audit} → clerk`。确定性 guards 由 orchestrator 侧经 Bash 在各 workflow 调用之间运行，因为 Workflow sandbox 没有 fs；`scripts/` 里有 `decompose`、`extract-docx`、`ledger`、`journal`、`apply-patch`、`anchor-diff`、`cross-ref`、`spine`、`rekey`、`compile-guard`、`compliance-check`，另有装机自检 `doctor`（`npm run doctor`）。`ledger.js` 的 `floor` 子命令是重要性地板（只有 major 级、确认可修的问题才会进自动改稿），`mode <ledger> collapse` 把 minor 折叠成摘要、让报告聚焦在要紧问题上（完整明细始终保留在 JSON 里）。
 3. **Memory（持久状态 + 习得约定），两层：**
    - **Ledger**：运行时解析出的 `LEDGER.json` 是机器层的 source of truth，外加一份渲染出的 `LEDGER.md` 视图；由 `scripts/ledger.js` 管理。它是跨轮次、跨会话的活 issue 状态。schema 与状态机见 `references/ledger-schema.md`。
    - **Claude memory**：当前项目的 memory：值得下次会话继续沿用的稳定约定，比如本论文的 house style、venue、persona 调校。

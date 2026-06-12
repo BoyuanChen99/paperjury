@@ -1,7 +1,8 @@
 # Writing toolkit (the edit-drafting layer)
 
 This is the optional drafting layer the loop uses at step 9 (authorize + draft).
-When an issue reaches `agreed-to-fix`, the patch that satisfies its
+When an issue reaches `valid-fixable` (v3; `agreed-to-fix` in the legacy v2 panel
+flow), the patch that satisfies its
 `close_criterion` is drafted through the matching prompt below rather than
 free-handed. It is a polish/translate/structure layer; it does NOT review (the
 panel owns that) and it does NOT draft from scratch (use `ml-paper-writing`).
@@ -123,7 +124,8 @@ is a narrow self-gate, never a stand-in for the panel.
 
 ## Wiring into the loop
 
-At step 9, per `agreed-to-fix` issue: pick the prompt matching the close_criterion
+At step 9, per `valid-fixable` issue (v3; `agreed-to-fix` in the legacy v2 flow):
+pick the prompt matching the close_criterion
 type, draft the patch, run logic-check on the result, write only the patch into
 the manuscript, and keep all aids author-side. Then verify the criterion and mark
 `closed`.

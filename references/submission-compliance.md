@@ -72,11 +72,12 @@ compile -> render/Read the relevant page(s) -> LOOK -> locate the float
         -> only then claim done; else try the next lever
 ```
 The verification must be VISUAL (read the rendered page), not textual ("I edited the
-source"). On THIS machine: `compile-guard.js check` compiles (texlive present) and
-returns the PDF path; there is NO PNG rasterizer (pdftoppm/mutool/magick absent), so
-READ THE PDF PAGE DIRECTLY with the Read tool (it ingests PDF pages as real
-multimodal vision, not OCR). Render to PNG only if a rasterizer is later installed
-and a dense page needs finer resolution.
+source"). Probe the environment at runtime: if `compile-guard.js check` reports a
+toolchain, it returns the PDF path; if no PNG rasterizer (pdftoppm/mutool/magick) is
+on PATH, READ THE PDF PAGE DIRECTLY with the Read tool (it ingests PDF pages as real
+multimodal vision, not OCR). Render to PNG only when a rasterizer exists and a dense
+page needs finer resolution; with no toolchain at all, the visual loop is unavailable
+and compile-guard degrades to the structural lint (say so, never claim a visual check).
 
 ### B.2 What vision is reliable for (hybrid verify)
 - **Vision (reliable)**: coarse / relative / structural -- moved or not, top vs

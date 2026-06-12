@@ -1,7 +1,7 @@
 ---
 name: paperjury
 description: Three modes for CS-conference papers (CVPR/ICCV/ECCV vision, ACL/EMNLP/NAACL NLP, ICLR/NeurIPS/ICML/AAAI ML). DIRECT-EDIT mode (common): the user describes a change in Chinese or English and the manuscript (LaTeX or Markdown) is edited directly through a CS-venue writing toolkit with author sign-off (use for 改这段 / 把中文想法写成 latex / polish / de-AI / translate / compress a passage). REVIEW mode (occasional, pre-submission): harden the paper through an adversarial courtroom review engine (N holistic domain reviewers / contestability routing / two-sided trial / three-way verdict / clerk-converged multi-round loop) with consensus-gated, author-signed revisions (use for review / critique / 审稿 / 评审 / mock-review). AUTO mode (unattended, opt-in via /goal): run the review-revise loop toward a verifiable goal, applying safe fixes under a drift-bounded policy and queueing risky ones. Resolves all inputs at runtime, no hardcoded paths. Not a from-scratch drafter (use ml-paper-writing) and not an official-venue rebuttal.
-version: 1.2.0
+version: 1.2.1
 author: Yiran Wang
 license: MIT
 tags: [Academic Writing, Peer Review, Adversarial Review, CVPR, ICCV, ECCV, ACL, EMNLP, NAACL, ICLR, NeurIPS, ICML, AAAI, Workflow, LaTeX]
@@ -82,8 +82,9 @@ hand-rolled version accumulates.
    {`trial` (+ escalate) || `polish`} -> `recall-audit` -> `drafter` ->
    {`edit-audit` | `meaning-audit`} -> `clerk`. The DETERMINISTIC guards run
    orchestrator-side via Bash between workflow calls (the Workflow sandbox has no fs):
-   `scripts/` holds `decompose`, `ledger`, `journal`, `apply-patch`, `anchor-diff`,
-   `cross-ref`, `spine`, `compile-guard`, `compliance-check`. Build note: this harness
+   `scripts/` holds `decompose`, `extract-docx`, `ledger`, `journal`, `apply-patch`,
+   `anchor-diff`, `cross-ref`, `spine`, `rekey`, `compile-guard`, `compliance-check`
+   (plus `doctor`, the install/repo health check: `npm run doctor`). Build note: this harness
    delivers a workflow's `args` as a JSON STRING, so every workflow parses it
    defensively. Protocol + every orchestrator seam: `references/review-engine-v3.md`.
 3. **Memory = durable state + learned conventions.** Two layers:
@@ -243,7 +244,9 @@ orchestrator seams: `references/review-engine-v3.md`. `[WF]` = Workflow step,
     auto-start the next round (auto mode drives the outer loop via `/goal`). The
     rendered `LEDGER.md` obeys `meta.display_mode` (flip anytime:
     `node scripts/ledger.js mode <ledger.json> <show|collapse>`; review defaults to
-    the flat table, auto initializes collapsed).
+    the flat table, auto initializes collapsed). At round end run
+    `node scripts/rekey.js <working file> <ledger> <journal>` to re-link open rows
+    whose passage_id no longer resolves after this round's edits (both formats).
 
 GATE: `node scripts/ledger.js gate` = 0 gate-blocking active major (gate-blocking =
 {raised, in-trial, re-trial, valid-fixable}; author-required / queued / dropped /
