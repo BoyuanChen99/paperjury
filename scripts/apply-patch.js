@@ -12,11 +12,16 @@
 // This exact-once rule is itself a guard against blind edits.
 //
 // CLI:
-//   node apply-patch.js apply  <manuscript.tex> <journal.jsonl>   # patch JSON on stdin:
-//        { issue_id, passage_id, before, after, close_criterion, round }
-//   node apply-patch.js revert <manuscript.tex> <journal.jsonl> <J-0001>
+//   node apply-patch.js apply  <working file> <journal.jsonl> [--guard-paragraphs]
+//        # patch JSON on stdin: { issue_id, passage_id, before, after, close_criterion, round }
+//   node apply-patch.js revert <working file> <journal.jsonl> <J-0001>
 // apply  -> { ok, jid } or { ok:false, reason }
 // revert -> { ok } or { ok:false, reason }; logs a revert marker entry in the journal.
+//
+// --guard-paragraphs (OPT-IN; default off keeps the LaTeX path byte-identical):
+// reject a patch whose before/after blank-line paragraph counts differ, because a
+// paragraph split/merge cascades every later passage ordinal in its section. The
+// protocol mandates the flag on Markdown working copies (review-engine-v3.md).
 
 'use strict'
 const fs = require('fs')
@@ -29,20 +34,44 @@ function countOccurrences(hay, needle) {
   return n
 }
 
-function apply(texFile, journalFile, patch) {
+// Blank-line paragraph breaks in a span (the same /\n[ \t]*\n/ boundary decompose
+// splits passages on, so a count change IS an ordinal cascade). CRLF-normalized
+// first, mirroring decompose's normalization: a \r\n\r\n break splits passages
+// just the same, so it must not slip past the guard.
+function paraBreaks(s) { return (String(s).replace(/\r\n/g, '\n').match(/\n[ \t]*\n/g) || []).length }
+
+function apply(texFile, journalFile, patch, opts = {}) {
   const tex = fs.readFileSync(texFile, 'utf8')
   if (!patch.before || patch.before === patch.after) {
     return { ok: false, reason: 'no-op or empty before (needs-human / nothing to apply)' }
   }
-  const occ = countOccurrences(tex, patch.before)
+  if (opts.guardParagraphs && paraBreaks(patch.before) !== paraBreaks(patch.after)) {
+    return { ok: false, reason: 'paragraph-structure-change (before/after blank-line paragraph counts differ; split/merge cascades passage ids — queue for author)' }
+  }
+  // the drafter works from decompose's LF-normalized passage text; on a CRLF
+  // working copy (user-exported .md) a multi-line `before` then never matches the
+  // raw bytes -- fall back to the CRLF rendering of the SAME patch so route-2
+  // files can be edited at all (the file stays self-consistent: `after` is
+  // converted the same way, and the journal records the texts actually used)
+  let before = patch.before
+  let after = patch.after
+  let occ = countOccurrences(tex, before)
+  if (occ === 0 && tex.includes('\r\n') && /\n/.test(before)) {
+    const crlfBefore = before.replace(/\r\n/g, '\n').replace(/\n/g, '\r\n')
+    if (countOccurrences(tex, crlfBefore) > 0) {
+      before = crlfBefore
+      after = after.replace(/\r\n/g, '\n').replace(/\n/g, '\r\n')
+      occ = countOccurrences(tex, before)
+    }
+  }
   if (occ === 0) return { ok: false, reason: 'before-not-found (re-draft against current text)' }
   if (occ > 1) return { ok: false, reason: `before-ambiguous (${occ} matches; re-draft with more surrounding context)` }
-  const next = tex.replace(patch.before, patch.after)
+  const next = tex.replace(before, after)
   fs.writeFileSync(texFile, next, 'utf8')
   const entry = journal.append(journalFile, {
     issue_id: patch.issue_id, passage_id: patch.passage_id,
     round: patch.round, close_criterion: patch.close_criterion,
-    before: patch.before, after: patch.after, applied: true,
+    before, after, applied: true,
   })
   return { ok: true, jid: entry.jid }
 }
@@ -68,16 +97,23 @@ function readStdin() {
 }
 
 function main() {
-  const [cmd, texFile, journalFile, jid] = process.argv.slice(2)
+  const args = process.argv.slice(2)
+  const pos = []
+  let guardParagraphs = false
+  for (const a of args) {
+    if (a === '--guard-paragraphs') guardParagraphs = true
+    else pos.push(a)
+  }
+  const [cmd, texFile, journalFile, jid] = pos
   if (!cmd || !texFile || !journalFile) {
-    console.error('usage: node apply-patch.js <apply|revert> <manuscript.tex> <journal.jsonl> [J-id]')
+    console.error('usage: node apply-patch.js <apply|revert> <working file> <journal.jsonl> [J-id] [--guard-paragraphs]')
     process.exit(2)
   }
   let res
   if (cmd === 'apply') {
     const patch = readStdin()
     if (!patch) throw new Error('apply expects a patch JSON on stdin')
-    res = apply(texFile, journalFile, patch)
+    res = apply(texFile, journalFile, patch, { guardParagraphs })
   } else if (cmd === 'revert') {
     if (!jid) throw new Error('revert needs a journal id')
     res = revert(texFile, journalFile, jid)
@@ -88,4 +124,4 @@ function main() {
 
 if (require.main === module) main()
 
-module.exports = { apply, revert, countOccurrences }
+module.exports = { apply, revert, countOccurrences, paraBreaks }

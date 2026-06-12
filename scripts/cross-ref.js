@@ -14,14 +14,17 @@
 //
 // Salient = decimals/percents/3+digit numbers, \label|\ref|\eqref|\cref|\cite{...}
 // keys, inline-math identifiers/commands, CamelCase/ALLCAPS identifiers (>=2 capitals),
-// and LaTeX \commands minus a common-formatting denylist.
+// and LaTeX \commands minus a common-formatting denylist. On a non-.tex working copy
+// two md-only classes join: [^N] footnote refs (our docx extractor emits them) and
+// pandoc-style [@key] citations -- gated on format so the LaTeX path is unchanged.
 //
 // CLI:
-//   node cross-ref.js <current.tex>     # patch JSON {before,after} on stdin
+//   node cross-ref.js <current file>     # patch JSON {before,after} on stdin
 // Output: { risky, edited_passage_id, changed_tokens:[..], hits:[{token, passage_id}] }.
 
 'use strict'
 const fs = require('fs')
+const path = require('path')
 const { decompose } = require('./decompose')
 
 const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim()
@@ -36,7 +39,7 @@ const FORMATTING = new Set([
   'noindent', 'indent', 'bfseries', 'itshape', 'scriptsize', 'footnotesize', 'em',
 ])
 
-function salientTokens(text) {
+function salientTokens(text, format) {
   const t = new Set()
   if (!text) return t
   for (const m of text.matchAll(/\b\d+\.\d+%?|\b\d+%|\b\d{3,}\b/g)) t.add(m[0])
@@ -48,6 +51,10 @@ function salientTokens(text) {
   }
   for (const m of text.matchAll(/\b[A-Za-z]*[A-Z][A-Za-z]*[A-Z][A-Za-z0-9]*\b/g)) if (m[0].length >= 3) t.add(m[0])
   for (const m of text.matchAll(/\\([a-zA-Z]+)/g)) if (!FORMATTING.has(m[1])) t.add('\\' + m[1])
+  if (format === 'markdown') {
+    for (const m of text.matchAll(/\[\^[^\]]+\]/g)) t.add(m[0])
+    for (const m of text.matchAll(/\[@[^\]]+\]/g)) t.add(m[0])
+  }
   return t
 }
 
@@ -61,10 +68,10 @@ function symmetricDiff(a, b) {
 // token -> a plain searchable string (strip the @ marker we used for ref/cite keys)
 function searchForm(tok) { return tok.startsWith('@') ? tok.slice(1) : tok }
 
-function crossRef(patch, passages) {
+function crossRef(patch, passages, { format } = {}) {
   const before = patch.before || ''
   const after = patch.after || ''
-  const changed = [...symmetricDiff(salientTokens(before), salientTokens(after))]
+  const changed = [...symmetricDiff(salientTokens(before, format), salientTokens(after, format))]
   const editedNorm = normLow(before)
   const edited = passages.find((p) => editedNorm && normLow(p.text).includes(editedNorm)) || null
   const others = passages.filter((p) => p !== edited)
@@ -92,11 +99,14 @@ function readStdin() {
 
 function main() {
   const [curFile] = process.argv.slice(2)
-  if (!curFile) { console.error('usage: node cross-ref.js <current.tex>  (patch {before,after} on stdin)'); process.exit(2) }
+  if (!curFile) { console.error('usage: node cross-ref.js <current file>  (patch {before,after} on stdin)'); process.exit(2) }
   const patch = readStdin()
   if (!patch) throw new Error('cross-ref expects a patch JSON {before,after} on stdin')
-  const passages = decompose(fs.readFileSync(curFile, 'utf8'))
-  console.log(JSON.stringify(crossRef(patch, passages), null, 2))
+  const format = path.extname(curFile).toLowerCase() === '.tex' ? 'latex' : 'markdown'
+  // pass the extname-derived format through: the content sniff could mis-read a
+  // markdown working copy that QUOTES LaTeX (>= 2 \section strings)
+  const passages = decompose(fs.readFileSync(curFile, 'utf8'), { format })
+  console.log(JSON.stringify(crossRef(patch, passages, { format }), null, 2))
 }
 
 if (require.main === module) main()

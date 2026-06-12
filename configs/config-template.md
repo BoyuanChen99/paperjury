@@ -16,7 +16,7 @@ All values below are PLACEHOLDERS. Do not commit real paths into the skill.
 # <project>/.paper-review/config.yaml  -- example shape, fill in per project
 
 target:
-  manuscript: <path to the main .tex>      # else: auto-detect \documentclass / ask
+  manuscript: <path to the main .tex, .md, or .docx>  # .docx is extracted once to .paper-review/<name>.md; the working copy becomes the manuscript
   mode: full                                # full | passage  (mode: auto + intensity: are DESIGNED, not built — see docs/AUTO_MODE_DESIGN.md)
   passage_anchor: <section/paragraph/claim> # only when mode = passage
 
@@ -32,7 +32,7 @@ personas:                                   # else: the 3 default lenses in refe
 style_profile: |                            # else: the venue-family default, refined from memory
   <house rules: plain prose, em-dash policy, caption convention, tense, etc.>
 
-ledger: <path to LEDGER.md>                 # else: <manuscript-dir>/.paper-review/LEDGER.md
+ledger: <path to LEDGER.json>               # else: <manuscript-dir>/.paper-review/LEDGER.json
 
 writing_toolkit:                            # which drafting prompts to enable (see references/writing-toolkit.md)
   enabled: [translate-to-english, polish-english, de-ai, compress, expand, caption, experiment-analysis, logic-check]
@@ -40,10 +40,17 @@ writing_toolkit:                            # which drafting prompts to enable (
 
 ## Discovery defaults (when no config is present)
 
-- manuscript: the `.tex` containing `\documentclass` / `\begin{document}`; if
-  several, ask.
+- manuscript: routed by extension (the intake format gate, per `SKILL.md`
+  "Resolving inputs"). `.tex`: the file containing `\documentclass` /
+  `\begin{document}`; if several, ask. `.md` / `.markdown` / `.txt`: the native
+  text path (compile checks not applicable; LaTeX-only compliance checks skipped).
+  `.docx`: extracted ONCE by `scripts/extract-docx.js` to
+  `.paper-review/<name>.md`; the working copy becomes the manuscript and the
+  original Word file is never modified (an existing working copy + ledger are
+  reused, never re-extracted). Anything else: explicitly unsupported; ask for a
+  `.docx` / `.md` / `.tex` export.
 - venue_family: infer from the style/class file or content; if unclear, ask.
-- ledger: `<manuscript-dir>/.paper-review/LEDGER.md` (create if absent).
+- ledger: `<manuscript-dir>/.paper-review/LEDGER.json` (create if absent).
 - author: the current user (confirm before the first edit).
 - personas: the three default lenses; inline their prompts unless the project
   defines named reviewer subagents to use as `agentType`.

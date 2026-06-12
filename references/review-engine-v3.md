@@ -20,15 +20,17 @@ is session-level (max where available, else xhigh).
 Deterministic, orchestrator-side (Node):
 | script | role |
 |---|---|
-| `scripts/decompose.js` | split the manuscript into reading units + paragraph passages with stable `passage_id`s (anti-drift substrate + the canonical section list + juror/local-context source) |
+| `scripts/extract-docx.js` | one-time `.docx` -> Markdown working-copy extraction (step 0 only; separate honesty report; never re-run mid-engagement) |
+| `scripts/decompose.js` | split the manuscript into reading units + paragraph passages with stable `passage_id`s (anti-drift substrate + the canonical section list + juror/local-context source); LaTeX and Markdown modes |
 | `scripts/ledger.js` | JSON ledger + MD view (`mode` sets the view's display_mode); `gate` = the /goal completion fact; `floor` = the significance floor (drafter input); `docket`/`unadjudicated` queries |
 | `scripts/journal.js` | append-only per-edit revert log |
 | `scripts/apply-patch.js` | atomic apply + journal of a drafted patch, and revert (exact-once guard) |
 | `scripts/anchor-diff.js` | locate frozen anchors, flag which need a meaning audit (edit-safety, anchors) |
 | `scripts/cross-ref.js` | edit-safety risk pre-filter: does a CHANGED salient token in a patch appear in OTHER passages? |
 | `scripts/spine.js` | freeze the extracted anchors into spine.json |
-| `scripts/compile-guard.js` | real LaTeX compile (or degrade lint); rollback signal |
-| `scripts/compliance-check.js` | submission-readiness deterministic checks |
+| `scripts/compile-guard.js` | real LaTeX compile (or degrade lint); rollback signal. Non-`.tex` working copies route IN-SCRIPT to `compiled:null` + a markdown lint, never latexmk |
+| `scripts/compliance-check.js` | submission-readiness deterministic checks. LaTeX-only: on a Markdown working copy only the format-neutral subset runs, the rest reported as `skipped_checks` |
+| `scripts/rekey.js` | round-end re-link of open ledger rows whose `passage_id` no longer resolves after edits (both formats); maintains `.paper-review/passage-aliases.json` |
 
 Semantic, workflow fan-out (`workflows/*.workflow.js`):
 | workflow | role |
@@ -46,6 +48,12 @@ Semantic, workflow fan-out (`workflows/*.workflow.js`):
 
 DELETED vs v2: `grand-jury.workflow.js` (its "addressed elsewhere" catch moved into the
 trial's whole-paper DEFENSE).
+
+Workflows receive format context FROM LEDGER META: the orchestrator passes
+`working_format` (`'latex'` default | `'markdown'`) to drafter / polish / edit-audit, and
+`extraction_artifacts: true` to reading-check / trial when `meta.source_format === 'docx'`
+(so `[image]` / `[equation: ...]` / `[textbox]` / `[^N]` extraction markers are never
+prosecuted as author errors).
 
 ## The data-contract pipe (canonical I/O + the orchestrator enrichment seams)
 
@@ -138,6 +146,11 @@ EDIT-SAFETY (per patch, BEFORE apply):
                      -> {edit_verdicts:[{issue_id, verdict:'holds'|'drift', reason, offending_text}]};
                      drift -> revert + queue.
    [SEAM 10] edit-audit and meaning-audit are SEPARATE workflows with distinct outputs; never conflate.
+   Markdown working copy: compile-guard routes IN-SCRIPT to {compiled:null, markdown lint}
+   (never spawning latexmk); a lint-clean result substitutes for "compiles" in the LOW rule
+   (same as no-toolchain machines today). md patches are applied with
+   `apply-patch.js apply --guard-paragraphs` (a patch that splits/merges paragraphs is
+   rejected and queued for the author); the flag is default OFF on .tex.
 
 [round end] clerk:
    [SEAM 11] thisRound = ledger rows with round_raised == current_round (post-inner-loop, with
@@ -165,10 +178,23 @@ clerk(carried, thisRound, appliedEdits, paper, simThreshold=0.8)
 pre-loop gate (review) or a queue entry (auto). The PHASE DAG is sequential by data
 dependency; never splice a phase-N tail with a phase-(N+1) head when batching.
 
-1. `[det]` **decompose**: `node decompose.js units|passages <tex>` -> units (juror/drafter
+0. `[det+human]` (once) **intake / format gate** (per SKILL.md "Resolving inputs"): route
+   the manuscript by extension; `.tex` native; `.md`/`.markdown`/`.txt` native text path;
+   `.docx` ->
+   ONE-TIME `node scripts/extract-docx.js extract <file.docx>` creating the working copy at
+   `.paper-review/<basename>.md` + the separate extraction report (an existing working copy
+   + ledger are REUSED, never re-extracted; an sha256 mismatch on the original stops and
+   asks); anything else -> explicitly unsupported. From here on THE WORKING COPY IS THE
+   MANUSCRIPT for all subsequent steps; the original uploaded file is read-only.
+   If the extraction report shows nonzero tracked-change counts, seed a round-1
+   `author-required` ledger row ("manuscript contains unresolved tracked changes;
+   accepted-all for review") -- review and auto alike.
+1. `[det]` **decompose**: `node decompose.js units|passages <working file>` -> units (juror/drafter
    context + the canonical section list) + passages (passage_ids).
 2. `[det]` (once) **spine**: extract anchors (agent) -> author confirm `[human pre-flight]` ->
-   `node spine.js freeze`. Keep the round-0 frozen text as the cumulative baseline.
+   `node spine.js freeze`. Keep the round-0 frozen text as the cumulative baseline. Both the
+   spine freeze AND the round-0 cumulative baseline are pinned to the WORKING COPY (never
+   the original `.docx`).
 3. `[WF][human pre-flight]` **assign-reviewers** -> reviewers + assignment_unverified.
    `[ledger.meta]` record assignment_unverified. Review: surface the assignment (and any
    degrade) to the author before the loop. Auto: config-pin or the verifier degrade; never block.
@@ -202,6 +228,15 @@ dependency; never splice a phase-N tail with a phase-(N+1) head when batching.
     Review: stop, do not auto-advance. Auto: proceed to the clerk + the outer loop.
 15. `[WF]` **clerk** (round boundary; SEAM 11/12/14) -> reconciliation + convergence counts.
     `[ledger]` apply reconciled outcomes + merges. `[det]` compute the convergence + termination.
+16. `[det]` **rekey** (round end, after the round's edits have landed; BOTH formats, before
+    the next round's clerk can need the merge key): `node scripts/rekey.js <working file>
+    <ledger.json> <journal.jsonl>` re-runs decompose on the post-edit file and re-links any
+    open ledger row whose passage_id no longer resolves (via the journaled after-text, else
+    the row's evidence_anchor); updates the ledger rows in place and maintains
+    `.paper-review/passage-aliases.json` (consulted by the journal.js cap functions). This
+    restores the clerk merge key and the rounds-touched cap for the next round. Unresolved
+    rekeys (0 or >1 matches) are left untouched and listed: recall-safe (worst case a
+    duplicate genuinely_new row, bounded by max_rounds).
 
 ## Ledger / journal wiring (v3 status transitions)
 ```
@@ -234,6 +269,13 @@ The clerk reconciles each clean round into the single cumulative ledger via a
 DETERMINISTIC merge key (passage_id match AND the clerk's same-issue confidence >=
 threshold; borderline -> genuinely-new, recall-safe). author-required ACCUMULATES across
 rounds (no per-round human interrupt); 终审 = the human handles the queue in one pass.
+
+PASSAGE_ID DRIFT, honestly: a passage_id's first-stable-words anchor does NOT survive an
+edit to the passage's opening words (either format; only `\label`-carrying LaTeX passages
+are immune, and Markdown has no `\label`-immune subset at all). The true stability
+mechanism is the rounds-touched cap + the round-end rekey (step 16) + the alias map; the
+residual failure direction is recall-safe: a clerk dedup miss surfaces as a duplicate
+genuinely_new row, and a cap undercount is bounded by max_rounds.
 
 TERMINATION (stop on the first):
 - clerk CONVERGENCE: `genuinely_new_count == 0 && new_closures_count == 0 &&

@@ -23,6 +23,8 @@
 //     reviewers:[ { reviewer_id, domain, persona_prompt } ],   // from assign-reviewers
 //     sections: [ { section_path, section_title } ],           // from decompose units (coverage list)
 //     venueProfile, mode,
+//     extraction_artifacts: true when ledger meta source_format==='docx' -- adds one
+//       prompt line so extraction placeholder markers are not filed as author errors,
 //     targets:  [ { reviewer_id, section } ] | null }          // set => L3 re-invoke ONLY these
 // Returns [ { reviewer_id, overall_confidence, weaknesses:[...], per_section_coverage:[...] } ].
 
@@ -41,6 +43,11 @@ const sections = A.sections || []
 const venueProfile = A.venueProfile || '(unspecified venue)'
 const mode = A.mode || 'full'
 const targets = Array.isArray(A.targets) ? A.targets : null
+const extractionArtifacts = A.extraction_artifacts === true
+
+// Word-to-Markdown extraction leaves placeholder markers in the working copy; without
+// this line reviewers prosecute them as author errors.
+const ARTIFACTS_NOTE = 'Bracketed markers such as [image], [equation: ...], [textbox], and [^N] footnote refs are artifacts of the Word-to-Markdown extraction, NOT author content — never raise issues about the markers themselves; review the surrounding prose normally.'
 
 const ISOLATION = 'Judge ONLY the manuscript quoted in this prompt. Do not read files, search the project, or use any tool to find other context (the ledger, prior rounds, other reviewers, or any real manuscript on disk); base your review solely on the text quoted here.'
 
@@ -124,6 +131,7 @@ function reviewPrompt(rev, focusSection) {
     '',
     'THE MANUSCRIPT (all you may judge):',
     '"""', paper, '"""',
+    extractionArtifacts ? ARTIFACTS_NOTE : '',
   ].filter(Boolean).join('\n')
 }
 

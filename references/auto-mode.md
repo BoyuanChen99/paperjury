@@ -13,7 +13,15 @@ project config `mode: auto`. Permissions must be pre-approved out of band (setti
 independent Haiku evaluator + multi-turn auto-continue.
 
 ## The up-front human steps (pre-loop only)
-Two live human inputs, both BEFORE the unattended loop (AskUserQuestion is dead headless):
+The up-front steps, all BEFORE the unattended loop (AskUserQuestion is dead headless):
+0. **Intake / format gate** (once, per SKILL.md "Resolving inputs"): route the manuscript
+   by format. For a `.docx`, the one-time extraction (`scripts/extract-docx.js`) and the
+   working-copy announcement (the original Word file is never modified; all rounds run on
+   `.paper-review/<basename>.md`) are part of the up-front sign-off envelope: a headless
+   run must never start on an unconfirmed docx intake. An existing working copy + ledger
+   are REUSED, never re-extracted. Nonzero tracked-change counts in the extraction report
+   seed a round-1 author-required ledger row ("manuscript contains unresolved tracked
+   changes; accepted-all for review").
 1. **Spine** (`references/spine.md`): extract draft anchors, the author confirms,
    `spine.js freeze`. Everything after runs against the frozen partial spine.
 2. **Reviewer assignment** (assign-reviewers): the author confirms the N assigned domains,
@@ -97,6 +105,11 @@ lets the gate read true AFTER a full round's ledger update, never mid-flight.
 - **author-required (accumulated)**: the charges needing new data / author judgment.
 - **Drift report**: each anchor before vs after + the meaning/edit-audit verdicts, so the author
   confirms the core did not move.
+- **On a Word intake (extracted working copy)**: the edited working `.md` (full path), a
+  human-readable per-edit change list rendered from `journal.jsonl`, the extraction report
+  (what the conversion kept and what it dropped or degraded), and the note that the
+  original Word file was never touched. Unresolved tracked changes surface as the
+  round-1 author-required row from intake.
 
 ## SKILL.md hard-rule-1 carve-out
 Hard rule 1 ("never edit the manuscript without explicit author sign-off") HOLDS in auto: it is

@@ -2,6 +2,68 @@
 
 All notable changes to PaperJury are documented in this file.
 
+## [1.2.0] - 2026-06-12
+
+Word (.docx) and Markdown support, from real user feedback. The LaTeX path is
+byte-identical to 1.1.0: default flags and absent options behave exactly as before.
+
+### Added
+
+- **Word (.docx) support via one-time extraction.** New dependency-free
+  `scripts/extract-docx.js` converts a `.docx` ONCE into a Markdown working copy
+  at `.paper-review/<basename>.md` plus a SEPARATE machine-readable
+  `extraction-report.json` (per-feature counters and a char-mass audit, so
+  anything dropped or degraded surfaces as a number, never as silent loss; the
+  report is never embedded in the working copy). The original Word file is never
+  modified; from extraction on, the working copy IS the manuscript for every
+  rule and gate. Fail-loud matrix with named reason codes (legacy `.doc` OLE2,
+  encrypted / zip64 / unsupported-method zips, UTF-16 `document.xml`, missing
+  main part, not-a-zip). Refuses to overwrite an existing working copy without
+  `--force`; a changed original (sha256 mismatch vs ledger meta) stops and asks
+  instead of silently re-extracting.
+- **Markdown as a first-class multi-round format.** `decompose.js` markdown mode
+  (counter-based section paths from ATX headings, fence-aware, no `%`-comment
+  stripping, so "12% over baseline" stays intact); `compile-guard.js` routes
+  non-`.tex` working copies in-script to `compiled:null` plus a markdown lint
+  (an honest UNKNOWN, never latexmk on a `.md`); `compliance-check.js` runs only
+  its format-neutral subset on Markdown with an explicit `skipped_checks` list
+  (no false section-missing majors).
+- **Round-end rekey + passage-alias map (both formats).** New `scripts/rekey.js`
+  re-links open ledger rows whose `passage_id` no longer resolves after edits
+  (via the journaled after-text, else the row's `evidence_anchor`) and maintains
+  `.paper-review/passage-aliases.json`, consulted by the `journal.js` cap
+  functions. This restores the clerk merge key and the rounds-touched cap after
+  edits move first-words anchors; unresolved rekeys are recall-safe and listed.
+- **`apply-patch.js --guard-paragraphs` (opt-in).** Rejects a patch whose
+  before/after blank-line paragraph counts differ (a paragraph split/merge
+  cascades passage ordinals). Mandated by protocol on Markdown working copies;
+  default OFF on `.tex` (LaTeX behavior unchanged).
+- **Intake format gate.** `SKILL.md`, `docs/AGENT-GUIDE.md`,
+  `references/review-engine-v3.md` (new step 0), and the auto-mode pre-loop now
+  route every manuscript by format: `.tex` native, `.md`/`.markdown`/`.txt`
+  native text path, `.docx` one-time extraction, anything else explicitly
+  unsupported with export suggestions. No more silent degradation.
+
+### Fixed
+
+- **Drift-bound doc correction.** `docs/AUTO_MODE_DESIGN.md` and the engine docs
+  no longer imply a passage's anchor survives edits: a first-stable-words anchor
+  mutates when a paragraph's opening words are edited (and Markdown has no
+  `\label`-immune subset). The documented mechanism is now the real one:
+  rounds-touched cap + round-end rekey + alias map, failure direction
+  recall-safe.
+- **`configs/config-template.md` ledger default** corrected from `LEDGER.md` to
+  `LEDGER.json` (the JSON is the machine source of truth; the `.md` is a
+  rendered view).
+
+### Notes
+
+- Rejected on record (rationale in the `docs/AUTO_MODE_DESIGN.md` changelog):
+  extraction-time injected HTML-comment anchors, a hash-window change to the
+  anchor scheme, and a pandoc extraction fork (pandoc cannot emit the honesty
+  report and yields machine-dependent working copies). Converting your own
+  document to `.md` and handing that in directly remains fully supported.
+
 ## [1.1.0] - 2026-06-12
 
 The trivia-flood fix (F3), from real user feedback: "阻断 AI 去关注非常细微没有价值的

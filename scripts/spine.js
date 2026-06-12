@@ -7,19 +7,22 @@
 // human input auto needs). Dependency-free Node.
 //
 // CLI:
-//   node spine.js freeze <manuscript.tex> [--round N] [--out spine.json]
+//   node spine.js freeze <working file> [--round N] [--out spine.json]
 //        # reads the extracted anchors (JSON array on stdin):
 //        #   [ { type, status: "frozen"|"not-yet-written", text|null } , ... ]
 //   node spine.js show <spine.json>
 
 'use strict'
 const fs = require('fs')
+const path = require('path')
 const { decompose } = require('./decompose')
 
 const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim()
 
-function freeze(extracted, manuscriptTex, round = 0) {
-  const passages = decompose(manuscriptTex)
+function freeze(extracted, manuscriptTex, round = 0, format = null) {
+  // format comes from the CLI's extname when available; the content sniff could
+  // mis-read a markdown working copy that QUOTES LaTeX (>= 2 \section strings)
+  const passages = decompose(manuscriptTex, format ? { format } : {})
   let n = 0
   const anchors = extracted.map((a) => {
     n++
@@ -49,10 +52,11 @@ function main() {
   const flags = {}
   for (let i = 0; i < rest.length; i++) if (rest[i].startsWith('--')) { flags[rest[i].slice(2)] = rest[i + 1]; i++ }
   if (cmd === 'freeze') {
-    if (!file) { console.error('usage: node spine.js freeze <manuscript.tex> [--round N] [--out spine.json]'); process.exit(2) }
+    if (!file) { console.error('usage: node spine.js freeze <working file> [--round N] [--out spine.json]'); process.exit(2) }
     const extracted = readStdin()
     if (!Array.isArray(extracted)) throw new Error('freeze expects a JSON array of extracted anchors on stdin')
-    const spine = freeze(extracted, fs.readFileSync(file, 'utf8'), flags.round ? parseInt(flags.round, 10) : 0)
+    const format = path.extname(file).toLowerCase() === '.tex' ? 'latex' : 'markdown'
+    const spine = freeze(extracted, fs.readFileSync(file, 'utf8'), flags.round ? parseInt(flags.round, 10) : 0, format)
     const out = flags.out || 'spine.json'
     fs.writeFileSync(out, JSON.stringify(spine, null, 2) + '\n', 'utf8')
     const unlocated = spine.anchors.filter((a) => a.status === 'frozen' && !a.located).map((a) => a.anchor_id)

@@ -14,7 +14,9 @@
 //
 // args (JSON STRING -- parse defensively):
 //   { items:[ {issue_id, section, summary, evidence_anchor, significance, kind} ],
-//     paper, venueProfile }
+//     paper, venueProfile,
+//     working_format: 'latex' (default) | 'markdown' -- from ledger meta; selects the
+//       LaTeX-safe vs Markdown-safe rule in copyPrompt (lightPrompt is format-neutral) }
 // Returns { patches:[{issue_id, kind, before, after, rationale, before_in_text, no_op}],
 //           dropped:[{issue_id, reason}], escalate_to_trial:[{issue_id, reason}],
 //           flagged:[{issue_id, reason}] }.
@@ -30,6 +32,12 @@ const items = A.items || []
 const paper = A.paper || ''
 const venueProfile = A.venueProfile || '(default plain CS prose)'
 const ISOLATION = 'Work ONLY from the manuscript quoted here. Do not read files or search the project.'
+
+// Same markup-safety switch as drafter.workflow.js: Markdown working copies must not
+// get LaTeX escaping; the default branch must stay byte-identical to the LaTeX prompt.
+const afterLine = A.working_format === 'markdown'
+  ? '- after: that span fixed. Plain CS prose, Markdown-safe (preserve the file\'s Markdown markup; do NOT escape %, _, or other plain characters; do not add or remove headings or blank lines), NO em-dashes, no new citations/numbers,'
+  : '- after: that span fixed. Plain CS prose, LaTeX-safe, NO em-dashes, no new citations/numbers,'
 
 const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim()
 const paperNorm = norm(paper)
@@ -54,7 +62,7 @@ function copyPrompt(it) {
     'You make ONE minimal COPY-EDIT to a CS paper (a typo, a formatting slip, an inconsistent',
     'notation token, an awkward phrasing). Output an exact-string patch:',
     '- before: copy VERBATIM the smallest contiguous span you change (must appear in the text).',
-    '- after: that span fixed. Plain CS prose, LaTeX-safe, NO em-dashes, no new citations/numbers,',
+    afterLine,
     '  no meaning change beyond the mechanical fix. If there is nothing to fix, set before==after.',
     `Venue style: ${venueProfile}`,
     ISOLATION,

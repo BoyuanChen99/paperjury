@@ -26,7 +26,9 @@
 //     units:     [ {section_path, section_title, text} ],  // juror local-context source
 //     claim_spine:"abstract + intro text",            // always in juror local context
 //     spine:     [ {anchor_id, type, text} ],         // frozen anchors (defense may cite drift)
-//     jurySize, expansionsCap }                        // 5 (tier-1) | 12 (escalated); cap 2
+//     jurySize, expansionsCap,                         // 5 (tier-1) | 12 (escalated); cap 2
+//     extraction_artifacts }    // true when ledger meta source_format==='docx'; juror
+//                               // prompts gain the extraction-placeholder line
 // Returns [ { charge_id, significance, section, summary, evidence_anchor, verdict,
 //             close_criterion, rationale, tally:{valid,invalid,context_limited}, jury_size,
 //             escalated, defense, votes } ].
@@ -51,6 +53,11 @@ const jurySize = Math.max(3, A.jurySize ?? 5)
 const escalatedIn = A.escalated === true          // orchestrator sets true on the tier-12 re-invocation
 const isFinalTier = escalatedIn || jurySize >= 12 // final tier => undecided routes to author-required, not escalate
 const expansionsCap = A.expansionsCap ?? 2
+const extractionArtifacts = A.extraction_artifacts === true
+
+// Word-to-Markdown extraction leaves placeholder markers in the working copy; without
+// this line jurors convict on the markers themselves.
+const ARTIFACTS_NOTE = 'Bracketed markers such as [image], [equation: ...], [textbox], and [^N] footnote refs are artifacts of the Word-to-Markdown extraction, NOT author content — never raise issues about the markers themselves; review the surrounding prose normally.'
 
 const ISOLATION = 'Judge ONLY the text quoted in this prompt. Do not read files or search the project; base your judgment solely on what is quoted here.'
 
@@ -182,6 +189,7 @@ function jurorPrompt(c, defense, framing, context) {
     `DEFENSE (grounds: ${defense.grounds}): ${defense.defense}`,
     '',
     'CONTEXT (the relevant parts of the paper):', '"""', context, '"""',
+    ...(extractionArtifacts ? [ARTIFACTS_NOTE] : []),
   ].join('\n')
 }
 

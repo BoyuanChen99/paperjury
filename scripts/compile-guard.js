@@ -14,10 +14,13 @@
 //   - without one: degrade to a structural lint (brace balance, \begin/\end env
 //     balance, \ref with no \label anywhere) and report `compiled:null` (UNKNOWN,
 //     not false) so the caller never claims a verified compile it did not run.
+//   - non-.tex working copy (Markdown/text): routed BEFORE any toolchain lookup --
+//     never spawns latexmk on a .md even on toolchain machines; returns mode:'text',
+//     compiled:null + a minimal markdown lint (fence balance).
 //
 // CLI:
-//   node compile-guard.js check <main.tex> [--engine latexmk|pdflatex] [--timeout ms] [--outdir DIR]
-//   node compile-guard.js lint  <main.tex>     # force the structural lint only
+//   node compile-guard.js check <file> [--engine latexmk|pdflatex] [--timeout ms] [--outdir DIR]
+//   node compile-guard.js lint  <file>     # force the lint only (structural or md)
 // Output: JSON. `ok` = (compiled === true && errors empty) for the real path, or
 // (lint clean) for the degraded path with compiled:null.
 
@@ -80,6 +83,14 @@ function structuralLint(tex) {
   }
 }
 
+// ---- markdown lint (the non-.tex text path) --------------------------------
+
+function mdLint(text) {
+  const nonempty = !!(text && text.trim())
+  const fence_balanced = text.split(/\r?\n/).filter((l) => /^```/.test(l)).length % 2 === 0
+  return { nonempty, fence_balanced, clean: nonempty && fence_balanced }
+}
+
 // ---- log parsing (the real path) ------------------------------------------
 
 function parseLog(log) {
@@ -114,6 +125,15 @@ function compile(file, { engine, timeout = 120000, outdir } = {}) {
   const dir = path.dirname(abs)
   const base = path.basename(abs)
   const tex = fs.readFileSync(abs, 'utf8')
+
+  // non-.tex working copies route here BEFORE resolveBin: a toolchain on PATH must
+  // never be spawned on a Markdown file (it would produce garbage, not a verdict)
+  if (path.extname(abs).toLowerCase() !== '.tex') {
+    const lint = mdLint(tex)
+    return { mode: 'text', format: 'markdown', compiled: null, toolchain: null, lint,
+      note: 'non-LaTeX working copy; compile not applicable; markdown sanity lint only. Cannot claim a verified compile.',
+      ok: lint.clean }
+  }
 
   const bin = resolveBin(engine ? [engine] : ['latexmk', 'pdflatex'])
   if (!bin) {
@@ -150,11 +170,14 @@ function main() {
   const flags = {}
   for (let i = 0; i < rest.length; i++) if (rest[i].startsWith('--')) { flags[rest[i].slice(2)] = rest[i + 1]; i++ }
   if (!cmd || !file) {
-    console.error('usage: node compile-guard.js <check|lint> <main.tex> [--engine E] [--timeout ms] [--outdir DIR]')
+    console.error('usage: node compile-guard.js <check|lint> <file> [--engine E] [--timeout ms] [--outdir DIR]')
     process.exit(2)
   }
   if (cmd === 'lint') {
-    console.log(JSON.stringify(structuralLint(fs.readFileSync(path.resolve(file), 'utf8')), null, 2))
+    const abs = path.resolve(file)
+    const text = fs.readFileSync(abs, 'utf8')
+    const lint = path.extname(abs).toLowerCase() !== '.tex' ? mdLint(text) : structuralLint(text)
+    console.log(JSON.stringify(lint, null, 2))
   } else if (cmd === 'check') {
     const res = compile(file, { engine: flags.engine, timeout: flags.timeout ? parseInt(flags.timeout, 10) : undefined, outdir: flags.outdir })
     console.log(JSON.stringify(res, null, 2))
@@ -167,4 +190,4 @@ function main() {
 
 if (require.main === module) main()
 
-module.exports = { compile, structuralLint, parseLog, resolveBin }
+module.exports = { compile, structuralLint, mdLint, parseLog, resolveBin }

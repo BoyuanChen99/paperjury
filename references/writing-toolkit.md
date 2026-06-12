@@ -6,6 +6,12 @@ When an issue reaches `agreed-to-fix`, the patch that satisfies its
 free-handed. It is a polish/translate/structure layer; it does NOT review (the
 panel owns that) and it does NOT draft from scratch (use `ml-paper-writing`).
 
+Format note: the toolkit applies to LaTeX and Markdown passages alike (a `.docx`
+intake is edited on its extracted Markdown working copy). On a Markdown working
+copy, read "LaTeX-safe" throughout as "markup-safe for the working format":
+preserve the file's Markdown markup, do not escape plain characters (`%`, `_`),
+and do not add or remove headings or blank lines. No per-prompt rewording.
+
 Scope of the toolkit: these are the skill's own single-passage, LaTeX-safe writing
 operations for the edit-drafting step. The toolkit deliberately excludes
 whole-paper "reviewer-perspective" critique (the panel owns that and is stronger),

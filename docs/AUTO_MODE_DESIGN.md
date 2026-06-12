@@ -332,6 +332,19 @@ of the nearest stable anchor` (a `\label`, else the first N stable words). Neede
 because the text changes each round, so neither exact text nor a bare ordinal
 survives an edit. The deterministic counter / oscillation guard keys on this ID.
 
+**[Corrected 2026-06-12 (F1) -- the anchor-survival overclaim.]** The paragraph
+above oversold the ID's stability: a first-stable-words anchor hash does NOT
+survive an edit to an unlabeled paragraph's opening words (either format), so
+"the cap never moves" was wrong as stated -- the cap's KEY moves whenever such an
+edit lands. Markdown working copies have no `\label`-immune subset at all (no
+labels exist), so every md passage is in the mutable-anchor regime. The true
+mechanism as built is three parts: the rounds-touched cap + the round-end rekey
+(`scripts/rekey.js` re-links open ledger rows after each round's edits, via the
+journaled after-text or the row's evidence_anchor) + the alias map
+(`.paper-review/passage-aliases.json`, consulted by the `journal.js` cap
+functions). The failure direction is recall-safe: a clerk dedup miss surfaces as
+a duplicate genuinely_new row, and a cap undercount is bounded by max_rounds.
+
 **Nits: Option B (terminal batched pass), not pure-queue.**
 **[Superseded by v3, 2026-06-12 (F3) -- kept as the v2-era rationale.]** The BUILT v3
 polish track fixes minors IN-ROUND (LOW applies under edit-safety, RISKY queues); there
@@ -454,6 +467,20 @@ recall dials above. A wall-clock figure may be surfaced as a soft estimate only,
 never as a hard control.
 
 ## Changelog
+- 2026-06-12 (F1, Markdown-first docx support): §8 passage-identity claim CORRECTED --
+  a first-stable-words anchor hash does NOT survive edits to an unlabeled paragraph's
+  opening words (and Markdown working copies have no `\label`-immune subset), so the
+  former "the cap never moves / the ID survives an edit" framing was an overclaim. The
+  drift bound as built: the rounds-touched cap + round-end `scripts/rekey.js`
+  (deterministic journal/evidence-driven re-link of open ledger rows) + the
+  `.paper-review/passage-aliases.json` alias map consulted by the `journal.js` cap
+  functions; failure direction recall-safe (a clerk dedup miss -> a duplicate
+  genuinely_new row; a cap undercount is bounded by max_rounds). Rejected alternatives,
+  on record: extraction-time injected HTML-comment anchors (they pollute the user's
+  deliverable and exceed LaTeX parity -- gold-plating; revisit only on observed
+  convergence stalls), a hash-window change to the anchor scheme (same parity argument),
+  and a pandoc extraction fork (pandoc cannot emit the extraction honesty report and
+  yields machine-dependent working copies; one canonical extractor only).
 - 2026-06-12 (F3, the trivia-flood user-feedback fix): the significance floor is BUILT
   as `node ledger.js floor` (drafter input = valid-fixable majors only; excluded ids
   logged, never silent) + the presentation floor (`meta.display_mode: collapse`, auto's

@@ -13,13 +13,14 @@
 // surface loudly), not a normal edit.
 //
 // CLI:
-//   node anchor-diff.js <spine.json> <current.tex> [baseline.tex]
+//   node anchor-diff.js <spine.json> <working file> [baseline.tex]
 // Output: JSON { anchors:[ per-anchor diff ], need_audit:[anchor_ids], summary }.
 // Provide baseline.tex (normally the frozen round-0 text) so support_changed is
 // meaningful; without it, only missing anchors are flagged.
 
 'use strict'
 const fs = require('fs')
+const path = require('path')
 const { decompose } = require('./decompose')
 
 const norm = (s) => String(s || '').replace(/\s+/g, ' ').trim()
@@ -30,9 +31,12 @@ function passageContaining(passages, anchorText) {
   return passages.find((p) => norm(p.text).includes(a)) || null
 }
 
-function diff(spine, currentTex, baselineTex) {
-  const cur = decompose(currentTex)
-  const base = baselineTex ? decompose(baselineTex) : null
+function diff(spine, currentTex, baselineTex, format = null) {
+  // format comes from the CLI's extname when available; the content sniff could
+  // mis-read a markdown working copy that QUOTES LaTeX (>= 2 \section strings)
+  const opts = format ? { format } : {}
+  const cur = decompose(currentTex, opts)
+  const base = baselineTex ? decompose(baselineTex, opts) : null
   const frozen = (spine.anchors || []).filter((x) => x.status === 'frozen' && x.text)
   const anchors = frozen.map((anchor) => {
     const curP = passageContaining(cur, anchor.text)
@@ -83,13 +87,14 @@ function diff(spine, currentTex, baselineTex) {
 function main() {
   const [spineFile, curFile, baseFile] = process.argv.slice(2)
   if (!spineFile || !curFile) {
-    console.error('usage: node anchor-diff.js <spine.json> <current.tex> [baseline.tex]')
+    console.error('usage: node anchor-diff.js <spine.json> <working file> [baseline.tex]')
     process.exit(2)
   }
   const spine = JSON.parse(fs.readFileSync(spineFile, 'utf8'))
   const currentTex = fs.readFileSync(curFile, 'utf8')
   const baselineTex = baseFile ? fs.readFileSync(baseFile, 'utf8') : null
-  console.log(JSON.stringify(diff(spine, currentTex, baselineTex), null, 2))
+  const format = path.extname(curFile).toLowerCase() === '.tex' ? 'latex' : 'markdown'
+  console.log(JSON.stringify(diff(spine, currentTex, baselineTex, format), null, 2))
 }
 
 if (require.main === module) main()

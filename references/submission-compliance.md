@@ -4,6 +4,11 @@ Two cross-mode guards (SUBMISSION_READINESS_DESIGN). Both follow the skill split
 the skill carries the generic PROCEDURE + checker scripts; anything venue-specific
 lives in the PROJECT, never in the skill.
 
+Format note: venue-template compliance checks are LaTeX-only. On a Markdown
+working copy, `compliance-check.js` runs only the format-neutral checks
+(self-reference phrasing, code/data URLs, emails) and reports the rest in an
+explicit `skipped_checks` list -- LaTeX-only checks are never half-applied.
+
 ## A. Template compliance (desk-reject shield)
 
 Three steps: identify, report-link, check. The skill NEVER bundles a template and

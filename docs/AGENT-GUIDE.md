@@ -12,8 +12,9 @@
 ## 0. One-paragraph model
 
 paperjury is a Claude Code **skill** (`SKILL.md` is auto-loaded when the skill is
-active). It edits and hardens CS-conference LaTeX papers in **three modes**: `direct-edit`
-(draft+apply one LaTeX change), `review` (run an adversarial multi-agent "courtroom" engine
+active). It edits and hardens CS-conference papers — LaTeX or Markdown manuscripts, plus
+Word `.docx` via a one-time extraction to a Markdown working copy — in **three modes**:
+`direct-edit` (draft+apply one manuscript change), `review` (run an adversarial multi-agent "courtroom" engine
 that adjudicates each issue), `auto` (run that engine unattended toward a verifiable goal).
 The engine's semantic fan-out steps are **workflows** (`workflows/*.workflow.js`); the
 checkable guards are **deterministic Node scripts** (`scripts/*.js`) the orchestrator runs
@@ -67,7 +68,7 @@ to the identical engine.
 
 | Mode | Enter when the user… | What runs | Authoritative protocol |
 |---|---|---|---|
-| `direct-edit` | asks for ONE concrete LaTeX change ("把这段改紧", "polish this", "把我这段中文写成 LaTeX", "de-AI", "compress to one line") | writing toolkit → `logic-check` → author sign-off → apply. No panel, no ledger. | `SKILL.md` §"Direct-edit mode"; `references/writing-toolkit.md` |
+| `direct-edit` | asks for ONE concrete manuscript change, LaTeX or Markdown ("把这段改紧", "polish this", "把我这段中文写成 LaTeX", "de-AI", "compress to one line") | writing toolkit → `logic-check` → author sign-off → apply. No panel, no ledger. | `SKILL.md` §"Direct-edit mode"; `references/writing-toolkit.md` |
 | `review` | asks for critique/hardening: `review` / `critique` / `审稿` / `评审` / `mock-review`, optionally scoped `full` or `passage <section/para/claim>` | the courtroom engine (one round), stopping at the human gates | `references/review-engine-v3.md` |
 | `auto` | **explicitly** opts in via `/goal "<verifiable condition>"` (config `mode: auto` only SETS the policy — by itself it does NOT loop across turns, see §3) | the same engine, unattended, multi-round, applying safe fixes + queueing risky ones | `references/auto-mode.md` |
 
@@ -106,15 +107,30 @@ If you are asked to "run auto", the correct invocation is a **`/goal`** with a v
 condition (e.g. `/goal "ledger.js gate passes: 0 gate-blocking active major"`). `/loop` is
 an alternative multi-turn driver; a plain prompt is not. Bootstrap, in order:
 
-1. **Resolve inputs at runtime** (SKILL.md §"Resolving inputs"): discover the manuscript
-   (the `.tex` with `\documentclass`/`\begin{document}`, or the file the user names — ask if
-   ambiguous), the venue, and the ledger path. The ledger defaults to
+1. **Resolve inputs at runtime** (SKILL.md §"Resolving inputs"): discover the manuscript and
+   route it through the intake FORMAT GATE by extension (four routes, none silent):
+   - `.tex` → native LaTeX path (the `.tex` with `\documentclass`/`\begin{document}`, or the
+     file the user names — ask if ambiguous).
+   - `.md`/`.markdown`/`.txt` → native text path (full engine; `compile-guard` returns
+     `compiled:null` + a markdown lint; LaTeX-only compliance checks reported as skipped).
+   - `.docx` → if a `.paper-review/` working copy AND a ledger exist, REUSE them, never
+     re-extract; if sha256(docx) ≠ ledger `meta.original_sha256`, STOP and ask (continue on
+     the working copy, or `extract --force` = an explicit new intake discarding applied
+     edits). Else run `node scripts/extract-docx.js extract <file.docx>` ONCE, announce that
+     the original is never modified, print the full working-copy path, and set ledger meta
+     `{manuscript: <working copy>, working_format, source_format, original, original_sha256,
+     extracted_at, extraction_report}`.
+   - any other extension → explicitly unsupported; suggest exporting `.docx`/`.md`/`.tex`.
+
+   After intake the WORKING COPY is the manuscript for every rule and gate. Also discover the
+   venue and the ledger path. The ledger defaults to
    `<manuscript-dir>/.paper-review/LEDGER.json` (created on first intake by `ledger.js`); use
    that path wherever this doc writes `<ledger.json>`. A project may pin inputs via a config in
    ITS OWN repo (`configs/config-template.md` for the shape); the skill ships none.
 2. **Up-front human steps (BEFORE `/goal`, blocking):** (a) freeze the spine (`spine.js`,
    author confirms the anchors); (b) confirm the reviewer assignment (`assign-reviewers`, author
-   confirms the N domains or pins them). These are the two pre-authorized sign-offs that satisfy
+   confirms the N domains or pins them). These (plus the docx intake confirmation from step 1,
+   when the manuscript was extracted) are the pre-authorized sign-offs that satisfy
    hard rule 1 for the unattended run; there is no live human gate once the loop starts.
 3. **Then** start the `/goal`. The first round runs `decompose` → the engine; the evaluator
    reads `node scripts/ledger.js gate <ledger.json>` after each turn. All `node scripts/*.js`
@@ -170,6 +186,10 @@ Authoritative: `references/review-engine-v3.md` (protocol + 14 seam contracts);
 One round, in order:
 
 ```
+intake (once)        [det+human]  format gate: route the manuscript by extension;
+                            docx → one-time extract-docx.js to the .paper-review/<basename>.md
+                            working copy (announced; the original stays read-only; the working
+                            copy IS the manuscript for every later step)
 decompose            [det]  split manuscript → reading units + stable passage_ids
 spine (once)         [det+human]  extract anchors → author confirm → freeze (the up-front
                             human step; for auto it is confirmed BEFORE the /goal loop starts)
@@ -209,6 +229,10 @@ clerk                [WF]   round boundary: reconcile carried open-questions vs 
                             edits via a deterministic passage_id+similarity merge key; emit
                             convergence counts. (The clerk is a SEMANTIC workflow; it is NOT
                             the deterministic orchestrator that runs the guards.)
+rekey (round end)    [det]  `node scripts/rekey.js <working file> <ledger> <journal>`:
+                            re-link open ledger rows whose passage_id no longer resolves
+                            after this round's edits; maintains .paper-review/
+                            passage-aliases.json (both formats)
 ```
 
 - GATE (completion fact): `node scripts/ledger.js gate` = 0 gate-blocking active major,
@@ -232,13 +256,15 @@ Run these between fan-out steps; never inside a workflow. CLI + module API each.
 
 | script | role |
 |---|---|
-| `scripts/decompose.js` | manuscript → reading units + stable `passage_id`s + canonical section list |
+| `scripts/extract-docx.js` | one-time `.docx` → Markdown working-copy extraction (dependency-free; separate honesty report at `.paper-review/extraction-report.json`; refuses to overwrite an existing working copy without `--force`) |
+| `scripts/decompose.js` | manuscript → reading units + stable `passage_id`s + canonical section list (LaTeX and Markdown modes; md section paths come from heading-level counters, never titles) |
 | `scripts/ledger.js` | JSON ledger + MD view (`mode` sets the view's `display_mode`); `gate` = the completion fact; `floor` = the significance floor (the drafter's fixable set); `docket`/`unadjudicated` queries |
 | `scripts/journal.js` | append-only per-edit revert log |
 | `scripts/apply-patch.js` | atomic apply + journal of a drafted patch; exact-once guard on `before` text |
 | `scripts/anchor-diff.js` | locate frozen spine anchors; flag which need a meaning audit |
 | `scripts/cross-ref.js` | edit-safety pre-filter: does a CHANGED salient token appear in OTHER passages? |
 | `scripts/spine.js` | freeze extracted anchors into `spine.json` |
+| `scripts/rekey.js` | round-end re-link (both formats): re-resolve open ledger rows whose `passage_id` no longer resolves after edits; maintains `.paper-review/passage-aliases.json` for the journal cap functions |
 | `scripts/compile-guard.js` | real LaTeX compile or degraded structural lint (`compiled:null`) |
 | `scripts/compliance-check.js` | submission-readiness desk-reject screening |
 

@@ -104,7 +104,7 @@ PaperJury 启动时会对 GitHub 上的稳定版 release tag 做一次软更新�
 
 ### Direct-Edit（常用）
 
-- **触发方式：** 用户用中文或英文描述一处改动，想直接改 LaTeX。
+- **触发方式：** 用户用中文或英文描述一处改动，想直接改手稿（LaTeX 或 Markdown）。
 - **示例：** "把这段改成…"、"polish this paragraph"、"把我对 intro 的想法写成 LaTeX"、"tighten this"。
 - **行为：** 不进入 review 阶段，直接走写作工具起草补丁，再交给作者确认。
 
@@ -130,7 +130,7 @@ PaperJury 启动时会对 GitHub 上的稳定版 release tag 做一次软更新�
 - "把这段 intro 改紧一些。" / "Polish this paragraph."
 - "把我对 intro 的中文想法写成 LaTeX:`<你的想法>`。"
 - "de-AI 这段。" / "这句压到一行。" / "重写这个 caption。"
-- → 它起草 LaTeX 改动、自检、把补丁给你看，你批准后才落稿。不开面板。
+- → 它起草改动、自检、把补丁给你看，你批准后才落稿。不开面板。
 
 **投稿前让它挑问题（→ review）：**
 - "审稿。" / "Review my paper." / "投之前 mock-review 一下。"
@@ -146,6 +146,12 @@ PaperJury 启动时会对 GitHub 上的稳定版 release tag 做一次软更新�
 - "跑一下 submission-readiness / 合规检查。" → 确定性格式筛查 + 编译驱动的版面检查。
 
 一句话：**改一处 → 直接说；想挑问题 → 说「审稿」；想自动迭代 → `/goal`。**
+
+---
+
+## 常见问题
+
+**PaperJury 能审 Word（.docx）文件吗？** 能。PaperJury 会把你的 .docx 一次性转成 Markdown，并明确告诉你转换保留了什么、哪些内容带不过来（比如复杂表格和公式），然后在这份 Markdown 上跑完整的多轮评审。你的原始 Word 文件绝不会被改动。结束后你拿回的是改好的 Markdown，外加一份逐条修改清单；要不要把改动合并回 Word 由你自己决定，想合并的话可以用 pandoc 之类的工具自行把 Markdown 转回 Word。你也可以自己先把论文导出成 .md 或 .tex，直接交给它。
 
 ---
 

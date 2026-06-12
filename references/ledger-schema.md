@@ -33,6 +33,15 @@ orchestrator-side between workflow calls).
 `meta.assignment_unverified` lists reviewer_ids that assign-reviewers degraded to a
 generic gatekeeper for this run (review-engine-v3.md §3.1).
 
+Format-intake fields (all optional; `meta` is open-keyed, so absent fields are
+non-breaking and simply mean a LaTeX-native engagement): `manuscript` (after a docx
+intake this is the WORKING COPY path, `.paper-review/<basename>.md`, which IS the
+manuscript for every rule and gate), `working_format` (`latex`|`markdown`),
+`source_format` (`docx` when the working copy was extracted), `original` (the uploaded
+file's path, permanently read-only), `original_sha256` (the re-intake guard: a docx whose
+hash no longer matches stops and asks instead of silently re-extracting),
+`extracted_at`, `extraction_report` (path to `.paper-review/extraction-report.json`).
+
 `meta.display_mode` (optional, `show`|`collapse`; absent = `show`) is RENDER-ONLY: it
 never affects counts, the gate, statuses, or routing. In `collapse`, `LEDGER.md` keeps
 the majors table itemized and folds every minor (sigOf = minor, any kind) into a

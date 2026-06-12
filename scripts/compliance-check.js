@@ -10,17 +10,32 @@
 // Dependency-free Node. Detect-or-degrade: page-limit check only runs when given a
 // real compiled page count (--pages, from compile-guard.js); it never guesses.
 //
+// Markdown gate: a non-.tex manuscript runs ONLY the format-neutral checks (the
+// self-reference / URL / email anonymization trio), on RAW text -- no %-comment
+// stripping ("50% better" is prose in Markdown, not a comment). Every LaTeX-only
+// check is named in `skipped_checks` rather than half-applied (a missing
+// \section{...} on a Markdown file would be a false major, not a finding).
+//
 // constraints.json (project-owned; all fields optional):
 //   { "venue": "...", "anonymous": true, "page_limit": 9,
 //     "required_sections": ["Limitations"], "documentclass": "neurips_2026",
 //     "allowed_documentclass_options": ["final"] }
 //
 // CLI:
-//   node compliance-check.js <manuscript.tex> <constraints.json> [--pages N]
-// Output: JSON { findings:[{check,severity,detail,locations}], summary, passed }.
+//   node compliance-check.js <manuscript file> <constraints.json> [--pages N]
+// Output: JSON { findings:[{check,severity,detail,locations}], summary, passed }
+// (+ skipped_checks, note on a Markdown working copy).
 
 'use strict'
 const fs = require('fs')
+const path = require('path')
+
+// the LaTeX-only checks the Markdown gate skips (names mirror the .tex path below)
+const LATEX_ONLY_CHECKS = [
+  'required_sections', 'author-block', '\\thanks', 'acknowledgments-section',
+  '\\vspace', 'spacing-dimensions', 'baselinestretch',
+  'documentclass', 'documentclass-options', 'page-limit',
+]
 
 function stripComments(tex) {
   return tex.split(/\r?\n/).map((line) => {
@@ -36,7 +51,35 @@ function findLines(lines, re) {
   return hits
 }
 
-function check(tex, constraints, pages) {
+// format-neutral anonymization trio (prose-level, no LaTeX markup involved);
+// shared verbatim by the .tex path and the Markdown gate so they cannot diverge
+function neutralAnonChecks(lines, add) {
+  const selfref = findLines(lines, /\b(our|my)\s+(prior|previous|earlier|recent)\s+(work|paper|study|method)\b/i)
+  if (selfref.length) add('anonymization', 'major', 'self-referential phrasing that can de-anonymize (verify semantically)', selfref)
+  const urls = findLines(lines, /\b(github\.com|gitlab\.com|bitbucket\.org|huggingface\.co)\//i)
+  if (urls.length) add('anonymization', 'major', 'code/data URL that may reveal identity (use an anonymized mirror)', urls)
+  const emails = findLines(lines, /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
+  if (emails.length) add('anonymization', 'major', 'email address present', emails)
+}
+
+function checkNeutral(text, constraints) {
+  // RAW lines: %-comment stripping would truncate Markdown prose at every percent sign
+  const lines = text.split(/\r?\n/)
+  const findings = []
+  const add = (chk, sev, detail, locations) => findings.push({ check: chk, severity: sev, detail, locations: locations || [] })
+  if (constraints.anonymous) neutralAnonChecks(lines, add)
+  const summary = { blocker: 0, major: 0, minor: 0 }
+  findings.forEach((f) => { if (summary[f.severity] != null) summary[f.severity]++ })
+  return {
+    findings, summary, page_check_ran: false,
+    skipped_checks: LATEX_ONLY_CHECKS.slice(),
+    note: 'LaTeX-only checks skipped: Markdown working copy',
+    passed: summary.blocker === 0 && summary.major === 0,
+  }
+}
+
+function check(tex, constraints, pages, format = 'latex') {
+  if (format !== 'latex') return checkNeutral(tex, constraints)
   const lines = stripComments(tex)
   const joined = lines.join('\n')
   const findings = []
@@ -52,12 +95,7 @@ function check(tex, constraints, pages) {
     if (thanks.length) add('anonymization', 'blocker', '\\thanks present (often carries identity/funding)', thanks)
     const ack = findLines(lines, /\\(section|subsection)\*?\s*\{\s*acknowledge?ments?\s*\}|\\begin\{acknowledge?ments?\}/i)
     if (ack.length) add('anonymization', 'major', 'acknowledgments section present (must be removed/anonymized for blind review)', ack)
-    const selfref = findLines(lines, /\b(our|my)\s+(prior|previous|earlier|recent)\s+(work|paper|study|method)\b/i)
-    if (selfref.length) add('anonymization', 'major', 'self-referential phrasing that can de-anonymize (verify semantically)', selfref)
-    const urls = findLines(lines, /\b(github\.com|gitlab\.com|bitbucket\.org|huggingface\.co)\//i)
-    if (urls.length) add('anonymization', 'major', 'code/data URL that may reveal identity (use an anonymized mirror)', urls)
-    const emails = findLines(lines, /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/)
-    if (emails.length) add('anonymization', 'major', 'email address present', emails)
+    neutralAnonChecks(lines, add)
   }
 
   // 2. margin / spacing hacks
@@ -105,16 +143,17 @@ function main() {
   const flags = {}
   for (let i = 0; i < rest.length; i++) if (rest[i].startsWith('--')) { flags[rest[i].slice(2)] = rest[i + 1]; i++ }
   if (!texFile || !constraintsFile) {
-    console.error('usage: node compliance-check.js <manuscript.tex> <constraints.json> [--pages N]')
+    console.error('usage: node compliance-check.js <manuscript file> <constraints.json> [--pages N]')
     process.exit(2)
   }
   const tex = fs.readFileSync(texFile, 'utf8')
   const constraints = JSON.parse(fs.readFileSync(constraintsFile, 'utf8'))
-  const res = check(tex, constraints, flags.pages ? parseInt(flags.pages, 10) : null)
+  const format = path.extname(texFile).toLowerCase() === '.tex' ? 'latex' : 'markdown'
+  const res = check(tex, constraints, flags.pages ? parseInt(flags.pages, 10) : null, format)
   console.log(JSON.stringify(res, null, 2))
   process.exit(res.passed ? 0 : 1)
 }
 
 if (require.main === module) main()
 
-module.exports = { check }
+module.exports = { check, checkNeutral }

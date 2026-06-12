@@ -104,7 +104,7 @@ Most writing tools only push your paper forward: they draft and they polish. Non
 
 ### Direct-Edit (common)
 
-- **Trigger:** describe a change in Chinese or English and have the LaTeX edited directly.
+- **Trigger:** describe a change in Chinese or English and have the manuscript (LaTeX or Markdown) edited directly.
 - **Example utterances:** "把这段改成…", "polish this paragraph", "把我对 intro 的想法写成 LaTeX", "tighten this".
 - **Behavior:** no review panel; go straight to drafting the patch through the writing toolkit, with author sign-off.
 
@@ -130,7 +130,7 @@ You don't run commands; you say what you want and the skill picks the mode.
 - "Polish this paragraph." / "把这段 intro 改紧一些。"
 - "Turn my Chinese note for the intro into LaTeX: `<your idea>`."
 - "De-AI this paragraph." / "Compress this sentence to one line." / "Rewrite this caption."
-- → it drafts the LaTeX change, self-checks it, shows you the patch, and applies it after you approve. No panel.
+- → it drafts the change, self-checks it, shows you the patch, and applies it after you approve. No panel.
 
 **Get the paper critiqued before submission (→ review):**
 - "Review my paper." / "审稿。" / "Mock-review this before I submit."
@@ -146,6 +146,12 @@ You don't run commands; you say what you want and the skill picks the mode.
 - "Run the submission-readiness / compliance check." → deterministic format screening + a compile-driven layout check.
 
 Rule of thumb: **one change → just say it; want it picked apart → say "review"; want it run unattended → `/goal`.**
+
+---
+
+## FAQ
+
+**Can PaperJury review a Word (.docx) file?** Yes. PaperJury converts your .docx to Markdown once, tells you exactly what the conversion kept and what it could not carry over (complex tables, equations), and runs the full multi-round review on that Markdown. Your original Word file is never modified. You get back the edited Markdown plus a list of every change; merging changes back into Word is up to you. You can also export to .md or .tex yourself and hand that in directly.
 
 ---
 

@@ -1,7 +1,7 @@
 ---
 name: paperjury
-description: Three modes for CS-conference papers (CVPR/ICCV/ECCV vision, ACL/EMNLP/NAACL NLP, ICLR/NeurIPS/ICML/AAAI ML). DIRECT-EDIT mode (common): the user describes a change in Chinese or English and the LaTeX is edited directly through a CS-venue writing toolkit with author sign-off (use for 改这段 / 把中文想法写成 latex / polish / de-AI / translate / compress a passage). REVIEW mode (occasional, pre-submission): harden the paper through an adversarial courtroom review engine (N holistic domain reviewers / contestability routing / two-sided trial / three-way verdict / clerk-converged multi-round loop) with consensus-gated, author-signed revisions (use for review / critique / 审稿 / 评审 / mock-review). AUTO mode (unattended, opt-in via /goal): run the review-revise loop toward a verifiable goal, applying safe fixes under a drift-bounded policy and queueing risky ones. Resolves all inputs at runtime, no hardcoded paths. Not a from-scratch drafter (use ml-paper-writing) and not an official-venue rebuttal.
-version: 1.1.0
+description: Three modes for CS-conference papers (CVPR/ICCV/ECCV vision, ACL/EMNLP/NAACL NLP, ICLR/NeurIPS/ICML/AAAI ML). DIRECT-EDIT mode (common): the user describes a change in Chinese or English and the manuscript (LaTeX or Markdown) is edited directly through a CS-venue writing toolkit with author sign-off (use for 改这段 / 把中文想法写成 latex / polish / de-AI / translate / compress a passage). REVIEW mode (occasional, pre-submission): harden the paper through an adversarial courtroom review engine (N holistic domain reviewers / contestability routing / two-sided trial / three-way verdict / clerk-converged multi-round loop) with consensus-gated, author-signed revisions (use for review / critique / 审稿 / 评审 / mock-review). AUTO mode (unattended, opt-in via /goal): run the review-revise loop toward a verifiable goal, applying safe fixes under a drift-bounded policy and queueing risky ones. Resolves all inputs at runtime, no hardcoded paths. Not a from-scratch drafter (use ml-paper-writing) and not an official-venue rebuttal.
+version: 1.2.0
 author: Yiran Wang
 license: MIT
 tags: [Academic Writing, Peer Review, Adversarial Review, CVPR, ICCV, ECCV, ACL, EMNLP, NAACL, ICLR, NeurIPS, ICML, AAAI, Workflow, LaTeX]
@@ -99,8 +99,38 @@ hand-rolled version accumulates.
 The skill ships ZERO hardcoded paths or project files. On trigger it resolves
 each input by **discovery first, then asking**:
 
-- **manuscript**: detect the main source (the `.tex` with `\documentclass` /
-  `\begin{document}`, or the file the user names). If several candidates, ask.
+- **manuscript**: detect the main source, then route it through the INTAKE FORMAT
+  GATE by extension. Four routes, none silent:
+  - `.tex`: the native LaTeX path. Detect the main source (the `.tex` with
+    `\documentclass` / `\begin{document}`, or the file the user names). If
+    several candidates, ask.
+  - `.md` / `.markdown` / `.txt`: the native text path. The full multi-round
+    engine runs; compile checks are not applicable (`compile-guard` returns
+    `compiled:null` plus a markdown sanity lint, an honest UNKNOWN, never a
+    fake pass); LaTeX-only compliance checks are skipped and reported as
+    `skipped_checks`.
+  - `.docx`: if a `.paper-review/` working copy AND a ledger already exist,
+    REUSE them, never re-extract. If the sha256 of the docx no longer matches
+    the ledger's `meta.original_sha256`, STOP and ask: continue on the working
+    copy, or `extract --force` knowingly discarding the applied edits (an
+    explicit new-intake event). Otherwise run
+    `node scripts/extract-docx.js extract <file.docx>` (one time) and tell the
+    user explicitly: the original Word file is never modified; all rounds run
+    on `.paper-review/<basename>.md` (print the full working-copy path); they
+    get back the edited Markdown plus a per-edit change list; the extraction
+    report lists everything dropped or degraded. Write ledger meta
+    `{manuscript: <working copy>, working_format: 'markdown', source_format:
+    'docx', original, original_sha256, extracted_at, extraction_report}`. If the
+    report shows nonzero tracked-change counts, seed a round-1 `author-required`
+    ledger row ("manuscript contains unresolved tracked changes; accepted-all
+    for review").
+  - any other extension (`.doc`, `.pdf`, `.rtf`, `.odt`, ...): explicitly
+    unsupported. Say so and suggest exporting `.docx` / `.md` / `.tex`; never
+    silently degrade.
+
+  After intake, the working copy IS the manuscript for every rule and gate in
+  this file (sign-off, spine freeze, round-0 baseline, edit safety, journal);
+  the original uploaded file is permanently read-only.
 - **venue_family**: the user can name it, or an agent reads the class file to
   GUESS the family (e.g. a cvpr/iccv style, an acl style, a neurips/iclr style).
   There is no hardcoded venue list and no deterministic detector; if unclear, ask.
@@ -128,12 +158,18 @@ No panel, no ledger, no discussion. Minimal flow:
 
 1. **Locate.** Resolve the manuscript and find the target passage the instruction
    refers to (a paragraph, sentence, caption, table cell). If it is ambiguous on a
-   large file, ask which passage; do not guess.
+   large file, ask which passage; do not guess. On a `.docx`: if a working copy
+   already exists, it IS the manuscript, edit it; if none exists, offer an
+   explicit choice between (a) paste-back, returning the rewritten passage as
+   text for the user to apply in Word (no working copy), and (b) running the
+   one-time intake extraction and editing the working copy. Never edit the
+   `.docx` file itself.
 2. **Draft.** Pick the writing-toolkit prompt matching the instruction
    (`translate-to-english` for a Chinese idea, `polish-english` / `de-ai` for a
    rewrite, `compress` / `expand` for length, `caption` / `experiment-analysis`
-   for those units) and draft the LaTeX patch to do exactly what was asked. The
-   Common guards apply (LaTeX-safe, plain CS prose, no log leakage into the .tex).
+   for those units) and draft the patch to do exactly what was asked. The Common
+   guards apply (markup-safe for the working format, plain CS prose, no log
+   leakage into the manuscript).
 3. **Self-gate.** Run `logic-check` on the drafted passage.
 4. **Sign-off.** Show the patch and get explicit author approval (hard rule 1).
 5. **Apply.** Write only the patch into the manuscript; keep any back-translation

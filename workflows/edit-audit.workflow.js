@@ -14,7 +14,8 @@
 //
 // args (JSON STRING -- parse defensively):
 //   { edits:[ {issue_id, before, after, cross_ref_hits:[{token, passage_id}]} ],
-//     passages:[ {passage_id, text} ] }     // to resolve cross_ref_hits to text
+//     passages:[ {passage_id, text} ],      // to resolve cross_ref_hits to text
+//     working_format }    // 'markdown' drops \ref/\cite/\label from the token-kind list
 // Returns { edit_verdicts:[ {issue_id, verdict, reason, offending_text} ] }.
 
 export const meta = {
@@ -28,6 +29,12 @@ const edits = A.edits || []
 const passages = A.passages || []
 const byId = new Map(passages.map((p) => [p.passage_id, p]))
 const ISOLATION = 'Judge ONLY the edit and the passages quoted here. Do not read files or search the project.'
+
+// Markdown working copies carry no \ref/\cite/\label keys; keep the token-kind list
+// honest there. Default branch must stay byte-identical to the LaTeX prompt.
+const tokenKindLine = A.working_format === 'markdown'
+  ? 'symbol, defined term, or cross-reference key) that ALSO appears in other passages, so'
+  : 'symbol, defined term, or \\ref/\\cite/\\label key) that ALSO appears in other passages, so'
 
 const VERDICT = {
   type: 'object', additionalProperties: false,
@@ -54,7 +61,7 @@ function refsText(hits) {
 function auditPrompt(e) {
   return [
     'You audit ONE applied edit to a CS paper for SAFETY. The edit changed a token (a number,',
-    'symbol, defined term, or \\ref/\\cite/\\label key) that ALSO appears in other passages, so',
+    tokenKindLine,
     'it could create a cross-section inconsistency. Decide ONE verdict:',
     '- holds: the rewritten text reads correctly in place AND stays consistent with the other',
     '  passages shown (no number/table mismatch, no broken reference, no contradicted definition).',

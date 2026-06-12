@@ -14,6 +14,8 @@
 //
 // args (JSON STRING -- parse defensively):
 //   { venueProfile,
+//     working_format: 'latex' (default) | 'markdown' -- from ledger meta; selects the
+//       LaTeX-safe vs Markdown-safe rewrite rule in the prompt,
 //     fixable:[ {charge_id, section, close_criterion, evidence_anchor} ],
 //     units:[ {unit_id, section, text} ],
 //     spine:[ {anchor_id, type, text} ] }
@@ -31,6 +33,12 @@ const A = (typeof args === 'string' ? JSON.parse(args) : args) || {}
 const fixable = A.fixable || []
 const units = A.units || []
 const spine = A.spine || []
+
+// Markdown working copies must not get LaTeX escaping (a literal % or _ IS the prose
+// there); the default branch must stay byte-identical to the LaTeX prompt.
+const afterLine = A.working_format === 'markdown'
+  ? '- `after`: that span rewritten. Plain CS prose, Markdown-safe (preserve the file\'s Markdown markup; do NOT escape %, _, or other plain characters; do not add or remove headings or blank lines), NO em-dashes, no new'
+  : '- `after`: that span rewritten. Plain CS prose, LaTeX-safe, NO em-dashes, no new'
 
 const PATCH = {
   type: 'object', additionalProperties: false,
@@ -62,7 +70,7 @@ function draftPrompt(c) {
     'claim\'s meaning. Output an exact-string patch:',
     '- `before`: copy VERBATIM the smallest contiguous span of the text below that you',
     '  are changing (it must appear exactly in the text).',
-    '- `after`: that span rewritten. Plain CS prose, LaTeX-safe, NO em-dashes, no new',
+    afterLine,
     '  citations or numbers you cannot support, no revision notes in the text.',
     'If the only honest fix needs information not in the text (a new experiment, a',
     'number you do not have), do NOT fabricate: set before/after equal and explain in',

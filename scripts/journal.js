@@ -16,6 +16,11 @@
 //   node journal.js list   <journal.jsonl> [--issue I-05] [--round N]
 //   node journal.js get    <journal.jsonl> <J-0001>
 //   node journal.js revert <journal.jsonl> <J-0001>   # prints {find, replace, ...} reverse patch
+//   node journal.js passage-rounds <journal.jsonl> <passage_id> [--aliases <path>]
+//   node journal.js within-cap     <journal.jsonl> <passage_id> [--cap N] [--aliases <path>]
+//   node journal.js applied-in-round <journal.jsonl> <round>
+// passage-rounds/within-cap resolve ids through the rekey.js alias map (default
+// passage-aliases.json next to the journal; absent file = empty map = old behavior).
 //
 // An entry: { seq, jid, issue_id, passage_id, round, close_criterion,
 //             before, after, ts, applied }
@@ -80,17 +85,43 @@ function revertInfo(file, jid) {
 // journal already records {passage_id, round, applied} per edit, so the per-passage
 // rounds-touched cap and applied-quiescence are pure bookkeeping over it.
 
+// A first-words anchor mutates when an edit rewrites a paragraph's opening words,
+// so the same physical passage can appear in the journal under several ids across
+// rounds. rekey.js records those renames in passage-aliases.json ({old_id: new_id},
+// chains flattened on write); the cap functions resolve BOTH sides through the map
+// so pre- and post-edit rounds count as the SAME passage. No aliases file present
+// means an empty map, which leaves behavior byte-identical to the pre-alias code.
+
+function loadAliases(journalFile, explicitPath) {
+  const p = explicitPath || path.join(path.dirname(path.resolve(journalFile)), 'passage-aliases.json')
+  if (!fs.existsSync(p)) return {}
+  return JSON.parse(fs.readFileSync(p, 'utf8'))
+}
+
+// Follow the alias chain; the seen-set guards a hand-edited cycle (rekey itself
+// never writes one). Unknown ids (and a missing map) resolve to themselves.
+function resolveAlias(map, id) {
+  const seen = new Set()
+  let cur = id
+  while (map && cur != null && Object.prototype.hasOwnProperty.call(map, cur) && !seen.has(cur)) {
+    seen.add(cur)
+    cur = map[cur]
+  }
+  return cur
+}
+
 // Distinct rounds in which an APPLIED edit touched this passage (the real drift bound).
-function roundsTouchedForPassage(file, passageId) {
+function roundsTouchedForPassage(file, passageId, aliases) {
+  const target = resolveAlias(aliases, passageId)
   const rounds = new Set()
   readEntries(file).forEach((e) => {
-    if (e.applied !== false && e.passage_id === passageId && e.round != null) rounds.add(e.round)
+    if (e.applied !== false && resolveAlias(aliases, e.passage_id) === target && e.round != null) rounds.add(e.round)
   })
   return [...rounds].sort((a, b) => a - b)
 }
 // The orchestrator queues any further edit to a passage already at the cap (default 2).
-function withinPassageCap(file, passageId, cap) {
-  return roundsTouchedForPassage(file, passageId).length < (cap == null ? 2 : cap)
+function withinPassageCap(file, passageId, cap, aliases) {
+  return roundsTouchedForPassage(file, passageId, aliases).length < (cap == null ? 2 : cap)
 }
 // Applied edits in a round. Nits/queued items do NOT journal as applied, so they
 // never extend the loop; auto stops after K consecutive rounds with 0 applied edits.
@@ -133,10 +164,12 @@ function main() {
   } else if (cmd === 'revert') {
     console.log(JSON.stringify(revertInfo(file, pos[0]), null, 2))
   } else if (cmd === 'passage-rounds') {
-    console.log(JSON.stringify({ passage_id: pos[0], rounds: roundsTouchedForPassage(file, pos[0]) }))
+    const aliases = loadAliases(file, flags.aliases)
+    console.log(JSON.stringify({ passage_id: pos[0], rounds: roundsTouchedForPassage(file, pos[0], aliases) }))
   } else if (cmd === 'within-cap') {
+    const aliases = loadAliases(file, flags.aliases)
     const cap = flags.cap ? parseInt(flags.cap, 10) : 2
-    const ok = withinPassageCap(file, pos[0], cap)
+    const ok = withinPassageCap(file, pos[0], cap, aliases)
     console.log(JSON.stringify({ passage_id: pos[0], cap, within: ok }))
     process.exit(ok ? 0 : 1)
   } else if (cmd === 'applied-in-round') {
@@ -149,4 +182,4 @@ function main() {
 
 if (require.main === module) main()
 
-module.exports = { readEntries, append, list, get, revertInfo, roundsTouchedForPassage, withinPassageCap, appliedEditsInRound }
+module.exports = { readEntries, append, list, get, revertInfo, loadAliases, resolveAlias, roundsTouchedForPassage, withinPassageCap, appliedEditsInRound }

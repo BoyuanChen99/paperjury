@@ -146,6 +146,58 @@ function findMainTexCandidates(projectDir) {
   })
 }
 
+// extract-docx.js default working-copy location for a given .docx
+function workingCopyFor(docxFile) {
+  const base = path.basename(docxFile, path.extname(docxFile))
+  return path.join(path.dirname(docxFile), '.paper-review', base + '.md')
+}
+
+function classifyDocx(file) {
+  // diagnostics only: doctor never extracts; it points at the one-time intake step
+  // or at the existing working copy (re-extraction would discard applied edits)
+  const copy = workingCopyFor(file)
+  if (fs.existsSync(copy)) {
+    return { level: 'ok', message: `extracted working copy found at ${copy} -- reuse it; never re-extract` }
+  }
+  return { level: 'warn', message: `Word manuscript: one-time extraction required: node scripts/extract-docx.js extract ${file}` }
+}
+
+// manuscript-detect across formats: an explicit file arg classifies by extension
+// FIRST (the \documentclass filter is a .tex-only heuristic and must not reject
+// .md/.docx manuscripts); a dir scan reports .tex, then .md, then .docx, and the
+// no-manuscript WARN only fires when none of the three exists
+function detectManuscript(project) {
+  const stat = fs.statSync(project)
+  const ext = stat.isFile() ? path.extname(project).toLowerCase() : null
+  if (ext === '.md' || ext === '.markdown' || ext === '.txt') {
+    const kind = ext === '.txt' ? 'text manuscript' : 'Markdown manuscript'
+    return { level: 'ok', message: `${kind}: ${project} (native text path; compile checks not applicable -- compiled:null)` }
+  }
+  if (ext === '.docx') return classifyDocx(project)
+  const tex = findMainTexCandidates(project)
+  if (tex.length === 1) return { level: 'ok', message: `main .tex detected: ${rel(project, tex[0])}` }
+  if (tex.length > 1) {
+    return { level: 'warn', message: `multiple main .tex candidates under ${project}`, details: tex.slice(0, 10).map((p) => rel(project, p)) }
+  }
+  if (!stat.isFile()) {
+    // .paper-review/ holds extraction artifacts (docx working copies), not a
+    // standalone manuscript; the owning .docx reports the reuse message instead
+    const md = collectFiles(project, (p) => path.extname(p).toLowerCase() === '.md' && !p.split(path.sep).includes('.paper-review'))
+    if (md.length === 1) {
+      return { level: 'ok', message: `Markdown manuscript: ${rel(project, md[0])} (text path; compile checks not applicable -- compiled:null)` }
+    }
+    if (md.length > 1) {
+      return { level: 'warn', message: `multiple Markdown manuscript candidates under ${project}`, details: md.slice(0, 10).map((p) => rel(project, p)) }
+    }
+    const docx = collectFiles(project, (p) => path.extname(p).toLowerCase() === '.docx')
+    if (docx.length === 1) return classifyDocx(docx[0])
+    if (docx.length > 1) {
+      return { level: 'warn', message: `multiple Word manuscript candidates under ${project}`, details: docx.slice(0, 10).map((p) => rel(project, p)) }
+    }
+  }
+  return { level: 'warn', message: `no manuscript (.tex/.md/.docx) detected under ${project}; pass --project <paper-dir> from a paper project` }
+}
+
 function runDoctor(options = {}) {
   const root = path.resolve(options.root || ROOT)
   const project = path.resolve(options.project || process.cwd())
@@ -207,14 +259,8 @@ function runDoctor(options = {}) {
   if (!fs.existsSync(project)) {
     error('project-path', `project path does not exist: ${project}`)
   } else {
-    const candidates = findMainTexCandidates(project)
-    if (candidates.length === 0) {
-      warn('manuscript-detect', `no main .tex detected under ${project}; pass --project <paper-dir> from a paper project`)
-    } else if (candidates.length === 1) {
-      ok('manuscript-detect', `main .tex detected: ${rel(project, candidates[0])}`)
-    } else {
-      warn('manuscript-detect', `multiple main .tex candidates under ${project}`, candidates.slice(0, 10).map((p) => rel(project, p)))
-    }
+    const found = detectManuscript(project)
+    add(found.level, 'manuscript-detect', found.message, found.details)
   }
 
   const errors = checks.filter((c) => c.level === 'error').length
@@ -242,7 +288,8 @@ function usage() {
     'usage: node scripts/doctor.js [--project <paper-dir>] [--json] [--strict-latex]',
     '',
     'Checks repository integrity, JS/workflow syntax, local docs links, required tools,',
-    'and whether a main .tex can be detected in the target paper project.',
+    'and whether a manuscript (.tex, .md, or .docx) can be detected in the target paper',
+    'project (.docx additionally reports whether its extracted working copy exists).',
   ].join('\n')
 }
 
@@ -273,5 +320,6 @@ module.exports = {
   format,
   checkLocalLinks,
   findMainTexCandidates,
+  detectManuscript,
   checkWorkflowSyntax,
 }
