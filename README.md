@@ -263,3 +263,9 @@ Where this is going (planned, not yet shipped):
 ## Credits
 
 The spine and anti-drift design (the anchor logic-transfer audit, the claim register, and the minimal-edit, intent-preserving revision policy) is inspired by [PaperSpine](https://github.com/WUBING2023/PaperSpine), a motivation-driven paper drafting and rewriting skill. PaperSpine is a forward generate/rewrite tool with no adversarial loop; PaperJury borrows its anchoring idea and its "deterministic scripts for checkable steps, model agents for judgment" mechanism, then adds the adversarial courtroom review engine on top.
+
+---
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=u7079256/paperjury&type=Date)](https://www.star-history.com/#u7079256/paperjury&Date)
