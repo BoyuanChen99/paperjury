@@ -15,7 +15,7 @@ class the 1.1.0 significance floor closed). Fixes, in order of weight:
   so the pre-edit consensus spot-check could silently select zero rows. Other
   unknown flags keep today's ignore semantics.
 - **meaning-audit seam corrected** in `review-engine-v3.md`: the workflow
-  returns `{verdicts, arc}` (the doc said `anchor_verdicts`), and a new SEAM 15
+  returns `{verdicts, arc}` (the doc said `anchor_verdicts`), and a new SEAM 13
   spells out how the orchestrator enriches `need_audit` anchor ids into the full
   objects the workflow consumes (frozen_text from spine.json, support texts from
   anchor-diff). Following the old wording skipped the frozen-anchor revert gate.
