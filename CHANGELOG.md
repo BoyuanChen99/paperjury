@@ -1,3 +1,5 @@
+**English** · [中文](CHANGELOG.zh-CN.md)
+
 # Changelog
 
 All notable changes to PaperJury are documented in this file.
