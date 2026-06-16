@@ -17,7 +17,13 @@
 </p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh"><img src="docs/overview-card.png" alt="PaperJury 交互式总览" width="760"></a>
+  <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
+      <img src="docs/overview-card.png" alt="PaperJury interactive overview" width="760">
+    </picture>
+  </a>
 </p>
 
 论文写完后，最容易漏掉的往往不是语法，而是 reviewer 会抓住的论证缝隙：claim 够不够稳，实验是否真正支撑结论，格式上有没有可能先被 desk-reject。直接问 AI「我论文怎么样」，常常只会得到礼貌夸奖，或者一堆不分轻重的挑刺。

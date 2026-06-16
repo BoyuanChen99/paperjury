@@ -17,7 +17,13 @@
 </p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img src="docs/overview-card.png" alt="PaperJury interactive overview" width="760"></a>
+  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
+      <img src="docs/overview-card.png" alt="PaperJury interactive overview" width="760">
+    </picture>
+  </a>
 </p>
 
 Ask an AI "how is my paper?" and you usually get one of two useless answers: polite praise, or an indiscriminate pile of nitpicks. PaperJury turns paper feedback into a closed loop instead: review → verdict → revise → verify. It sorts each issue into one of three outcomes:
