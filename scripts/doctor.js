@@ -222,7 +222,7 @@ function runDoctor(options = {}) {
   const requiredFiles = [
     'SKILL.md',
     'README.md',
-    'README.zh-CN.md',
+    'README.en.md',
     'references/review-engine-v3.md',
     'references/auto-mode.md',
     'references/ledger-schema.md',
