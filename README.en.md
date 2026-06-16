@@ -11,8 +11,8 @@
 <p align="center">
   <a href="https://u7079256.github.io/paperjury/paperjury-paper.pdf"><img alt="Read the paper (PDF)" src="https://img.shields.io/badge/Paper-PDF-b31b1b?style=for-the-badge&logo=latex&logoColor=white"></a>
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img alt="Open the live interactive overview" src="https://img.shields.io/badge/Interactive_overview-d6a14b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
-  <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="GitHub stars" src="https://img.shields.io/github/stars/u7079256/paperjury?style=for-the-badge&color=3b3d47"></a>
-  <a href="https://github.com/u7079256/paperjury/releases"><img alt="latest release" src="https://img.shields.io/github/v/release/u7079256/paperjury?style=for-the-badge&color=3b3d47"></a>
+  <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="Star this repo" src="https://img.shields.io/badge/GitHub-Star-3b3d47?style=for-the-badge&logo=github&logoColor=white"></a>
+  <a href="https://github.com/u7079256/paperjury/releases"><img alt="Open releases" src="https://img.shields.io/badge/Releases-Open-3b3d47?style=for-the-badge"></a>
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-3b3d47?style=for-the-badge">
 </p>
 
