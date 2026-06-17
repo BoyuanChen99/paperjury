@@ -9,7 +9,7 @@
 <p align="center">投稿前，先让 AI 陪审团审一遍。</p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/paperjury-paper.pdf"><img alt="阅读论文（PDF）" src="https://img.shields.io/badge/论文-PDF-b31b1b?style=for-the-badge&logo=latex&logoColor=white"></a>
+  <a href="https://arxiv.org/abs/2606.16322"><img alt="阅读论文（arXiv）" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh"><img alt="打开在线交互式总览" src="https://img.shields.io/badge/在线交互式总览-d6a14b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
   <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="Star this repo" src="https://img.shields.io/badge/GitHub-Star-3b3d47?style=for-the-badge&logo=github&logoColor=white"></a>
   <a href="https://github.com/u7079256/paperjury/releases"><img alt="Open releases" src="https://img.shields.io/badge/Releases-Open-3b3d47?style=for-the-badge"></a>
@@ -57,7 +57,7 @@
 <details>
 <summary><b>更新日志</b></summary>
 
-> **2026-06-12：PaperJury 论文出炉。** preprint 在这里：[*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://u7079256.github.io/paperjury/paperjury-paper.pdf)。论文完整介绍了「审稿 → 裁定 → 修改 → 复查」引擎：确定性脚本和语义 agent 如何分工，问题如何按可争议性路由，trial 怎么审议，以及编辑护栏如何按风险分级。
+> **2026-06-15：PaperJury 论文已上 arXiv。** arXiv 页面：[*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322)（arXiv:2606.16322）。论文完整介绍了「审稿 → 裁定 → 修改 → 复查」引擎：确定性脚本和语义 agent 如何分工，问题如何按可争议性路由，trial 怎么审议，以及编辑护栏如何按风险分级。
 >
 > **2026-06-10：v1.0.0 发布。** 第一个稳定版本，与 Codex 版 v1.0 对齐。新增非阻塞更新提醒：发现更新的稳定版 tag 时，只提示，不打断当前工作。
 >

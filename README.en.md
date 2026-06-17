@@ -9,7 +9,7 @@
 <p align="center">Before a reviewer tears it apart, let a jury do it first.</p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/paperjury-paper.pdf"><img alt="Read the paper (PDF)" src="https://img.shields.io/badge/Paper-PDF-b31b1b?style=for-the-badge&logo=latex&logoColor=white"></a>
+  <a href="https://arxiv.org/abs/2606.16322"><img alt="Read the paper on arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img alt="Open the live interactive overview" src="https://img.shields.io/badge/Interactive_overview-d6a14b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
   <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="Star this repo" src="https://img.shields.io/badge/GitHub-Star-3b3d47?style=for-the-badge&logo=github&logoColor=white"></a>
   <a href="https://github.com/u7079256/paperjury/releases"><img alt="Open releases" src="https://img.shields.io/badge/Releases-Open-3b3d47?style=for-the-badge"></a>
@@ -54,7 +54,7 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 <details>
 <summary><b>📰 Changelog</b></summary>
 
-> **📄 2026-06-12: The PaperJury paper is out.** Read the preprint: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://u7079256.github.io/paperjury/paperjury-paper.pdf) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
+> **📄 2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
 >
 > **🔔 2026-06-10: v1.0.0 released.** First stable release, aligned with the Codex port's v1.0. Adds a non-blocking update reminder that points to the latest stable release when a newer tag exists.
 >
