@@ -1,4 +1,4 @@
-**中文** · [English](README.en.md)
+﻿**中文** · [English](README.en.md)
 
 <p align="center">
   <img src="docs/paperjury-mark.png" alt="PaperJury logo" width="120">
@@ -6,11 +6,12 @@
 
 <h1 align="center">PaperJury</h1>
 
-<p align="center">投稿前，先让 AI 陪审团审一遍。</p>
+<p align="center">真正投稿前，先让 AI reviewer 把该挑的坑挑出来。</p>
 
 <p align="center">
   <a href="https://arxiv.org/abs/2606.16322"><img alt="阅读论文（arXiv）" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh"><img alt="打开在线交互式总览" src="https://img.shields.io/badge/在线交互式总览-d6a14b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
+  <a href="samples/dogfood/"><img alt="查看真实样例" src="https://img.shields.io/badge/真实样例-Dogfood-2f7d55?style=for-the-badge"></a>
   <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="Star this repo" src="https://img.shields.io/badge/GitHub-Star-3b3d47?style=for-the-badge&logo=github&logoColor=white"></a>
   <a href="https://github.com/u7079256/paperjury/releases"><img alt="Open releases" src="https://img.shields.io/badge/Releases-Open-3b3d47?style=for-the-badge"></a>
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-3b3d47?style=for-the-badge">
@@ -21,12 +22,16 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
       <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
-      <img src="docs/overview-card.png" alt="PaperJury interactive overview" width="760">
+      <img src="docs/overview-card.png" alt="PaperJury 交互式总览" width="760">
     </picture>
   </a>
 </p>
 
-论文写完后，最容易漏掉的往往不是语法，而是 reviewer 会抓住的论证缝隙：claim 够不够稳，实验是否真正支撑结论，格式上有没有可能先被 desk-reject。直接问 AI「我论文怎么样」，常常只会得到礼貌夸奖，或者一堆不分轻重的挑刺。
+> **一句话版：** PaperJury 把「帮我看看论文」变成一套可追踪的投稿前审稿流程：先找 reviewer 可能抓住的坑，再判断每条意见是否成立；能安全改的给补丁，缺实验或证据的交回作者，不成立的直接驳回。
+
+刚写完初稿、准备投稿前自查、想改 LaTeX 但怕改漂，或者只是想先做一轮快速 triage，都可以直接用自然语言开口；不用先理解内部引擎。
+
+> **RedNote（小红书）里程碑：** 相关分享已达到 **3 万浏览**、**1.8k 收藏**。感谢大家把 PaperJury 推荐给更多正在赶论文、改论文的人。
 
 **PaperJury 是 Claude Code skill**，把投稿前自查做成一套闭环：**审稿 → 裁定 → 修改 → 复查**。它不会照单全收 AI 反馈，而是先把每条意见分成三类：
 
@@ -39,18 +44,37 @@
 > [!IMPORTANT]
 > PaperJury 是投稿前的自查流程，**不替代作者的科学判断，也不替代 peer review**。它不能拿来编造实验、伪造结果、加上没有证据支撑的 claim，或者掩盖论文局限。遇到需要新实验、缺失证据、作者私有知识或研究层面判断的问题，它都会交回作者处理。
 
+## 适合谁
+
+| 你现在的情况 | 可以直接这样用 |
+|---|---|
+| **刚写完初稿** | 让它像 reviewer 一样通读全文，先找最可能影响投稿的问题。 |
+| **准备投稿前最后检查** | 让它检查 claim、实验支撑、格式风险和常见 desk-reject 点。 |
+| **只想安全改一段话** | 直接说「把这段改紧一点，但不要改变 claim」，它会先起草补丁再等你确认。 |
+| **想多轮打磨但不想盯着** | 明确授权 auto 模式，让它把安全修改落稿，高风险问题放回队列。 |
+
+## 你会得到什么
+
+| 输出 | 内容 |
+|---|---|
+| **问题台账** | 每条 reviewer-style 问题都会带证据、位置、裁定结果和当前状态；不会把一堆意见直接倒进正文。 |
+| **可审阅补丁** | 只有安全修复会进入最小改动补丁；高风险改动会排队，等作者决定。 |
+| **复查报告** | 能编译时真实跑 LaTeX 和格式检查；不能编译时明确降级，不假装验证过。 |
+| **真实样例** | [`samples/dogfood/`](samples/dogfood/) 里有修改前后 PDF 和人工核对过的运行报告。 |
+
 ---
 
 ## 目录
 
+- [适合谁](#适合谁)
+- [你会得到什么](#你会得到什么)
 - [快速上手](#快速上手)
 - [能帮你做什么](#能帮你做什么)
 - [三种模式](#三种模式)
 - [真实跑一遍](#真实跑一遍)
 - [安装](#安装)
 - [常见问题](#常见问题)
-- [引擎原理](#引擎原理)
-- [架构与隐私](#架构与隐私)
+- [深入了解](#深入了解)
 - [Roadmap](#roadmap)
 - [致谢](#致谢)
 
@@ -184,7 +208,22 @@ git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills
 
 不会。direct-edit 和 review 模式下，补丁需要你确认后才会应用。auto 模式也必须显式开启，并且会先拿到对核心方向、修订范围和策略的整体授权。
 
-## 引擎原理
+## 深入了解
+
+新用户可以先跳过这一节。想看机制、源码结构或 agent 驱动方式，可以从这里开始：
+
+| 你想了解 | 入口 |
+|---|---|
+| 真实运行效果 | [`samples/dogfood/RUN_REPORT.zh-CN.md`](samples/dogfood/RUN_REPORT.zh-CN.md) |
+| 怎么驱动 Claude / 编码 agent | [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) |
+| 引擎设计细节 | [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) |
+| 完整协议和状态机 | [`references/review-engine-v3.md`](references/review-engine-v3.md) · [`references/ledger-schema.md`](references/ledger-schema.md) |
+| 在线可视化说明 | [交互式总览](https://u7079256.github.io/paperjury/overview.html?lang=zh) |
+
+<details>
+<summary><b>展开机制、架构和项目结构说明</b></summary>
+
+### 引擎原理
 
 引擎把审稿流程组织成一套「庭审」：评审数量有边界，争议问题会分流审议，编辑按风险加护栏，多轮循环由确定性书记官判定是否收敛。
 
@@ -264,6 +303,20 @@ Reviewer panel 由 N 个领域专家 holistic reviewer 组成（默认 3 个，�
 > [!NOTE]
 > 你的项目文件、ledger、journal 和 patch 都留在本地论文项目里。PaperJury 没有自己的后端或服务器，所以不会有任何东西发到 PaperJury 的服务器。审稿走的是你自己的 Claude Code session；模型本身仍可能跑在云端，内容到了那边怎么处理，跟随这套 Claude Code 环境的条款和设置，PaperJury 不会再加一层。
 
+## 项目结构
+
+| 路径 | 作用 |
+|---|---|
+| `.claude-plugin/` | Claude Code marketplace 打包配置。 |
+| `workflows/` | 语义阶段：评审分配、覆盖检查、合并、庭审、召回审计、起草和收敛。 |
+| `scripts/` | 确定性 guards：ledger、journal、apply-patch、anchor-diff、cross-ref、compile-guard、doctor 等。 |
+| `references/` | 引擎协议、ledger schema、评审者人格、写作工具和方法论。 |
+| `docs/` | 设计说明、交互式总览、arXiv 论文 PDF 和 agent 驱动指南。 |
+| `samples/dogfood/` | 真实草稿的 before/after PDF 和人工核对过的运行报告。 |
+| `tests/` | 确定性脚本和核心状态机测试。 |
+
+</details>
+
 ## Roadmap
 
 - [x] **软更新提醒。** 启动时检查有没有更新的稳定版 tag，有就给一条非阻塞提示。
@@ -274,7 +327,7 @@ Reviewer panel 由 N 个领域专家 holistic reviewer 组成（默认 3 个，�
 - [ ] **用更多真实论文做规模化验证。**
 
 <details>
-<summary><b>文件与路径速查</b></summary>
+<summary><b>更多文件与路径</b></summary>
 
 - 引擎协议：`references/review-engine-v3.md`
 - 自动模式：`references/auto-mode.md`

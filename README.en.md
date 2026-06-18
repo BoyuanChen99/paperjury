@@ -11,6 +11,7 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2606.16322"><img alt="Read the paper on arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img alt="Open the live interactive overview" src="https://img.shields.io/badge/Interactive_overview-d6a14b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
+  <a href="samples/dogfood/"><img alt="View the dogfood sample" src="https://img.shields.io/badge/Sample-Dogfood-2f7d55?style=for-the-badge"></a>
   <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="Star this repo" src="https://img.shields.io/badge/GitHub-Star-3b3d47?style=for-the-badge&logo=github&logoColor=white"></a>
   <a href="https://github.com/u7079256/paperjury/releases"><img alt="Open releases" src="https://img.shields.io/badge/Releases-Open-3b3d47?style=for-the-badge"></a>
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-3b3d47?style=for-the-badge">
@@ -34,6 +35,8 @@ Ask an AI "how is my paper?" and you usually get one of two useless answers: pol
 
 PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto.
 
+> **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for helping it reach more people writing and revising papers.
+
 > [!IMPORTANT]
 > PaperJury is a pre-submission self-check workflow. It **does not replace your scientific judgment, and it does not replace peer review.** It should never be used to invent experiments, fabricate results, add unsupported claims, or hide a paper's limitations. When an issue needs a new experiment, missing evidence, private knowledge, or a research-level decision, it routes that issue to the author instead of patching it automatically — the three outcomes exist precisely so that judgment calls stay with you.
 
@@ -46,8 +49,7 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 - [Sample run](#sample-run)
 - [Install](#install)
 - [FAQ](#faq)
-- [How the engine works](#how-the-engine-works)
-- [Architecture & privacy](#architecture--privacy)
+- [Technical details](#technical-details)
 - [Roadmap](#roadmap)
 - [Credits](#credits)
 
@@ -68,7 +70,18 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 
 ## What you get
 
-Most writing tools only push your paper forward: they draft and they polish. None of them argues the other side of your claims the way a reviewer will. PaperJury is built around that gap, in four parts.
+Most writing tools only push your paper forward: they draft and they polish. None of them argues the other side of your claims the way a reviewer will. PaperJury is built around that gap.
+
+Concrete outputs:
+
+| Output | What it contains |
+|---|---|
+| **Issue ledger** | Evidence, location, verdict, and status for every reviewer-style issue. |
+| **Reviewable patches** | Minimal edits for safe fixes only; risky edits are queued for author judgment. |
+| **Verification report** | Real LaTeX and formatting checks when the toolchain exists; explicit degradation when it does not. |
+| **Dogfood sample** | [`samples/dogfood/`](samples/dogfood/) includes before/after PDFs and a human-verified run report. |
+
+What makes it different:
 
 | | What it does |
 |---|---|
@@ -148,7 +161,22 @@ Yes. PaperJury converts your .docx to Markdown once, tells you exactly what the 
 
 ---
 
-## How the engine works
+## Technical details
+
+If you only want to use PaperJury, you can skip this section. If you want the mechanism, source layout, or agent-driving details, start here:
+
+| What you want to inspect | Entry point |
+|---|---|
+| Real run output | [`samples/dogfood/RUN_REPORT.md`](samples/dogfood/RUN_REPORT.md) |
+| How to drive Claude / coding agents | [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) |
+| Engine design rationale | [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) |
+| Full protocol and ledger state machine | [`references/review-engine-v3.md`](references/review-engine-v3.md) · [`references/ledger-schema.md`](references/ledger-schema.md) |
+| Visual overview | [live interactive overview](https://u7079256.github.io/paperjury/overview.html?lang=en) |
+
+<details>
+<summary><b>Expand engine, architecture, and repository details</b></summary>
+
+### How the engine works
 
 The engine organizes these stages as a "courtroom": generation is bounded (N holistic domain reviewers, not a per-(unit × lens) flood), adjudication is routed by contestability, edits are guarded by risk, and the multi-round loop converges via a deterministic clerk.
 
@@ -232,7 +260,21 @@ Also present: `review-panel.workflow.js`, a quick 3-lens panel (fast path).
 > [!NOTE]
 > Your project files, ledger, journal, and patches stay inside your local paper project. PaperJury has no backend or server of its own, so nothing is sent to a PaperJury server. The review runs through your own Claude Code session, which means the model itself runs in the cloud: how your content is handled there follows the terms and settings of that Claude Code environment, not anything PaperJury adds on top.
 
+## Project structure
+
+| Path | Purpose |
+|---|---|
+| `.claude-plugin/` | Claude Code marketplace packaging metadata. |
+| `workflows/` | Semantic stages: reviewer assignment, coverage, merge, trial, recall audit, drafting, and convergence. |
+| `scripts/` | Deterministic guards: ledger, journal, apply-patch, anchor-diff, cross-ref, compile-guard, doctor, and related checks. |
+| `references/` | Engine protocol, ledger schema, reviewer personas, writing toolkit, and methodology notes. |
+| `docs/` | Design notes, interactive overview, arXiv paper PDF, and agent driving guide. |
+| `samples/dogfood/` | Before/after PDFs and a human-verified run report from a real dogfood run. |
+| `tests/` | Tests for deterministic scripts and core state-machine behavior. |
+
 ---
+
+</details>
 
 ## Roadmap
 
@@ -246,7 +288,7 @@ Where this is going (planned unless checked):
 - [ ] **Validation of the engine on real papers at scale.**
 
 <details>
-<summary><b>File and path reference</b></summary>
+<summary><b>More file and path references</b></summary>
 
 - Engine protocol: `references/review-engine-v3.md`
 - Auto protocol: `references/auto-mode.md`
