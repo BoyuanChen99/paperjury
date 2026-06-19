@@ -31,7 +31,15 @@
 
 刚写完初稿、投稿前想再自查一遍，或者只想先让它挑一遍风险，都可以直接用日常话描述需求；不用先研究它的内部机制。
 
-> **RedNote（小红书）里程碑：** 相关分享已经达到 **3 万浏览**、**1.8k 收藏**。感谢大家转发和收藏，也感谢大家把 PaperJury 推荐给更多正在赶论文、改论文的朋友。
+## News
+
+- **RedNote（小红书）里程碑：** 相关分享已经达到 **3 万浏览**、**1.8k 收藏**。感谢大家转发和收藏，也感谢大家把 PaperJury 推荐给更多正在赶论文、改论文的朋友。
+- **2026-06-15：PaperJury 论文已上 arXiv。** arXiv 页面：[*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322)（arXiv:2606.16322）。论文系统介绍了「审稿 → 裁定 → 修改 → 复查」这套引擎：哪些事交给确定性脚本，哪些判断交给语义 agent；有争议的问题如何进入审议；不同风险的编辑该上什么护栏。
+- **2026-06-10：v1.0.0 发布。** 这是第一个稳定版，和 Codex 版 v1.0 对齐。新增软更新提醒：发现新的稳定 tag 时只提示，不打断当前工作。
+- **2026-06-05：PaperJury 的 Codex 版已经推送。** 入口在这里：[paperjury-codex](https://github.com/u7079256/paperjury-codex)。
+- **Dogfood sample 已加入。** 仓库里放了一个紧凑的 [dogfood sample](samples/dogfood/)：修改前后 PDF，以及人工核对过的运行报告。
+
+---
 
 **PaperJury 以 Claude Code skill 的形式提供**，把投稿前自查组织成一套闭环：**审稿 → 裁定 → 修改 → 复查**。它不会照单全收 AI 反馈，而是先把每条意见分成三类：
 
@@ -66,6 +74,7 @@
 
 ## 目录
 
+- [News](#news)
 - [适合谁](#适合谁)
 - [你会得到什么](#你会得到什么)
 - [快速上手](#快速上手)
@@ -77,19 +86,6 @@
 - [深入了解](#深入了解)
 - [Roadmap](#roadmap)
 - [致谢](#致谢)
-
-<details>
-<summary><b>更新日志</b></summary>
-
-> **2026-06-15：PaperJury 论文已上 arXiv。** arXiv 页面：[*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322)（arXiv:2606.16322）。论文系统介绍了「审稿 → 裁定 → 修改 → 复查」这套引擎：哪些事交给确定性脚本，哪些判断交给语义 agent；有争议的问题如何进入审议；不同风险的编辑该上什么护栏。
->
-> **2026-06-10：v1.0.0 发布。** 这是第一个稳定版，和 Codex 版 v1.0 对齐。新增软更新提醒：发现新的稳定 tag 时只提示，不打断当前工作。
->
-> **2026-06-05：PaperJury 的 Codex 版已经推送。** 入口在这里：[paperjury-codex](https://github.com/u7079256/paperjury-codex)。
->
-> **Dogfood sample 已加入。** 仓库里放了一个紧凑的 [dogfood sample](samples/dogfood/)：修改前后 PDF，以及人工核对过的运行报告。
-
-</details>
 
 ---
 

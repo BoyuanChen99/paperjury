@@ -35,7 +35,15 @@ Ask an AI "how is my paper?" and you usually get one of two useless answers: pol
 
 PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto.
 
-> **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for helping it reach more people writing and revising papers.
+## News
+
+- **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for sharing and saving it, and for recommending PaperJury to more friends who are writing and revising papers.
+- **2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
+- **2026-06-10: v1.0.0 released.** First stable release, aligned with the Codex port's v1.0. Adds a non-blocking update reminder that points to the latest stable release when a newer tag exists.
+- **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
+- **Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
+
+---
 
 > [!IMPORTANT]
 > PaperJury is a pre-submission self-check workflow. It **does not replace your scientific judgment, and it does not replace peer review.** It should never be used to invent experiments, fabricate results, add unsupported claims, or hide a paper's limitations. When an issue needs a new experiment, missing evidence, private knowledge, or a research-level decision, it routes that issue to the author instead of patching it automatically — the three outcomes exist precisely so that judgment calls stay with you.
@@ -44,6 +52,7 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 
 ## Table of contents
 
+- [News](#news)
 - [What you get](#what-you-get)
 - [Three modes](#three-modes)
 - [Sample run](#sample-run)
@@ -52,19 +61,6 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 - [Technical details](#technical-details)
 - [Roadmap](#roadmap)
 - [Credits](#credits)
-
-<details>
-<summary><b>📰 Changelog</b></summary>
-
-> **📄 2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
->
-> **🔔 2026-06-10: v1.0.0 released.** First stable release, aligned with the Codex port's v1.0. Adds a non-blocking update reminder that points to the latest stable release when a newer tag exists.
->
-> **🚀 2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
->
-> **🧪 Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
-
-</details>
 
 ---
 
