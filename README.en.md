@@ -37,11 +37,11 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 
 ## News
 
-- **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for sharing and saving it, and for recommending PaperJury to more friends who are writing and revising papers.
-- **2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
-- **2026-06-10: v1.0.0 released.** First stable release, aligned with the Codex port's v1.0. Adds a non-blocking update reminder that points to the latest stable release when a newer tag exists.
-- **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
-- **Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
+- 🎉 **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for sharing and saving it, and for recommending PaperJury to more friends who are writing and revising papers.
+- 📄 **2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
+- 🔔 **2026-06-10: v1.0.0 released.** First stable release, aligned with the Codex port's v1.0. Adds a non-blocking update reminder that points to the latest stable release when a newer tag exists.
+- 🚀 **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
+- 🧪 **Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
 
 ---
 
@@ -72,19 +72,19 @@ Concrete outputs:
 
 | Output | What it contains |
 |---|---|
-| **Issue ledger** | Evidence, location, verdict, and status for every reviewer-style issue. |
-| **Reviewable patches** | Minimal edits for safe fixes only; risky edits are queued for author judgment. |
-| **Verification report** | Real LaTeX and formatting checks when the toolchain exists; explicit degradation when it does not. |
-| **Dogfood sample** | [`samples/dogfood/`](samples/dogfood/) includes before/after PDFs and a human-verified run report. |
+| **📋 Issue ledger** | Evidence, location, verdict, and status for every reviewer-style issue. |
+| **🧩 Reviewable patches** | Minimal edits for safe fixes only; risky edits are queued for author judgment. |
+| **🛠️ Verification report** | Real LaTeX and formatting checks when the toolchain exists; explicit degradation when it does not. |
+| **🧪 Dogfood sample** | [`samples/dogfood/`](samples/dogfood/) includes before/after PDFs and a human-verified run report. |
 
 What makes it different:
 
 | | What it does |
 |---|---|
-| **Adversarial by construction** | N domain reviewers read the whole paper → a contestability router sends the real disputes to a two-sided trial → a jury of 5 deliberates under isolation (escalating to 12 only without a clear majority) → a judge returns one of three verdicts. A verdict can land "no fix" — which a yes-and rewriter structurally cannot return. |
-| **Closed-loop, not forward-only** | Each round is a clean re-review of the edited paper (the panel never sees the prior ledger, so a re-raised issue is corroboration, not anchoring), and a deterministic clerk reconciles every round into one ledger until a clean round surfaces nothing new. Before any edit, fresh skeptics try to revive whatever got wrongly dropped. |
-| **Guardrails, not autopilot** | Safe fixes land under risk-proportional safety (frozen anchors, a per-passage edit cap, an anchor and cross-section meaning audit), always behind your sign-off. Risky edits are not applied silently; they queue for one human pass. |
-| **Real compile, not just critique** | It runs an actual LaTeX build on your machine and reports true errors, undefined refs, overfull boxes, and the page count, or degrades honestly to a structural lint when no toolchain is present. Deterministic desk-reject checks catch the classics: anonymization leaks, margin/spacing hacks, documentclass drift, missing required sections, page-limit overflow. |
+| **⚖️ Adversarial by construction** | N domain reviewers read the whole paper → a contestability router sends the real disputes to a two-sided trial → a jury of 5 deliberates under isolation (escalating to 12 only without a clear majority) → a judge returns one of three verdicts. A verdict can land "no fix" — which a yes-and rewriter structurally cannot return. |
+| **🔁 Closed-loop, not forward-only** | Each round is a clean re-review of the edited paper (the panel never sees the prior ledger, so a re-raised issue is corroboration, not anchoring), and a deterministic clerk reconciles every round into one ledger until a clean round surfaces nothing new. Before any edit, fresh skeptics try to revive whatever got wrongly dropped. |
+| **🛡️ Guardrails, not autopilot** | Safe fixes land under risk-proportional safety (frozen anchors, a per-passage edit cap, an anchor and cross-section meaning audit), always behind your sign-off. Risky edits are not applied silently; they queue for one human pass. |
+| **🛠️ Real compile, not just critique** | It runs an actual LaTeX build on your machine and reports true errors, undefined refs, overfull boxes, and the page count, or degrades honestly to a structural lint when no toolchain is present. Deterministic desk-reject checks catch the classics: anonymization leaks, margin/spacing hacks, documentclass drift, missing required sections, page-limit overflow. |
 
 ---
 
@@ -94,9 +94,9 @@ You don't run commands; you say what you want and the skill picks the mode.
 
 | Mode | Trigger | Behavior | Human gate |
 |---|---|---|---|
-| **direct-edit** (common) | Describe a change in English or Chinese, edit the manuscript (LaTeX or Markdown) directly. E.g. "polish this paragraph", "tighten this", "turn my note into LaTeX" | No review panel; go straight to drafting the patch through the writing toolkit | Applied after author sign-off |
-| **review** (occasional) | Ask for critique: review / critique / 审稿 / mock-review; scope `full` (whole paper) or `passage` (one section/paragraph/claim) | Runs the courtroom engine (`references/review-engine-v3.md`), surfacing real weaknesses and separating fatal flaws from nits | Sign-off per edit |
-| **auto** (unattended) | **Explicit only:** `/goal` or config `mode: auto` | Establish the `spine` and reviewer assignment up front (human steps), then run multiple rounds under the bounded-aggressive + edit-safety policy until convergence | Up-front sign-off + return queue |
+| **✍️ direct-edit** (common) | Describe a change in English or Chinese, edit the manuscript (LaTeX or Markdown) directly. E.g. "polish this paragraph", "tighten this", "turn my note into LaTeX" | No review panel; go straight to drafting the patch through the writing toolkit | Applied after author sign-off |
+| **🔎 review** (occasional) | Ask for critique: review / critique / 审稿 / mock-review; scope `full` (whole paper) or `passage` (one section/paragraph/claim) | Runs the courtroom engine (`references/review-engine-v3.md`), surfacing real weaknesses and separating fatal flaws from nits | Sign-off per edit |
+| **🔁 auto** (unattended) | **Explicit only:** `/goal` or config `mode: auto` | Establish the `spine` and reviewer assignment up front (human steps), then run multiple rounds under the bounded-aggressive + edit-safety policy until convergence | Up-front sign-off + return queue |
 
 Rule of thumb: **one change → just say it; want it picked apart → say "review"; want it run unattended → `/goal`.**
 
