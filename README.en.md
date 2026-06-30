@@ -43,6 +43,24 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 - 🚀 **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
 - 🧪 **Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
 
+## Citation
+
+If PaperJury helps your research or writing workflow, cite the arXiv paper:
+
+```bibtex
+@misc{wang2026paperjurydueprocessreviewbounded,
+  title={PaperJury: Due-Process Review for Bounded LaTeX Revision},
+  author={Yiran Wang and Ruixuan An and Biao Wu and Wenhao Wang},
+  year={2026},
+  eprint={2606.16322},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2606.16322},
+}
+```
+
+The same entry is available in [`CITATION.bib`](CITATION.bib).
+
 ---
 
 > [!IMPORTANT]
@@ -53,12 +71,12 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 ## Table of contents
 
 - [News](#news)
+- [Citation](#citation)
 - [What you get](#what-you-get)
 - [Three modes](#three-modes)
 - [Sample run](#sample-run)
 - [Install](#install)
 - [FAQ](#faq)
-- [Citation](#citation)
 - [Technical details](#technical-details)
 - [Roadmap](#roadmap)
 - [Credits](#credits)
@@ -155,24 +173,6 @@ You can also put it under `<project>/.claude/skills/` to scope it to one project
 > **Can PaperJury review a Word (.docx) file?**
 
 Yes. PaperJury converts your .docx to Markdown once, tells you exactly what the conversion kept and what it could not carry over (complex tables, equations), and runs the full multi-round review on that Markdown. Your original Word file is never modified. You get back the edited Markdown plus a list of every change; merging changes back into Word is up to you (e.g. via pandoc). You can also export to .md or .tex yourself and hand that in directly.
-
-## Citation
-
-If PaperJury helps your research or writing workflow, cite the arXiv paper:
-
-```bibtex
-@misc{wang2026paperjurydueprocessreviewbounded,
-  title={PaperJury: Due-Process Review for Bounded LaTeX Revision},
-  author={Yiran Wang and Ruixuan An and Biao Wu and Wenhao Wang},
-  year={2026},
-  eprint={2606.16322},
-  archivePrefix={arXiv},
-  primaryClass={cs.CL},
-  url={https://arxiv.org/abs/2606.16322},
-}
-```
-
-The same entry is available in [`CITATION.bib`](CITATION.bib).
 
 ---
 

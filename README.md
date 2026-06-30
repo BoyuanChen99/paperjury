@@ -39,6 +39,24 @@
 - 🚀 **2026-06-05：PaperJury 的 Codex 版已经推送。** 入口在这里：[paperjury-codex](https://github.com/u7079256/paperjury-codex)。
 - 🧪 **Dogfood sample 已加入。** 仓库里放了一个紧凑的 [dogfood sample](samples/dogfood/)：修改前后 PDF，以及人工核对过的运行报告。
 
+## 引用论文
+
+如果 PaperJury 对你的研究或写作流程有帮助，可以引用这篇 arXiv 论文：
+
+```bibtex
+@misc{wang2026paperjurydueprocessreviewbounded,
+  title={PaperJury: Due-Process Review for Bounded LaTeX Revision},
+  author={Yiran Wang and Ruixuan An and Biao Wu and Wenhao Wang},
+  year={2026},
+  eprint={2606.16322},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2606.16322},
+}
+```
+
+同一条目也放在 [`CITATION.bib`](CITATION.bib)。
+
 ---
 
 **PaperJury 以 Claude Code skill 的形式提供**，把投稿前自查组织成一套闭环：**审稿 → 裁定 → 修改 → 复查**。它不会照单全收 AI 反馈，而是先把每条意见分成三类：
@@ -75,6 +93,7 @@
 ## 目录
 
 - [News](#news)
+- [引用论文](#引用论文)
 - [适合谁](#适合谁)
 - [你会得到什么](#你会得到什么)
 - [快速上手](#快速上手)
@@ -83,7 +102,6 @@
 - [真实跑一遍](#真实跑一遍)
 - [安装](#安装)
 - [常见问题](#常见问题)
-- [引用论文](#引用论文)
 - [深入了解](#深入了解)
 - [Roadmap](#roadmap)
 - [致谢](#致谢)
@@ -204,24 +222,6 @@ git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills
 > **它会不会擅自改我的论文？**
 
 不会。direct-edit 和 review 模式下，补丁需要你确认后才会应用。auto 模式也必须显式开启，并且会先拿到对核心方向、修订范围和策略的整体授权。
-
-## 引用论文
-
-如果 PaperJury 对你的研究或写作流程有帮助，可以引用这篇 arXiv 论文：
-
-```bibtex
-@misc{wang2026paperjurydueprocessreviewbounded,
-  title={PaperJury: Due-Process Review for Bounded LaTeX Revision},
-  author={Yiran Wang and Ruixuan An and Biao Wu and Wenhao Wang},
-  year={2026},
-  eprint={2606.16322},
-  archivePrefix={arXiv},
-  primaryClass={cs.CL},
-  url={https://arxiv.org/abs/2606.16322},
-}
-```
-
-同一条目也放在 [`CITATION.bib`](CITATION.bib)。
 
 ## 深入了解
 
