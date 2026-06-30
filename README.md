@@ -39,7 +39,7 @@
 
 <p align="center">
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh">🧭 交互式总览</a> ·
-  <a href="samples/dogfood/">🏆 Dogfood sample</a> ·
+  <a href="docs/showcase/SHOWCASE.md">🏆 Dogfood showcase</a> ·
   <a href="docs/AGENT-GUIDE.md">🧑‍✈️ Agent Guide</a> ·
   <a href="CITATION.bib">📌 BibTeX</a> ·
   <a href="https://github.com/u7079256/paperjury-codex">💻 Codex 版</a>
@@ -50,12 +50,12 @@
 <table>
 <tr>
 <td width="18%">
-<a href="samples/dogfood/"><img src="docs/paperjury-mark.png" width="120" alt="PaperJury dogfood sample"></a>
+<a href="docs/showcase/SHOWCASE.md"><img src="docs/paperjury-mark.png" width="120" alt="PaperJury dogfood showcase"></a>
 </td>
 <td valign="middle">
 <b>🏆 真实 Dogfood 样例</b><br><br>
 一篇真实草稿的完整多轮评审：仓库里放了<b>修改前后 PDF</b>，以及<b>人工核对过的运行报告</b>。先看样例，再决定要不要把自己的论文交给它挑刺。<br><br>
-<a href="samples/dogfood/"><img src="https://img.shields.io/badge/查看完整样例_→-Before_After_Report-d73a49?style=for-the-badge" alt="查看完整样例"></a>
+<a href="docs/showcase/SHOWCASE.md"><img src="https://img.shields.io/badge/查看完整样例_→-Before_After_Report-d73a49?style=for-the-badge" alt="查看完整样例"></a>
 </td>
 </tr>
 </table>

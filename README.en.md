@@ -39,7 +39,7 @@
 
 <p align="center">
   <a href="https://u7079256.github.io/paperjury/overview.html?lang=en">🧭 Interactive overview</a> ·
-  <a href="samples/dogfood/">🏆 Dogfood sample</a> ·
+  <a href="docs/showcase/SHOWCASE.md">🏆 Dogfood showcase</a> ·
   <a href="docs/AGENT-GUIDE.md">🧑‍✈️ Agent Guide</a> ·
   <a href="CITATION.bib">📌 BibTeX</a> ·
   <a href="https://github.com/u7079256/paperjury-codex">💻 Codex port</a>
@@ -50,12 +50,12 @@
 <table>
 <tr>
 <td width="18%">
-<a href="samples/dogfood/"><img src="docs/paperjury-mark.png" width="120" alt="PaperJury dogfood sample"></a>
+<a href="docs/showcase/SHOWCASE.md"><img src="docs/paperjury-mark.png" width="120" alt="PaperJury dogfood showcase"></a>
 </td>
 <td valign="middle">
 <b>🏆 Real dogfood sample</b><br><br>
 A full multi-round review on a real draft: the repo ships <b>before/after PDFs</b> plus a <b>human-verified run report</b>. Inspect the sample before handing it your own manuscript.<br><br>
-<a href="samples/dogfood/"><img src="https://img.shields.io/badge/View_Full_Sample_→-Before_After_Report-d73a49?style=for-the-badge" alt="View full sample"></a>
+<a href="docs/showcase/SHOWCASE.md"><img src="https://img.shields.io/badge/View_Full_Sample_→-Before_After_Report-d73a49?style=for-the-badge" alt="View full sample"></a>
 </td>
 </tr>
 </table>
