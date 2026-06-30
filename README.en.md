@@ -1,20 +1,17 @@
-[中文](README.md) · **English**
-
 <p align="center">
-  <img src="docs/paperjury-mark.png" alt="PaperJury logo" width="120">
+  <img src="docs/paperjury-mark.png" width="170" alt="PaperJury logo">
 </p>
 
 <h1 align="center">PaperJury</h1>
 
-<p align="center">Before a reviewer tears it apart, let a jury do it first.</p>
+<h2 align="center"><b>Before a reviewer tears it apart, let a jury do it first.</b></h2>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/2606.16322"><img alt="Read the paper on arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?style=for-the-badge&logo=arxiv&logoColor=white"></a>
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img alt="Open the live interactive overview" src="https://img.shields.io/badge/Interactive_overview-d6a14b?style=for-the-badge&logo=githubpages&logoColor=white"></a>
-  <a href="samples/dogfood/"><img alt="View the dogfood sample" src="https://img.shields.io/badge/Sample-Dogfood-2f7d55?style=for-the-badge"></a>
-  <a href="https://github.com/u7079256/paperjury/stargazers"><img alt="Star this repo" src="https://img.shields.io/badge/GitHub-Star-3b3d47?style=for-the-badge&logo=github&logoColor=white"></a>
-  <a href="https://github.com/u7079256/paperjury/releases"><img alt="Open releases" src="https://img.shields.io/badge/Releases-Open-3b3d47?style=for-the-badge"></a>
-  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-3b3d47?style=for-the-badge">
+  <b><i><font size="5">Just tell Claude Code: "review this, especially experiments and claims."</font></i></b>
+</p>
+
+<p align="center">
+  📄 <b>The paper is on arXiv — read and cite it here.</b> <a href="https://arxiv.org/abs/2606.16322"><i>PaperJury: Due-Process Review for Bounded LaTeX Revision</i></a>
 </p>
 
 <p align="center">
@@ -22,20 +19,55 @@
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
       <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
-      <img src="docs/overview-card.png" alt="PaperJury interactive overview" width="760">
+      <img src="docs/overview-card.png" alt="PaperJury interactive overview" width="100%">
     </picture>
   </a>
 </p>
 
-Ask an AI "how is my paper?" and you usually get one of two useless answers: polite praise, or an indiscriminate pile of nitpicks. PaperJury turns paper feedback into a closed loop instead: review → verdict → revise → verify. It sorts each issue into one of three outcomes:
+<p align="center">
+  <a href="https://arxiv.org/abs/2606.16322"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?logo=arxiv&logoColor=white"></a>
+  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img alt="Interactive overview" src="https://img.shields.io/badge/Interactive_Overview-online-d6a14b?logo=githubpages&logoColor=white"></a>
+  <a href="samples/dogfood/"><img alt="Dogfood sample" src="https://img.shields.io/badge/Sample-Dogfood-2f7d55"></a>
+  <a href="https://github.com/u7079256/paperjury/releases"><img alt="Releases" src="https://img.shields.io/badge/Releases-stable-3b3d47"></a>
+  <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
+  <a href="https://github.com/u7079256/paperjury"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-paperjury-181717?logo=github"></a>
+</p>
 
-- **Fixable:** safe, text-level issues that can be patched automatically.
-- **Author-required:** missing experiments, missing evidence, or research decisions that stay with you.
-- **Invalid:** reviewer misreadings or unsupported critiques that should not be applied.
+<p align="center">
+  <a href="README.md">中文</a> · <b>English</b>
+</p>
 
-PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto.
+<p align="center">
+  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en">🧭 Interactive overview</a> ·
+  <a href="samples/dogfood/">🏆 Dogfood sample</a> ·
+  <a href="docs/AGENT-GUIDE.md">🧑‍✈️ Agent Guide</a> ·
+  <a href="CITATION.bib">📌 BibTeX</a> ·
+  <a href="https://github.com/u7079256/paperjury-codex">💻 Codex port</a>
+</p>
 
-## News
+---
+
+<table>
+<tr>
+<td width="18%">
+<a href="samples/dogfood/"><img src="docs/paperjury-mark.png" width="120" alt="PaperJury dogfood sample"></a>
+</td>
+<td valign="middle">
+<b>🏆 Real dogfood sample</b><br><br>
+A full multi-round review on a real draft: the repo ships <b>before/after PDFs</b> plus a <b>human-verified run report</b>. Inspect the sample before handing it your own manuscript.<br><br>
+<a href="samples/dogfood/"><img src="https://img.shields.io/badge/View_Full_Sample_→-Before_After_Report-d73a49?style=for-the-badge" alt="View full sample"></a>
+</td>
+</tr>
+</table>
+
+---
+
+> [!IMPORTANT]
+> PaperJury is a pre-submission self-check workflow. It **does not replace your scientific judgment, and it does not replace peer review.** It should never be used to invent experiments, fabricate results, add unsupported claims, or hide a paper's limitations. When an issue needs a new experiment, missing evidence, private knowledge, or a research-level decision, it routes that issue to the author instead of patching it automatically.
+
+---
+
+## 🔥 News
 
 - 🎉 **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for sharing and saving it, and for recommending PaperJury to more friends who are writing and revising papers.
 - 📄 **2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
@@ -43,7 +75,7 @@ PaperJury is a Claude Code skill with three modes: direct-edit, review, and auto
 - 🚀 **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
 - 🧪 **Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
 
-## Citation
+## 📌 Citation
 
 If PaperJury helps your research or writing workflow, cite the arXiv paper:
 
@@ -63,27 +95,32 @@ The same entry is available in [`CITATION.bib`](CITATION.bib).
 
 ---
 
-> [!IMPORTANT]
-> PaperJury is a pre-submission self-check workflow. It **does not replace your scientific judgment, and it does not replace peer review.** It should never be used to invent experiments, fabricate results, add unsupported claims, or hide a paper's limitations. When an issue needs a new experiment, missing evidence, private knowledge, or a research-level decision, it routes that issue to the author instead of patching it automatically — the three outcomes exist precisely so that judgment calls stay with you.
+## ⚡ Quick Start
+
+Install inside Claude Code:
+
+```text
+/plugin marketplace add u7079256/paperjury
+/plugin install paperjury@u7079256
+```
+
+Then say what you need inside your paper project:
+
+```text
+review this, especially experiments and claims.
+```
+
+Or keep it casual:
+
+```text
+tighten this introduction paragraph without changing the claim.
+```
+
+You do not need to remember modes. PaperJury routes your request to direct-edit, review, or auto, and patches wait for your confirmation before they land.
 
 ---
 
-## Table of contents
-
-- [News](#news)
-- [Citation](#citation)
-- [What you get](#what-you-get)
-- [Three modes](#three-modes)
-- [Sample run](#sample-run)
-- [Install](#install)
-- [FAQ](#faq)
-- [Technical details](#technical-details)
-- [Roadmap](#roadmap)
-- [Credits](#credits)
-
----
-
-## What you get
+## 🤔 What Is This?
 
 Most writing tools only push your paper forward: they draft and they polish. None of them argues the other side of your claims the way a reviewer will. PaperJury is built around that gap.
 
@@ -107,7 +144,7 @@ What makes it different:
 
 ---
 
-## Three modes
+## 🧭 Three Modes
 
 You don't run commands; you say what you want and the skill picks the mode.
 
@@ -124,7 +161,7 @@ Rule of thumb: **one change → just say it; want it picked apart → say "revie
 
 ---
 
-## Sample run
+## 🧪 Sample Run
 
 To see real output, the repo ships a dogfood sample: a full multi-round review on a real draft, with **before/after PDFs** and a **human-verified run report**.
 
@@ -134,7 +171,7 @@ Make sure it won't get desk-rejected: say "run the submission-readiness / compli
 
 ---
 
-## Install
+## 🚀 Install
 
 It is a Claude Code skill, installable two ways. For the Codex-first port, use [paperjury-codex](https://github.com/u7079256/paperjury-codex).
 
