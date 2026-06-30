@@ -83,6 +83,7 @@
 - [真实跑一遍](#真实跑一遍)
 - [安装](#安装)
 - [常见问题](#常见问题)
+- [引用论文](#引用论文)
 - [深入了解](#深入了解)
 - [Roadmap](#roadmap)
 - [致谢](#致谢)
@@ -203,6 +204,24 @@ git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills
 > **它会不会擅自改我的论文？**
 
 不会。direct-edit 和 review 模式下，补丁需要你确认后才会应用。auto 模式也必须显式开启，并且会先拿到对核心方向、修订范围和策略的整体授权。
+
+## 引用论文
+
+如果 PaperJury 对你的研究或写作流程有帮助，可以引用这篇 arXiv 论文：
+
+```bibtex
+@misc{wang2026paperjurydueprocessreviewbounded,
+  title={PaperJury: Due-Process Review for Bounded LaTeX Revision},
+  author={Yiran Wang and Ruixuan An and Biao Wu and Wenhao Wang},
+  year={2026},
+  eprint={2606.16322},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2606.16322},
+}
+```
+
+同一条目也放在 [`CITATION.bib`](CITATION.bib)。
 
 ## 深入了解
 
