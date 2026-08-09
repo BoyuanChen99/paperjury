@@ -7,8 +7,8 @@ const fs = require('fs')
 const path = require('path')
 const { spawnSync } = require('child_process')
 
-const DEFAULT_REMOTE = 'https://github.com/u7079256/paperjury.git'
-const DEFAULT_SOURCE = 'u7079256/paperjury'
+const DEFAULT_REMOTE = 'https://github.com/Spark-To-Paper-Skills/paperjury.git'
+const DEFAULT_SOURCE = 'Spark-To-Paper-Skills/paperjury'
 const DISABLE_ENV = 'PAPERJURY_DISABLE_UPDATE_CHECK'
 
 function parseArgs(argv = process.argv.slice(2)) {

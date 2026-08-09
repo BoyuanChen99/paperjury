@@ -181,8 +181,8 @@ First stable release, aligned with the Codex port's v1.0.
     plain-skill install keeps working.
   - `.claude-plugin/marketplace.json` — self-hosted marketplace listing this one
     plugin (`source: "./"`).
-  - Install: `/plugin marketplace add u7079256/paperjury` then
-    `/plugin install paperjury@u7079256`.
+  - Install: `/plugin marketplace add Spark-To-Paper-Skills/paperjury` then
+    `/plugin install paperjury@Spark-To-Paper-Skills`.
 
 ### Notes
 

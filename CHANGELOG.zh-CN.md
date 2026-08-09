@@ -72,7 +72,7 @@ Word(.docx)与 Markdown 支持,来自真实用户反馈。LaTeX 路径与 1.1.0 
 - **Claude Code 插件打包。** PaperJury 现在可以作为 Claude Code 插件、从自建 marketplace 安装,与原有的 clone-as-skill 安装方式并存。
   - `.claude-plugin/plugin.json` —— 插件清单。在仓库根声明该 skill(`"skills": ["./"]`,根即 skill),所以 `SKILL.md` 不必移动,纯 skill 安装照常可用。
   - `.claude-plugin/marketplace.json` —— 自建 marketplace,列出这一个插件(`source: "./"`)。
-  - 安装:`/plugin marketplace add u7079256/paperjury`,然后 `/plugin install paperjury@u7079256`。
+  - 安装:`/plugin marketplace add Spark-To-Paper-Skills/paperjury`,然后 `/plugin install paperjury@Spark-To-Paper-Skills`。
 
 ### Notes
 

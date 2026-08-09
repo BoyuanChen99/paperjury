@@ -34,13 +34,13 @@ directory** (`SKILL.md` at its root, plus `references/`, `workflows/`, `scripts/
 **Plugin route** (Claude Code marketplace), from inside Claude Code:
 
 ```text
-/plugin marketplace add u7079256/paperjury
-/plugin install paperjury@u7079256
+/plugin marketplace add Spark-To-Paper-Skills/paperjury
+/plugin install paperjury@Spark-To-Paper-Skills
 ```
 
 **Skill route** = make the directory discoverable as a skill:
 
-1. Obtain the repo: `git clone https://github.com/u7079256/paperjury`.
+1. Obtain the repo: `git clone https://github.com/Spark-To-Paper-Skills/paperjury`.
 2. Place the cloned directory under a Claude Code skills path:
    - user scope: `~/.claude/skills/<dir>/` (auto-loads for every session), or
    - project scope: `<project>/.claude/skills/<dir>/`.

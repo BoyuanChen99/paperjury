@@ -45,5 +45,5 @@ test('treats matching v1.0.0 tag as up to date for 1.0.0', () => {
 })
 
 test('derives the marketplace name from the source owner', () => {
-  assert.equal(marketplaceName('u7079256/paperjury'), 'u7079256')
+  assert.equal(marketplaceName('Spark-To-Paper-Skills/paperjury'), 'Spark-To-Paper-Skills')
 })

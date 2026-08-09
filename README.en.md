@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en">
+  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
       <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
@@ -26,11 +26,11 @@
 
 <p align="center">
   <a href="https://arxiv.org/abs/2606.16322"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?logo=arxiv&logoColor=white"></a>
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en"><img alt="Interactive overview" src="https://img.shields.io/badge/Interactive_Overview-online-d6a14b?logo=githubpages&logoColor=white"></a>
+  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en"><img alt="Interactive overview" src="https://img.shields.io/badge/Interactive_Overview-online-d6a14b?logo=githubpages&logoColor=white"></a>
   <a href="samples/dogfood/"><img alt="Dogfood sample" src="https://img.shields.io/badge/Sample-Dogfood-2f7d55"></a>
-  <a href="https://github.com/u7079256/paperjury/releases"><img alt="Releases" src="https://img.shields.io/badge/Releases-stable-3b3d47"></a>
+  <a href="https://github.com/Spark-To-Paper-Skills/paperjury/releases"><img alt="Releases" src="https://img.shields.io/badge/Releases-stable-3b3d47"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
-  <a href="https://github.com/u7079256/paperjury"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-paperjury-181717?logo=github"></a>
+  <a href="https://github.com/Spark-To-Paper-Skills/paperjury"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-paperjury-181717?logo=github"></a>
 </p>
 
 <p align="center">
@@ -38,11 +38,11 @@
 </p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=en">🧭 Interactive overview</a> ·
+  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en">🧭 Interactive overview</a> ·
   <a href="docs/showcase/SHOWCASE.md">🏆 Dogfood showcase</a> ·
   <a href="docs/AGENT-GUIDE.md">🧑‍✈️ Agent Guide</a> ·
   <a href="CITATION.bib">📌 BibTeX</a> ·
-  <a href="https://github.com/u7079256/paperjury-codex">💻 Codex port</a>
+  <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex">💻 Codex port</a>
 </p>
 
 ---
@@ -72,7 +72,7 @@ A full multi-round review on a real draft: the repo ships <b>before/after PDFs</
 - 🎉 **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for sharing and saving it, and for recommending PaperJury to more friends who are writing and revising papers.
 - 📄 **2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
 - 🔔 **2026-06-10: v1.0.0 released.** First stable release, aligned with the Codex port's v1.0. Adds a non-blocking update reminder that points to the latest stable release when a newer tag exists.
-- 🚀 **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/u7079256/paperjury-codex).
+- 🚀 **2026-06-05: PaperJury's Codex-first port has shipped.** Open it here: [paperjury-codex](https://github.com/Spark-To-Paper-Skills/paperjury-codex).
 - 🧪 **Dogfood sample added:** this repo now includes a compact [dogfood sample](samples/dogfood/) with before/after PDFs and a human-verified run report.
 
 ## 📌 Citation
@@ -100,8 +100,8 @@ The same entry is available in [`CITATION.bib`](CITATION.bib).
 Install inside Claude Code:
 
 ```text
-/plugin marketplace add u7079256/paperjury
-/plugin install paperjury@u7079256
+/plugin marketplace add Spark-To-Paper-Skills/paperjury
+/plugin install paperjury@Spark-To-Paper-Skills
 ```
 
 Then say what you need inside your paper project:
@@ -173,25 +173,25 @@ Make sure it won't get desk-rejected: say "run the submission-readiness / compli
 
 ## 🚀 Install
 
-It is a Claude Code skill, installable two ways. For the Codex-first port, use [paperjury-codex](https://github.com/u7079256/paperjury-codex).
+It is a Claude Code skill, installable two ways. For the Codex-first port, use [paperjury-codex](https://github.com/Spark-To-Paper-Skills/paperjury-codex).
 
 **Option A: Claude Code plugin (marketplace route).** From inside Claude Code:
 
 ```text
-/plugin marketplace add u7079256/paperjury
-/plugin install paperjury@u7079256
+/plugin marketplace add Spark-To-Paper-Skills/paperjury
+/plugin install paperjury@Spark-To-Paper-Skills
 ```
 
 **Option B: clone as a skill.** Clone the repo into the folder Claude Code reads skills from:
 
 ```bash
 # macOS / Linux
-git clone https://github.com/u7079256/paperjury ~/.claude/skills/paperjury
+git clone https://github.com/Spark-To-Paper-Skills/paperjury ~/.claude/skills/paperjury
 ```
 
 ```powershell
 # Windows (PowerShell)
-git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills\paperjury"
+git clone https://github.com/Spark-To-Paper-Skills/paperjury "$env:USERPROFILE\.claude\skills\paperjury"
 ```
 
 You can also put it under `<project>/.claude/skills/` to scope it to one project. After installing:
@@ -223,7 +223,7 @@ If you only want to use PaperJury, you can skip this section. If you want the me
 | How to drive Claude / coding agents | [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) |
 | Engine design rationale | [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) |
 | Full protocol and ledger state machine | [`references/review-engine-v3.md`](references/review-engine-v3.md) · [`references/ledger-schema.md`](references/ledger-schema.md) |
-| Visual overview | [live interactive overview](https://u7079256.github.io/paperjury/overview.html?lang=en) |
+| Visual overview | [live interactive overview](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en) |
 
 <details>
 <summary><b>Expand engine, architecture, and repository details</b></summary>
@@ -353,7 +353,7 @@ Where this is going (planned unless checked):
 
 </details>
 
-**Learn more:** [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) (driving guide) · [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) (design rationale) · [live interactive overview](https://u7079256.github.io/paperjury/overview.html?lang=en)
+**Learn more:** [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) (driving guide) · [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) (design rationale) · [live interactive overview](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en)
 
 ---
 
@@ -365,4 +365,6 @@ The spine and anti-drift design (the anchor logic-transfer audit, the claim regi
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=u7079256/paperjury&type=Date)](https://www.star-history.com/#u7079256/paperjury&Date)
+[![GitHub stars](https://img.shields.io/github/stars/Spark-To-Paper-Skills/paperjury?style=for-the-badge&logo=github&color=f5c542&label=GitHub%20Stars)](https://www.star-history.com/#Spark-To-Paper-Skills/paperjury&Date)
+
+<sub>Live star chart paused — GitHub restricted third-party access to stargazer data; it returns once the [star-history GitHub App](https://star-history.com/blog/github-stargazer-api-restriction) is installed on this repo.</sub>

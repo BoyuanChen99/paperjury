@@ -1,5 +1,5 @@
 {
-  "name": "u7079256",
+  "name": "Spark-To-Paper-Skills",
   "owner": {
     "name": "Yiran Wang"
   },
@@ -13,7 +13,7 @@
       "author": {
         "name": "Yiran Wang"
       },
-      "homepage": "https://github.com/u7079256/paperjury",
+      "homepage": "https://github.com/Spark-To-Paper-Skills/paperjury",
       "license": "MIT",
       "keywords": [
         "academic-writing",

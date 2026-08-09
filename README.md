@@ -15,7 +15,7 @@
 </p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh">
+  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=zh">
     <picture>
       <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
       <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
@@ -26,11 +26,11 @@
 
 <p align="center">
   <a href="https://arxiv.org/abs/2606.16322"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?logo=arxiv&logoColor=white"></a>
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh"><img alt="Interactive overview" src="https://img.shields.io/badge/Interactive_Overview-online-d6a14b?logo=githubpages&logoColor=white"></a>
+  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=zh"><img alt="Interactive overview" src="https://img.shields.io/badge/Interactive_Overview-online-d6a14b?logo=githubpages&logoColor=white"></a>
   <a href="samples/dogfood/"><img alt="Dogfood sample" src="https://img.shields.io/badge/Sample-Dogfood-2f7d55"></a>
-  <a href="https://github.com/u7079256/paperjury/releases"><img alt="Releases" src="https://img.shields.io/badge/Releases-stable-3b3d47"></a>
+  <a href="https://github.com/Spark-To-Paper-Skills/paperjury/releases"><img alt="Releases" src="https://img.shields.io/badge/Releases-stable-3b3d47"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
-  <a href="https://github.com/u7079256/paperjury"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-paperjury-181717?logo=github"></a>
+  <a href="https://github.com/Spark-To-Paper-Skills/paperjury"><img alt="GitHub" src="https://img.shields.io/badge/GitHub-paperjury-181717?logo=github"></a>
 </p>
 
 <p align="center">
@@ -38,11 +38,11 @@
 </p>
 
 <p align="center">
-  <a href="https://u7079256.github.io/paperjury/overview.html?lang=zh">🧭 交互式总览</a> ·
+  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=zh">🧭 交互式总览</a> ·
   <a href="docs/showcase/SHOWCASE.md">🏆 Dogfood showcase</a> ·
   <a href="docs/AGENT-GUIDE.md">🧑‍✈️ Agent Guide</a> ·
   <a href="CITATION.bib">📌 BibTeX</a> ·
-  <a href="https://github.com/u7079256/paperjury-codex">💻 Codex 版</a>
+  <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex">💻 Codex 版</a>
 </p>
 
 ---
@@ -72,7 +72,7 @@
 - 🎉 **RedNote（小红书）里程碑：** 相关分享已经达到 **3 万浏览**、**1.8k 收藏**。感谢大家转发和收藏，也感谢大家把 PaperJury 推荐给更多正在赶论文、改论文的朋友。
 - 📄 **2026-06-15：PaperJury 论文已上 arXiv。** arXiv 页面：[*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322)（arXiv:2606.16322）。论文系统介绍了「审稿 → 裁定 → 修改 → 复查」这套引擎：哪些事交给确定性脚本，哪些判断交给语义 agent；有争议的问题如何进入审议；不同风险的编辑该上什么护栏。
 - 🔔 **2026-06-10：v1.0.0 发布。** 这是第一个稳定版，和 Codex 版 v1.0 对齐。新增软更新提醒：发现新的稳定 tag 时只提示，不打断当前工作。
-- 🚀 **2026-06-05：PaperJury 的 Codex 版已经推送。** 入口在这里：[paperjury-codex](https://github.com/u7079256/paperjury-codex)。
+- 🚀 **2026-06-05：PaperJury 的 Codex 版已经推送。** 入口在这里：[paperjury-codex](https://github.com/Spark-To-Paper-Skills/paperjury-codex)。
 - 🧪 **Dogfood sample 已加入。** 仓库里放了一个紧凑的 [dogfood sample](samples/dogfood/)：修改前后 PDF，以及人工核对过的运行报告。
 
 ## 📌 引用论文
@@ -100,8 +100,8 @@
 在 Claude Code 里安装：
 
 ```text
-/plugin marketplace add u7079256/paperjury
-/plugin install paperjury@u7079256
+/plugin marketplace add Spark-To-Paper-Skills/paperjury
+/plugin install paperjury@Spark-To-Paper-Skills
 ```
 
 然后在你的论文项目里直接说需求：
@@ -193,8 +193,8 @@ PaperJury 的重点不是“让 AI 多写一点”，而是让 AI 先像 reviewe
 推荐用 marketplace 路线：
 
 ```text
-/plugin marketplace add u7079256/paperjury
-/plugin install paperjury@u7079256
+/plugin marketplace add Spark-To-Paper-Skills/paperjury
+/plugin install paperjury@Spark-To-Paper-Skills
 ```
 
 ### Clone 成 skill
@@ -203,12 +203,12 @@ PaperJury 的重点不是“让 AI 多写一点”，而是让 AI 先像 reviewe
 
 ```bash
 # macOS / Linux
-git clone https://github.com/u7079256/paperjury ~/.claude/skills/paperjury
+git clone https://github.com/Spark-To-Paper-Skills/paperjury ~/.claude/skills/paperjury
 ```
 
 ```powershell
 # Windows (PowerShell)
-git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills\paperjury"
+git clone https://github.com/Spark-To-Paper-Skills/paperjury "$env:USERPROFILE\.claude\skills\paperjury"
 ```
 
 也可以放在 `<项目>/.claude/skills/` 下，只对单个项目生效。
@@ -226,7 +226,7 @@ git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills
 | 版本 | 入口 | 适合 |
 |---|---|---|
 | **Claude Code 版** | 本仓库；Claude Code plugin 或 `.claude/skills/` | 你主要在 Claude Code 里写论文、改 LaTeX、跑 workflow。 |
-| **Codex 版** | [paperjury-codex](https://github.com/u7079256/paperjury-codex) | 你主要在 Codex / Codex plugin 环境里跑同一套评审和修订流程。 |
+| **Codex 版** | [paperjury-codex](https://github.com/Spark-To-Paper-Skills/paperjury-codex) | 你主要在 Codex / Codex plugin 环境里跑同一套评审和修订流程。 |
 
 **给 Claude / 编码 agent：** 更深入的驱动说明见 [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md)。里面写了安装、三种模式及触发方式、引擎管线、`auto` 与 `/goal` 的区别，以及并行评审如何启动。
 
@@ -250,7 +250,7 @@ git clone https://github.com/u7079256/paperjury "$env:USERPROFILE\.claude\skills
 | 怎么驱动 Claude / 编码 agent | [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) |
 | 引擎设计细节 | [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) |
 | 完整协议和状态机 | [`references/review-engine-v3.md`](references/review-engine-v3.md) · [`references/ledger-schema.md`](references/ledger-schema.md) |
-| 在线可视化说明 | [交互式总览](https://u7079256.github.io/paperjury/overview.html?lang=zh) |
+| 在线可视化说明 | [交互式总览](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=zh) |
 
 <details>
 <summary><b>展开机制、架构和项目结构说明</b></summary>
@@ -372,7 +372,7 @@ Reviewer panel 由 N 位领域 reviewer 组成（默认 3 位，范围 2-4 位�
 
 </details>
 
-**了解更多：** [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md)（驱动指南）· [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md)（设计说明）· [在线交互式总览](https://u7079256.github.io/paperjury/overview.html?lang=zh)
+**了解更多：** [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md)（驱动指南）· [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md)（设计说明）· [在线交互式总览](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=zh)
 
 ## 致谢
 
@@ -382,4 +382,6 @@ PaperJury 的 spine 和防漂移设计受 [PaperSpine](https://github.com/WUBING
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=u7079256/paperjury&type=Date)](https://www.star-history.com/#u7079256/paperjury&Date)
+[![GitHub stars](https://img.shields.io/github/stars/Spark-To-Paper-Skills/paperjury?style=for-the-badge&logo=github&color=f5c542&label=GitHub%20Stars)](https://www.star-history.com/#Spark-To-Paper-Skills/paperjury&Date)
+
+<sub>星标曲线暂停：GitHub 限制了第三方获取 stargazer 数据；仓库装上 [star-history GitHub App](https://star-history.com/blog/github-stargazer-api-restriction) 后自动恢复。</sub>
