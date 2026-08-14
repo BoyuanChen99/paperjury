@@ -4,29 +4,16 @@
 
 <h1 align="center">PaperJury</h1>
 
-<h2 align="center"><b>Before a reviewer tears it apart, let a jury do it first.</b></h2>
+<h3 align="center">Due-Process Review for Bounded LaTeX Revision</h3>
 
 <p align="center">
-  <b><i><font size="5">Just tell Claude Code: "review this, especially experiments and claims."</font></i></b>
+  <b>Before a reviewer tears it apart, let a jury do it first.</b><br>
+  <b>The model still does the hard reading; it no longer holds the gavel or the eraser.</b>
 </p>
 
 <p align="center">
-  📄 <b>The paper is on arXiv — read and cite it here.</b> <a href="https://arxiv.org/abs/2606.16322"><i>PaperJury: Due-Process Review for Bounded LaTeX Revision</i></a>
-</p>
-
-<p align="center">
-  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en">
-    <picture>
-      <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
-      <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
-      <img src="docs/overview-card.png" alt="PaperJury interactive overview" width="100%">
-    </picture>
-  </a>
-</p>
-
-<p align="center">
+  <a href="https://spark-to-paper-skills.github.io/paperjury/"><img alt="Website" src="https://img.shields.io/badge/Website-paperjury-b07d2a?logo=githubpages&logoColor=white"></a>
   <a href="https://arxiv.org/abs/2606.16322"><img alt="arXiv" src="https://img.shields.io/badge/arXiv-2606.16322-b31b1b?logo=arxiv&logoColor=white"></a>
-  <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en"><img alt="Interactive overview" src="https://img.shields.io/badge/Interactive_Overview-online-d6a14b?logo=githubpages&logoColor=white"></a>
   <a href="samples/dogfood/"><img alt="Dogfood sample" src="https://img.shields.io/badge/Sample-Dogfood-2f7d55"></a>
   <a href="https://github.com/Spark-To-Paper-Skills/paperjury/releases"><img alt="Releases" src="https://img.shields.io/badge/Releases-stable-3b3d47"></a>
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-yellow.svg"></a>
@@ -38,11 +25,22 @@
 </p>
 
 <p align="center">
+  <a href="https://spark-to-paper-skills.github.io/paperjury/?lang=en">🏛️ Project website</a> ·
   <a href="https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en">🧭 Interactive overview</a> ·
   <a href="docs/showcase/SHOWCASE.md">🏆 Dogfood showcase</a> ·
   <a href="docs/AGENT-GUIDE.md">🧑‍✈️ Agent Guide</a> ·
   <a href="CITATION.bib">📌 BibTeX</a> ·
   <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex">💻 Codex port</a>
+</p>
+
+<p align="center">
+  <a href="https://spark-to-paper-skills.github.io/paperjury/?lang=en">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="docs/overview-card-dark.png">
+      <source media="(prefers-color-scheme: light)" srcset="docs/overview-card-light.png">
+      <img src="docs/overview-card.png" alt="PaperJury project website" width="100%">
+    </picture>
+  </a>
 </p>
 
 ---
@@ -54,7 +52,7 @@
 </td>
 <td valign="middle">
 <b>🏆 Real dogfood sample</b><br><br>
-A full multi-round review on a real draft: the repo ships <b>before/after PDFs</b> plus a <b>human-verified run report</b>. Inspect the sample before handing it your own manuscript.<br><br>
+A full auto-mode review round on a real draft: the repo ships <b>before/after PDFs</b> plus a <b>human-verified run report</b>. Inspect the sample before handing it your own manuscript.<br><br>
 <a href="docs/showcase/SHOWCASE.md"><img src="https://img.shields.io/badge/View_Full_Sample_→-Before_After_Report-d73a49?style=for-the-badge" alt="View full sample"></a>
 </td>
 </tr>
@@ -67,7 +65,7 @@ A full multi-round review on a real draft: the repo ships <b>before/after PDFs</
 
 ---
 
-## 🔥 News
+## ✨ News
 
 - 🎉 **RedNote community milestone:** the PaperJury post has reached **30k views** and **1.8k saves**. Thanks for sharing and saving it, and for recommending PaperJury to more friends who are writing and revising papers.
 - 📄 **2026-06-15: The PaperJury paper is on arXiv.** Read it here: [*PaperJury: Due-Process Review for Bounded LaTeX Revision*](https://arxiv.org/abs/2606.16322) (arXiv:2606.16322) — the full review → verdict → revise → verify engine written up as a paper: the deterministic-vs-semantic split, contestability routing, the due-process trial, and risk-proportional edit guards.
@@ -95,7 +93,7 @@ The same entry is available in [`CITATION.bib`](CITATION.bib).
 
 ---
 
-## ⚡ Quick Start
+## ⚡ Two commands to install. Then just say what you need.
 
 Install inside Claude Code:
 
@@ -120,9 +118,41 @@ You do not need to remember modes. PaperJury routes your request to direct-edit,
 
 ---
 
-## 🤔 What Is This?
+## 📊 Same papers, same budget envelope. The numbers.
 
-Most writing tools only push your paper forward: they draft and they polish. None of them argues the other side of your claims the way a reviewer will. PaperJury is built around that gap.
+12 held-out papers (4 each from Vision, NLP, and ML), four baselines, blinded expert audit ([arXiv 2606.16322](https://arxiv.org/abs/2606.16322)). The struck-through number is the strongest baseline, the **LLM-as-judge loop**:
+
+<table align="center">
+<tr>
+<td align="center"><sub><b>Issue quality · panel-relative F1 ↑</b></sub><br><s>0.519</s> → <b>0.656</b></td>
+<td align="center"><sub><b>Audited precision · P<sub>verified</sub> ↑</b></sub><br><s>0.663</s> → <b>0.847</b></td>
+<td align="center"><sub><b>Unsafe-edit rate · ESVR ↓</b></sub><br><s>0.110</s> → <b>0.025</b> (4.4× lower)</td>
+</tr>
+</table>
+
+| Method | F1 ↑ | Acc<sub>v</sub> ↑ | Acc<sub>r</sub> ↑ | ESVR ↓ | Rounds K | Hours/paper |
+|---|---:|---:|---:|---:|---:|---:|
+| Forward-only rewriter | n/a | n/a | n/a | 0.240 | 1 | 0.31 |
+| LLM critic only | 0.446 | n/a | n/a | n/a | 1 | 0.51 |
+| LLM-as-judge loop | 0.519 | 0.681 | n/a | 0.110 | 3.33 ± 1.07 (2/12 hit cap) | 2.06 |
+| Naive unbounded generator | 0.459 | n/a | n/a | n/a | 1 | 8.37 |
+| **PaperJury (ours)** | **0.656** | **0.887** | **0.913** | **0.025** | **3.08 ± 0.67 (0/12)** | **2.47** |
+
+<sub>**F1**: macro F1 against expert issue panels; **Acc<sub>v</sub> / Acc<sub>r</sub>**: blinded expert agreement with terminal verdicts / routing decisions; **ESVR**: safety-violating share of applied edits — read with edit volume (PaperJury applies 13.4 edits per paper vs 14.3 for the judge loop); n/a marks capabilities a method does not have. Per-paper paired F1 favors PaperJury on all 12 papers against every issue-producing baseline. Cost: 2.47 hours and 6.76M tokens per paper (naive generator: 8.37 hours, 31.4M).</sub>
+
+Blinded relabeling agreement per verdict class: invalid-drop **0.872**, valid-fixable **0.913**, author-required **0.860**. And in the ablations, removing a component breaks the system exactly where that component's job was (drop the guard chain → ESVR +0.152; drop the trial → verdict agreement −0.153). Full tables, charts, and commentary on the [project website](https://spark-to-paper-skills.github.io/paperjury/?lang=en) and in the [paper](https://arxiv.org/abs/2606.16322).
+
+---
+
+## 🤔 Every complaint gets its day in court.
+
+Most writing tools only push your paper forward: they draft and they polish. None of them argues the other side of your claims the way a reviewer will. PaperJury is built around that gap: a closed **review → verdict → revise → verify** loop where every complaint terminates in one of three verdicts:
+
+| Verdict | Meaning |
+|---|---|
+| ✅ **valid-fixable** | Unclear wording, overreaching claims, broken structure — text problems needing no new experiments. A minimal patch is drafted and screened by the guard chain. |
+| 🧑‍💻 **author-required** | Missing experiments, ablations, data, or evidence — the author must decide. Handed back untouched, never ghost-written. |
+| 🛑 **invalid-drop** | The AI reviewer misread the paper or raised something that should not change. Rejected on the record. |
 
 Concrete outputs:
 
@@ -144,7 +174,7 @@ What makes it different:
 
 ---
 
-## 🧭 Three Modes
+## 🧭 One change → just say it. Want it picked apart → say "review". Unattended → `/goal`.
 
 You don't run commands; you say what you want and the skill picks the mode.
 
@@ -154,16 +184,14 @@ You don't run commands; you say what you want and the skill picks the mode.
 | **🔎 review** (occasional) | Ask for critique: review / critique / 审稿 / mock-review; scope `full` (whole paper) or `passage` (one section/paragraph/claim) | Runs the courtroom engine (`references/review-engine-v3.md`), surfacing real weaknesses and separating fatal flaws from nits | Sign-off per edit |
 | **🔁 auto** (unattended) | **Explicit only:** `/goal` or config `mode: auto` | Establish the `spine` and reviewer assignment up front (human steps), then run multiple rounds under the bounded-aggressive + edit-safety policy until convergence | Up-front sign-off + return queue |
 
-Rule of thumb: **one change → just say it; want it picked apart → say "review"; want it run unattended → `/goal`.**
-
 > [!WARNING]
 > **auto is never self-detected; it is explicit only.** There is no runtime signal for it, so it is entered only via a `/goal` context or a project config `mode: auto`. Turning on the "auto" tool-permission and sending a normal prompt runs one round and stops — it does not loop (see [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) §3).
 
 ---
 
-## 🧪 Sample Run
+## 🧪 See a real run before you trust it with yours.
 
-To see real output, the repo ships a dogfood sample: a full multi-round review on a real draft, with **before/after PDFs** and a **human-verified run report**.
+A real 21-page draft, 11 planted defects, one full auto-mode pass: 152 reviewer complaints deduped into 55 issues — **26 safely applied, 10 handed to the author, 19 dropped as invalid**; the revised manuscript compiles with 0 errors and 0 warnings.
 
 ➡️ [`samples/dogfood/`](samples/dogfood/) ([`original_draft.pdf`](samples/dogfood/original_draft.pdf) · [`revised_draft.pdf`](samples/dogfood/revised_draft.pdf) · [run report](samples/dogfood/RUN_REPORT.md))
 
@@ -211,6 +239,10 @@ You can also put it under `<project>/.claude/skills/` to scope it to one project
 
 Yes. PaperJury converts your .docx to Markdown once, tells you exactly what the conversion kept and what it could not carry over (complex tables, equations), and runs the full multi-round review on that Markdown. Your original Word file is never modified. You get back the edited Markdown plus a list of every change; merging changes back into Word is up to you (e.g. via pandoc). You can also export to .md or .tex yourself and hand that in directly.
 
+> **Will it edit my paper on its own?**
+
+No. In direct-edit and review modes, patches apply only after your confirmation. Auto mode must be enabled explicitly and takes an up-front authorization covering the core direction, revision scope, and policy.
+
 ---
 
 ## Technical details
@@ -219,11 +251,11 @@ If you only want to use PaperJury, you can skip this section. If you want the me
 
 | What you want to inspect | Entry point |
 |---|---|
+| Results and method, visualized | [project website](https://spark-to-paper-skills.github.io/paperjury/?lang=en) · [interactive overview](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en) |
 | Real run output | [`samples/dogfood/RUN_REPORT.md`](samples/dogfood/RUN_REPORT.md) |
 | How to drive Claude / coding agents | [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) |
 | Engine design rationale | [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) |
 | Full protocol and ledger state machine | [`references/review-engine-v3.md`](references/review-engine-v3.md) · [`references/ledger-schema.md`](references/ledger-schema.md) |
-| Visual overview | [live interactive overview](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en) |
 
 <details>
 <summary><b>Expand engine, architecture, and repository details</b></summary>
@@ -320,7 +352,7 @@ Also present: `review-panel.workflow.js`, a quick 3-lens panel (fast path).
 | `workflows/` | Semantic stages: reviewer assignment, coverage, merge, trial, recall audit, drafting, and convergence. |
 | `scripts/` | Deterministic guards: ledger, journal, apply-patch, anchor-diff, cross-ref, compile-guard, doctor, and related checks. |
 | `references/` | Engine protocol, ledger schema, reviewer personas, writing toolkit, and methodology notes. |
-| `docs/` | Design notes, interactive overview, arXiv paper PDF, and agent driving guide. |
+| `docs/` | Project website, interactive overview, design notes, arXiv paper PDF, and agent driving guide. |
 | `samples/dogfood/` | Before/after PDFs and a human-verified run report from a real dogfood run. |
 | `tests/` | Tests for deterministic scripts and core state-machine behavior. |
 
@@ -353,7 +385,7 @@ Where this is going (planned unless checked):
 
 </details>
 
-**Learn more:** [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) (driving guide) · [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) (design rationale) · [live interactive overview](https://spark-to-paper-skills.github.io/paperjury/overview.html?lang=en)
+**Learn more:** [`docs/AGENT-GUIDE.md`](docs/AGENT-GUIDE.md) (driving guide) · [`docs/REVIEW_ENGINE_V3_DESIGN.md`](docs/REVIEW_ENGINE_V3_DESIGN.md) (design rationale) · [project website](https://spark-to-paper-skills.github.io/paperjury/?lang=en)
 
 ---
 

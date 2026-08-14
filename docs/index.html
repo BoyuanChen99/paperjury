@@ -1,14 +1,1444 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN" data-lang="zh">
 <head>
-<meta charset="UTF-8">
-<meta http-equiv="refresh" content="0; url=./overview.html"><!-- JS below forwards any ?lang= query to overview.html -->
-<link rel="canonical" href="./overview.html">
-<meta name="robots" content="noindex">
-<title>paperjury</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PaperJury — Due-Process Review for Bounded LaTeX Revision</title>
+<meta name="description" content="PaperJury: a closed-loop review–verdict–revise–verify system for pre-submission hardening of LaTeX papers. Deterministic orchestration holds the gavel; semantic agents only read, judge, and draft. 0.656 panel-relative F1 (vs 0.519 for the strongest baseline), 0.847 audited precision, 0.025 unsafe-edit rate — 4.4× lower than an LLM-as-judge loop." />
+<meta name="keywords" content="PaperJury, paper review, pre-submission, LaTeX revision, due-process trial, LLM-as-judge, Claude Code skill, invalid-drop, valid-fixable, author-required, claim spine, guard chain" />
+<meta property="og:title" content="PaperJury — Due-Process Review for Bounded LaTeX Revision" />
+<meta property="og:description" content="A review–verdict–revise–verify loop where deterministic code owns verdicts, stopping, and patching. 0.656 F1, 0.847 audited precision, 4.4× fewer unsafe edits than a judge-centered loop." />
+<meta property="og:type" content="website" />
+<meta property="og:url" content="https://spark-to-paper-skills.github.io/paperjury/" />
+<meta property="og:image" content="https://spark-to-paper-skills.github.io/paperjury/overview-card.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="PaperJury" />
+<meta name="twitter:description" content="Due-process review for bounded LaTeX revision. The model reads; deterministic code holds the gavel and the eraser." />
+<meta name="twitter:image" content="https://spark-to-paper-skills.github.io/paperjury/overview-card.png" />
+<meta name="color-scheme" content="light dark" />
+<link rel="icon" type="image/png" href="paperjury-favicon.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@600;700;900&display=swap" rel="stylesheet" />
+<script>
+/* Resolve language + theme before paint.
+   Language: ?lang= → localStorage("prl-lang") → navigator.language → zh.
+   Theme: ?theme= (screenshot hook) → localStorage("prl-theme") → system. */
+(function () {
+  var q = location.search;
+  var ml = /[?&]lang=(en|zh)\b/.exec(q);
+  var l = ml ? ml[1] : null;
+  try { if (!l) l = localStorage.getItem("prl-lang"); } catch (e) {}
+  if (l !== "en" && l !== "zh") {
+    l = (navigator.language || "").toLowerCase().indexOf("zh") === 0 ? "zh" : "en";
+  }
+  document.documentElement.setAttribute("data-lang", l);
+  document.documentElement.setAttribute("lang", l === "zh" ? "zh-CN" : "en");
+  /* Do not persist here: a shared ?lang= link must not overwrite the visitor's
+     stored preference. Explicit toggle clicks persist (see applyLang below). */
+  var mt = /[?&]theme=(dark|light)\b/.exec(q);
+  var t = mt ? mt[1] : null;
+  try { if (!t) t = localStorage.getItem("prl-theme"); } catch (e) {}
+  if (t !== "dark" && t !== "light") {
+    t = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+  }
+  document.documentElement.setAttribute("data-theme", t);
+})();
+</script>
+<style>
+/* ============ tokens ============ */
+:root{
+  --brass:#b07d2a; --brass-deep:#8a5f16; --brass-bright:#d6a14b; --brass-pale:#e9c98f;
+  --v-drop:#d63354; --v-fix:#0e8f74; --v-author:#3f6fc4;
+  --green:#0e8f74; --red:#d63354;
+  --ctrl:#64748b;
+  --gain:var(--green); --loss:var(--red);
+  --grad-1:linear-gradient(135deg,var(--brass-deep) 0%,var(--brass) 55%,var(--brass-bright) 100%);
+  --font-sans:"Inter","Noto Sans SC",-apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;
+  --font-serif:"Fraunces","Noto Serif SC",Georgia,serif;
+  --font-mono:"JetBrains Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r-sm:8px; --r-md:12px; --r-lg:16px; --r-pill:999px;
+  --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:24px; --s6:32px; --s7:48px; --s8:72px;
+  --content-w:1230px; --prose-w:92ch;
+  --pad-x:clamp(20px,3.4vw,44px);
+}
+:root,:root[data-theme=light]{
+  --paper:#faf8f4; --card:#ffffff;
+  --ink:#292418; --ink2:#1a160d;
+  --body:#4a4437; --lede:#5b543f; --muted:#6e6754;
+  --line:#e7e1d3; --line2:#d2cab6; --band:#f2ecdf;
+  --accent:var(--brass); --accent-deep:var(--brass-deep); --accent-text:#8a5f16;
+  --bar-ours:#b07d2a; --bar-base:#64748b;
+  --nav-bg:rgba(250,248,244,.72); --nav-bg-scrolled:rgba(250,248,244,.94);
+  --nav-border:rgba(210,202,182,.6);
+  --chip-surface:rgba(26,22,13,.05); --bib-bg:#f3efe5;
+  --surface-raised:#ffffff; --surface-inset:rgba(26,22,13,.03);
+  --term-bg:#191510; --term-ink:#efe8d8; --term-muted:#8f8672; --term-prompt:#d6a14b;
+  --shadow-sm:0 1px 2px rgba(26,22,13,.06),0 1px 1px rgba(26,22,13,.04);
+  --shadow-md:0 8px 24px rgba(26,22,13,.08),0 2px 6px rgba(26,22,13,.05);
+  --shadow-lg:0 24px 60px rgba(26,22,13,.12),0 6px 18px rgba(26,22,13,.06);
+}
+:root[data-theme=dark]{
+  --paper:#0f0d0a; --card:#171410;
+  --ink:#e9e4d8; --ink2:#f6f2e8; --body:#cdc6b4; --lede:#b6ae99; --muted:#8f8874;
+  --line:#2b2820; --line2:#433e30; --band:#151310;
+  --accent:#d9a94f; --accent-deep:#e4bc6e; --accent-text:#d9a94f;
+  --bar-ours:#b8863b; --bar-base:#7e8da6;
+  --v-drop:#e35a80; --v-fix:#35b394; --v-author:#7ca4e8;
+  --green:#35b394; --red:#e35a80; --ctrl:#7e8da6;
+  --nav-bg:rgba(23,20,16,.65); --nav-bg-scrolled:rgba(23,20,16,.92);
+  --nav-border:rgba(67,62,48,.7);
+  --chip-surface:rgba(255,255,255,.06); --bib-bg:#14110c;
+  --surface-raised:#1b1813; --surface-inset:rgba(255,255,255,.035);
+  --term-bg:#0a0908; --term-ink:#e9e4d8; --term-muted:#7d7663; --term-prompt:#d9a94f;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.4),0 1px 1px rgba(0,0,0,.3);
+  --shadow-md:0 8px 24px rgba(0,0,0,.5),0 2px 6px rgba(0,0,0,.35);
+  --shadow-lg:0 24px 60px rgba(0,0,0,.6),0 6px 18px rgba(0,0,0,.4);
+}
+/* ============ base ============ */
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*,*::before,*::after{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%;scroll-padding-top:64px}
+body{margin:0;max-width:100%;font-family:var(--font-sans);color:var(--ink);background:var(--paper);
+  line-height:1.6;font-size:16px;transition:background-color .25s ease,color .25s ease}
+h1,h2{font-family:var(--font-serif);font-weight:700;color:var(--ink2);letter-spacing:-.01em}
+h3,h4{font-family:var(--font-sans);color:var(--ink2);letter-spacing:-.005em}
+a{color:var(--accent-text);text-decoration:none}
+a:hover{color:var(--accent-deep)}
+img{max-width:100%}
+.label{font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-radius:4px;
+  background:var(--chip-surface);color:var(--ink2)}
+/* language switching: dual spans */
+[data-lang=en] .zh{display:none!important}
+[data-lang=zh] .en{display:none!important}
+/* reveal on scroll */
+.reveal{opacity:0;transform:translateY(10px);transition:opacity .38s ease-out,transform .38s ease-out}
+.reveal.visible{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){
+  .reveal{opacity:1;transform:none;transition:none}
+  *{animation-duration:.01ms!important;animation-iteration-count:1!important}
+}
+/* ============ topbar ============ */
+.topbar{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:16px;
+  padding:10px 24px;background:var(--nav-bg);border-bottom:1px solid var(--nav-border);
+  backdrop-filter:saturate(160%) blur(16px);-webkit-backdrop-filter:saturate(160%) blur(16px);
+  transition:box-shadow .25s ease,background .25s ease,border-color .25s ease}
+.topbar.scrolled{background:var(--nav-bg-scrolled);box-shadow:var(--shadow-md)}
+.topbar::after{content:"";position:absolute;left:0;bottom:-1px;height:2px;width:100%;
+  transform:scaleX(var(--progress,0));transform-origin:left;background:var(--grad-1);pointer-events:none}
+.brand{display:inline-flex;align-items:center;gap:10px}
+.brand-logo{width:28px;height:28px;border-radius:7px;display:block}
+.brand-name{font-family:var(--font-serif);font-size:1.18rem;font-weight:700;
+  background:var(--grad-1);-webkit-background-clip:text;background-clip:text;color:transparent}
+.nav{display:flex;align-items:center;gap:18px;margin-left:auto}
+.nav>a{position:relative;color:var(--muted);font-size:.9rem;font-weight:500}
+.nav>a:hover{color:var(--ink2)}
+.nav>a::after{content:"";position:absolute;left:0;right:100%;bottom:-2px;height:2px;
+  background:var(--grad-1);transition:right .25s ease}
+.nav>a:hover::after{right:0}
+.navmenu{position:relative}
+.navmenu-btn{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;cursor:pointer;
+  background:var(--chip-surface);border:1px solid var(--line);border-radius:var(--r-pill);
+  color:var(--muted);font-family:var(--font-sans);font-size:.86rem;font-weight:600;
+  transition:color .15s,border-color .15s,transform .12s ease}
+.navmenu-btn:hover{color:var(--ink2);border-color:var(--line2);transform:translateY(-1px)}
+.navmenu-num{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-weight:700;color:var(--accent-text)}
+.navmenu-caret{width:11px;height:11px;transition:transform .2s ease}
+.navmenu-btn[aria-expanded=true] .navmenu-caret{transform:rotate(180deg)}
+.navmenu-pop{position:absolute;top:calc(100% + 8px);right:0;min-width:250px;padding:6px;
+  display:grid;gap:1px;background:var(--surface-raised);border:1px solid var(--line);
+  border-radius:var(--r-md);box-shadow:var(--shadow-lg)}
+.navmenu-pop[hidden]{display:none}
+.navmenu-pop a{display:grid;grid-template-columns:24px 1fr;gap:10px;align-items:baseline;
+  padding:8px 10px;border-radius:7px;color:var(--body);font-size:.88rem;font-weight:500}
+.navmenu-pop a:hover,.navmenu-pop a.current{background:var(--surface-inset);color:var(--ink2)}
+.tocnum{font-family:var(--font-mono);font-size:.76rem;font-weight:700;text-align:right;color:var(--ctrl)}
+.navmenu-pop a:hover .tocnum,.navmenu-pop a.current .tocnum{color:var(--accent-text)}
+.icon-btn{flex-shrink:0;width:32px;height:32px;display:grid;place-items:center;cursor:pointer;
+  border-radius:var(--r-pill);border:1px solid var(--line);background:var(--chip-surface);
+  color:var(--muted);transition:color .15s,border-color .15s,transform .12s ease}
+.icon-btn:hover{color:var(--ink2);border-color:var(--line2);transform:translateY(-1px)}
+.icon-btn svg{width:17px;height:17px;display:none}
+.theme-toggle[data-theme-choice=system] .icon-system,
+.theme-toggle[data-theme-choice=light] .icon-sun,
+.theme-toggle[data-theme-choice=dark] .icon-moon{display:block}
+.theme-toggle[data-theme-choice=light],.theme-toggle[data-theme-choice=dark]{color:var(--accent-text);border-color:var(--accent)}
+.lang-toggle{width:auto;padding:0 12px;font-family:var(--font-sans);font-size:.84rem;font-weight:600}
+/* ============ hero ============ */
+.hero{max-width:var(--content-w);margin:0 auto;padding:var(--s7) var(--pad-x) var(--s6)}
+.hero-inner{display:grid;grid-template-columns:1.28fr 1fr;gap:44px;align-items:start}
+.hero-lead{display:flex;flex-direction:column;gap:var(--s5);container-type:inline-size}
+.hero-kicker{display:inline-flex;align-items:center;gap:10px;font-family:var(--font-mono);
+  font-size:.78rem;font-weight:600;color:var(--muted)}
+.hero-kicker b{color:var(--accent-text);font-weight:700}
+.hero h1{margin:0;font-size:clamp(2.4rem,min(9.2cqw,7vh),4rem);line-height:1.02;letter-spacing:-.025em;font-weight:900}
+.hero h1::after{content:"";display:inline-block;width:.09em;height:.86em;margin-left:.1em;
+  vertical-align:-.08em;background:var(--grad-1);border-radius:2px;animation:cursor 1.2s steps(2) infinite}
+@keyframes cursor{50%{opacity:0}}
+.hero-paper-title{margin:10px 0 0;font-family:var(--font-serif);font-weight:600;
+  font-size:clamp(1.02rem,1.95vw,1.36rem);color:var(--lede);max-width:30em}
+.hero-subtitle{margin:0;font-size:.97rem;line-height:1.72;color:var(--body);max-width:62ch}
+.hero-subtitle strong{color:var(--ink2);font-weight:650}
+.hero-subtitle em{font-style:italic;color:var(--accent-text)}
+.hero-authors{margin:0;font-size:.84rem;color:var(--muted)}
+.hero-authors a{color:var(--muted);text-decoration:underline;text-decoration-color:var(--line2);text-underline-offset:3px}
+.hero-authors a:hover{color:var(--accent-text)}
+.hero-actions,.hero-artifacts{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;max-width:33rem}
+.hero-artifacts{margin-top:-14px}
+.button{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 18px;
+  border-radius:var(--r-pill);border:1px solid transparent;font-weight:600;font-size:.9rem;cursor:pointer;
+  transition:transform .12s ease,background .15s,color .15s,border-color .15s}
+.button:hover{transform:translateY(-1px)}
+.button.primary{background:var(--grad-1);color:#fff;box-shadow:0 6px 18px rgba(176,125,42,.35)}
+.button.primary:hover{color:#fff}
+.button.ghost{background:transparent;color:var(--ink2);border-color:var(--line2);padding:9px 14px;font-size:.87rem}
+.button.ghost:hover{color:var(--accent-deep);border-color:var(--accent);
+  background:color-mix(in srgb,var(--accent) 8%,transparent)}
+.button.ghost.brand:hover{color:var(--brand);border-color:var(--brand);
+  background:color-mix(in srgb,var(--brand) 10%,transparent)}
+:root[data-theme=dark] .button.ghost.brand:hover{color:color-mix(in srgb,var(--brand) 55%,#fff);
+  border-color:color-mix(in srgb,var(--brand) 55%,#fff)}
+.button svg{width:16px;height:16px}
+/* hero side: verdict board + quickstart */
+.hero-side{display:flex;flex-direction:column;gap:var(--s4)}
+.verdict-board{margin:0;padding:var(--s4) var(--s4) var(--s3);background:var(--surface-raised);
+  border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.vb-head{display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:var(--s3)}
+.vb-title{font-family:var(--font-serif);font-size:1rem;font-weight:700;color:var(--ink2)}
+.vb-sub{font-family:var(--font-mono);font-size:.68rem;color:var(--muted)}
+.vb-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;border-radius:var(--r-sm);overflow:hidden}
+.vb-cell{--vc:var(--ctrl);padding:12px 12px 10px;background:color-mix(in srgb,var(--vc) 8%,var(--surface-inset))}
+.vb-cell[data-v=fix]{--vc:var(--v-fix)}
+.vb-cell[data-v=author]{--vc:var(--v-author)}
+.vb-cell[data-v=drop]{--vc:var(--v-drop)}
+.vb-num{display:block;font-family:var(--font-mono);font-size:1.55rem;font-weight:700;line-height:1;
+  color:color-mix(in srgb,var(--vc) 82%,var(--ink2))}
+.vb-tag{display:inline-flex;align-items:center;gap:5px;margin-top:6px;font-size:.68rem;font-weight:700;
+  letter-spacing:.04em;text-transform:uppercase;color:color-mix(in srgb,var(--vc) 70%,var(--muted))}
+.vb-tag::before{content:"";width:7px;height:7px;border-radius:2px;background:var(--vc)}
+.vb-note{margin:var(--s3) 0 0;font-size:.76rem;line-height:1.55;color:var(--muted)}
+.vb-note a{color:var(--accent-text)}
+/* quickstart terminal */
+.quickstart{background:var(--term-bg);border:1px solid var(--line);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow-md)}
+.qs-tabs{display:flex;align-items:center;gap:2px;padding:8px 10px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+.qs-tab{display:inline-flex;align-items:center;gap:7px;padding:7px 12px 9px;cursor:pointer;
+  background:none;border:0;border-top:2px solid transparent;color:var(--term-muted);
+  font-family:var(--font-sans);font-size:.8rem;font-weight:600}
+.qs-tab.is-on{color:var(--term-ink);border-top-color:var(--brass-bright)}
+.qs-step{display:grid;place-items:center;width:17px;height:17px;border-radius:50%;
+  font-family:var(--font-mono);font-size:.62rem;font-weight:700;
+  border:1px solid var(--term-muted);color:var(--term-muted)}
+.qs-tab.is-on .qs-step{background:var(--brass-bright);border-color:var(--brass-bright);color:#191510}
+.qs-copy{margin-left:auto;margin-bottom:6px;padding:5px 12px;cursor:pointer;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);border-radius:var(--r-pill);
+  color:var(--term-ink);font-family:var(--font-mono);font-size:.7rem}
+.qs-copy.copied{background:var(--brass-bright);border-color:var(--brass-bright);color:#191510}
+.qs-pane{display:none;padding:16px 18px}
+.qs-pane.is-on{display:block}
+.qs-code{margin:0;font-family:var(--font-mono);font-size:.8rem;line-height:1.9;color:var(--term-ink);
+  overflow-x:auto;white-space:pre}
+.qs-code .ln{display:block;text-indent:-1.4em;padding-left:1.4em;white-space:pre-wrap}
+.qs-code .ln::before{content:"›";margin-right:.6em;color:var(--term-prompt);font-weight:700}
+.qs-code .cm{color:var(--term-muted)}
+.qs-hint{margin:0;padding:10px 18px 14px;border-top:1px solid rgba(255,255,255,.08);
+  font-size:.74rem;line-height:1.6;color:var(--term-muted)}
+.qs-hint code{background:rgba(255,255,255,.08);color:var(--term-ink)}
+/* ============ scoreboard ============ */
+.scoreboard{position:relative;background:linear-gradient(180deg,transparent,
+  color-mix(in srgb,var(--band) 65%,transparent) 26%,color-mix(in srgb,var(--band) 65%,transparent) 62%,transparent)}
+.scoreboard::after{content:"";position:absolute;left:0;right:0;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--line) 22%,var(--line) 78%,transparent)}
+.sb-inner{max-width:var(--content-w);margin:0 auto;padding:var(--s6) var(--pad-x) var(--s7)}
+.sb-lead{display:flex;flex-direction:column;gap:6px;margin-bottom:var(--s6)}
+.sb-kicker{font-family:var(--font-mono);font-size:.78rem;font-weight:600;color:var(--accent-text)}
+.sb-copy{margin:0;font-size:.95rem;line-height:1.7;color:var(--lede);max-width:80ch}
+.sb-copy strong{color:var(--ink2)}
+.sb-list{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s7);margin:0;padding:0;list-style:none}
+.sb-item{display:flex;flex-direction:column;gap:var(--s2);padding-left:var(--s4);border-left:2px solid var(--accent)}
+.sb-name{font-family:var(--font-serif);font-size:1.14rem;font-weight:700;color:var(--ink2)}
+.sb-metric{font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.sb-figure{display:flex;align-items:baseline;gap:10px}
+.sb-from{font-family:var(--font-mono);font-size:1.02rem;font-weight:600;color:var(--ctrl);
+  text-decoration:line-through;text-decoration-thickness:1.5px}
+.sb-arrow{width:18px;height:18px;align-self:center;color:var(--muted);flex-shrink:0}
+.sb-now{font-family:var(--font-serif);font-size:clamp(2.2rem,3.6vw,3rem);font-weight:700;
+  line-height:.95;letter-spacing:-.03em;color:var(--accent-deep)}
+.sb-track{position:relative;height:8px;border-radius:var(--r-pill);background:var(--surface-inset);overflow:hidden}
+.sb-track i{position:absolute;left:0;top:0;bottom:0;border-radius:var(--r-pill)}
+.sb-bar-now{width:var(--now);background:var(--bar-ours)}
+/* baseline is a tick marker, not a second bar — a full bar would occlude the brass
+   fill whenever the baseline is the longer one (the ESVR item, where lower is better) */
+.sb-bar-base{left:calc(var(--base) - 2px);width:4px;border-radius:2px;background:var(--bar-base);z-index:1}
+.sb-delta{font-family:var(--font-mono);font-size:.86rem;font-weight:700;color:var(--gain)}
+.sb-note{margin:var(--s6) 0 0;font-size:.8rem;line-height:1.6;color:var(--muted);max-width:86ch}
+.sb-key{display:inline-block;width:16px;height:6px;border-radius:3px;vertical-align:middle;margin:0 3px}
+.sb-key-base{background:var(--bar-base)}
+.sb-key-now{background:var(--bar-ours)}
+/* ============ sections ============ */
+.band{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.band+.band{border-top:0}
+.section{max-width:var(--content-w);margin:0 auto;padding:var(--s7) var(--pad-x) var(--s6)}
+.section-header{display:grid;grid-template-columns:86px 1fr;column-gap:var(--s5);align-items:start;
+  padding-top:var(--s4);margin-bottom:var(--s6);border-top:2px solid var(--ink2)}
+.section-eyebrow{grid-row:1 / span 3;display:flex;flex-direction:column;gap:var(--s1);padding-top:2px}
+.eyebrow-num{font-family:var(--font-mono);font-size:clamp(2rem,3.4vw,2.7rem);font-weight:700;
+  line-height:.9;letter-spacing:-.04em;color:var(--accent)}
+.eyebrow-name{font-size:.8rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;max-width:11ch}
+.section h2{grid-column:2;font-size:clamp(1.7rem,3.2vw,2.4rem);line-height:1.16;margin:0 0 var(--s3);
+  letter-spacing:-.02em;max-width:46ch}
+.section-lede{grid-column:2;margin:0;font-size:1.04rem;line-height:1.7;color:var(--lede);max-width:var(--prose-w)}
+.section-lede strong{color:var(--ink2);font-weight:650}
+.takeaway{display:grid;grid-template-columns:120px minmax(0,1fr) minmax(0,1fr);gap:var(--s5);
+  margin-top:var(--s6);padding-top:var(--s4);border-top:1px solid var(--line)}
+.takeaway-kicker{font-size:.74rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--accent-text)}
+.takeaway-lead{margin:0;font-family:var(--font-serif);font-size:1.22rem;line-height:1.4;font-weight:600;color:var(--ink2)}
+.takeaway-body{margin:0;font-size:.92rem;line-height:1.7;color:var(--body)}
+/* problem cards */
+.problem-row{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s6);
+  padding-top:var(--s5);border-top:1px solid var(--line)}
+.problem-card h3{margin:12px 0 6px;font-size:1rem;font-weight:650}
+.problem-card p{margin:0;font-size:.9rem;line-height:1.65;color:var(--body)}
+.problem-icon{display:grid;place-items:center;width:30px;height:30px;border-radius:9px;
+  color:var(--ctrl);background:color-mix(in srgb,var(--ctrl) 16%,transparent)}
+.problem-icon svg{width:17px;height:17px}
+.idea-statement{margin:var(--s7) 0;padding-left:var(--s5);border-left:2px solid var(--accent)}
+.idea-statement h3{margin:0 0 6px;font-family:var(--font-serif);font-weight:650;
+  font-size:clamp(1.28rem,2.1vw,1.6rem);line-height:1.35;letter-spacing:-.01em;max-width:40em}
+.idea-statement p{margin:0;font-size:.9rem;color:var(--muted)}
+.idea-panels{display:grid;grid-template-columns:1fr 1fr;gap:var(--s6)}
+.idea-panel{padding-left:var(--s4);border-left:2px solid color-mix(in srgb,var(--side-c) 55%,var(--line))}
+.idea-panel[data-side=before]{--side-c:var(--v-drop)}
+.idea-panel[data-side=after]{--side-c:var(--accent)}
+.idea-panel-tag{font-family:var(--font-mono);font-size:.66rem;font-weight:700;letter-spacing:.08em;
+  text-transform:uppercase;color:color-mix(in srgb,var(--side-c) 80%,var(--muted))}
+.idea-panel h4{margin:8px 0 8px;font-size:1.05rem;font-weight:650}
+.idea-panel p{margin:0;font-size:.9rem;line-height:1.7;color:var(--body)}
+.idea-panel p+p{margin-top:8px}
+/* pipeline (method) */
+.pipe{counter-reset:stage;display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s5);margin-top:var(--s5)}
+.pipe-stage{--pc:var(--ctrl);position:relative;padding:var(--s4) var(--s4) var(--s4) var(--s5);
+  background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.pipe-stage::before{content:"";position:absolute;left:0;top:var(--r-lg);bottom:var(--r-lg);width:3px;
+  border-radius:0 3px 3px 0;background:var(--pc)}
+.pipe-stage[data-st="1"]{--pc:var(--ctrl)}
+.pipe-stage[data-st="2"]{--pc:var(--accent)}
+.pipe-stage[data-st="3"]{--pc:var(--v-fix)}
+.pipe-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.pipe-no{display:grid;place-items:center;width:26px;height:26px;border-radius:var(--r-sm);
+  font-family:var(--font-mono);font-size:.8rem;font-weight:700;color:#fff;background:var(--pc)}
+:root[data-theme=dark] .pipe-no{color:#12100a}
+.pipe-title{font-size:.98rem;font-weight:700;color:var(--ink2)}
+.pipe-list{margin:0;padding:0;list-style:none;display:flex;flex-direction:column}
+.pipe-list li{position:relative;padding:7px 0 7px 18px;font-size:.86rem;line-height:1.55;color:var(--body);
+  border-top:1px dashed var(--line)}
+.pipe-list li:first-child{border-top:0}
+.pipe-list li::before{content:"";position:absolute;left:2px;top:14px;width:7px;height:7px;
+  border-radius:2px;background:color-mix(in srgb,var(--pc) 70%,transparent)}
+.pipe-list b{color:var(--ink2);font-weight:650}
+.pipe-foot{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);margin-top:var(--s5)}
+.pipe-rail{padding:var(--s4);border-radius:var(--r-md);background:var(--surface-inset);
+  border-left:2px solid var(--line2)}
+.pipe-rail h4{margin:0 0 6px;font-size:.86rem;font-weight:700}
+.pipe-rail h4 code{font-size:.9em}
+.pipe-rail p{margin:0;font-size:.85rem;line-height:1.65;color:var(--body)}
+/* verdict chips (trial section) */
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s5);margin-top:var(--s5)}
+.verdict-card{--vc:var(--ctrl);padding:var(--s4);border-radius:var(--r-lg);
+  border:1px solid color-mix(in srgb,var(--vc) 32%,var(--line));
+  background:color-mix(in srgb,var(--vc) 6%,var(--surface-raised))}
+.verdict-card[data-v=drop]{--vc:var(--v-drop)}
+.verdict-card[data-v=fix]{--vc:var(--v-fix)}
+.verdict-card[data-v=author]{--vc:var(--v-author)}
+.verdict-chip{display:inline-flex;align-items:center;gap:7px;padding:4px 11px;border-radius:var(--r-pill);
+  font-family:var(--font-mono);font-size:.74rem;font-weight:700;
+  color:color-mix(in srgb,var(--vc) 80%,var(--ink2));
+  background:color-mix(in srgb,var(--vc) 13%,transparent);
+  border:1px solid color-mix(in srgb,var(--vc) 40%,transparent)}
+.verdict-chip svg{width:12px;height:12px}
+.verdict-card h4{margin:10px 0 6px;font-size:1rem;font-weight:650}
+.verdict-card p{margin:0;font-size:.88rem;line-height:1.65;color:var(--body)}
+.verdict-card .vc-acc{margin-top:10px;font-family:var(--font-mono);font-size:.78rem;color:var(--muted)}
+.verdict-card .vc-acc b{color:color-mix(in srgb,var(--vc) 75%,var(--ink2));font-size:.92rem}
+/* trial flow */
+.trial-flow{display:grid;grid-template-columns:1fr auto 1fr;gap:var(--s4);align-items:stretch;margin-top:var(--s6)}
+.trial-box{padding:var(--s4);background:var(--surface-raised);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.trial-box h4{margin:0 0 4px;font-size:.94rem;font-weight:700}
+.trial-box .label{display:block;margin-bottom:6px}
+.trial-box p{margin:0;font-size:.85rem;line-height:1.6;color:var(--body)}
+.trial-vs{display:grid;place-items:center;font-family:var(--font-serif);font-style:italic;
+  font-size:1.1rem;color:var(--muted);padding:0 4px}
+.trial-note{margin:var(--s4) 0 0;padding:var(--s3) var(--s4);border-left:2px solid var(--line2);
+  background:var(--surface-inset);border-radius:0 var(--r-sm) var(--r-sm) 0;
+  font-size:.86rem;line-height:1.65;color:var(--body)}
+.trial-note code{font-size:.85em}
+/* eval cards */
+.eval-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:var(--s6);padding-top:var(--s5);border-top:1px solid var(--line)}
+.eval-card h3{margin:0 0 8px;font-size:1rem;font-weight:700}
+.eval-card p{margin:0;font-size:.9rem;line-height:1.68;color:var(--body)}
+.eval-card p+p{margin-top:8px}
+.baseline-list{margin:var(--s5) 0 0;padding:0;list-style:none;display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border-top:1px solid var(--line)}
+.baseline-list li{padding:var(--s4) var(--s4) var(--s4) 0;border-right:1px solid var(--line);padding-right:var(--s4)}
+.baseline-list li+li{padding-left:var(--s4)}
+.baseline-list li:last-child{border-right:0;padding-right:0}
+.baseline-list b{display:block;font-size:.9rem;color:var(--ink2);margin-bottom:4px}
+.baseline-list span{font-size:.82rem;line-height:1.6;color:var(--body)}
+/* tables */
+.table-wrap{background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow-sm);margin-top:var(--s5)}
+.table-title{padding:var(--s4) var(--s4) 0;font-family:var(--font-serif);font-size:1.02rem;font-weight:700;color:var(--ink2)}
+.table-scroll{overflow-x:auto}
+.results-table{width:100%;border-collapse:collapse;font-size:.9rem}
+.results-table thead th{padding:var(--s3) var(--s4) var(--s2);color:var(--muted);
+  font-family:var(--font-sans);font-size:.7rem;font-weight:700;text-transform:uppercase;
+  letter-spacing:.06em;text-align:right;white-space:nowrap;border-bottom:2px solid var(--line2)}
+.results-table thead th:first-child,.results-table thead th.th-text{text-align:left}
+.results-table tbody td{padding:10px var(--s4);border-top:1px solid var(--line);text-align:right;
+  font-variant-numeric:tabular-nums;font-family:var(--font-mono);font-size:.84rem;font-weight:500;
+  color:var(--ink2);white-space:nowrap}
+.results-table tbody tr:hover td{background:var(--surface-inset)}
+.results-table tbody td.model-cell{text-align:left;font-family:var(--font-sans);font-size:.88rem}
+.results-table .col-key{font-size:.93rem;font-weight:650}
+.results-table td.na{color:var(--ctrl);font-weight:400}
+.results-table tbody tr.best-row td{background:color-mix(in srgb,var(--accent) 9%,transparent);
+  border-top-color:color-mix(in srgb,var(--accent) 30%,transparent);font-weight:650}
+.results-table tbody tr.best-row td:first-child{box-shadow:inset 3px 0 0 var(--accent)}
+.delta{display:inline-block;font-family:var(--font-mono);font-size:.78rem;font-weight:650}
+.delta.up{color:var(--gain)}.delta.down{color:var(--loss)}
+.table-caption{margin:var(--s3) var(--s4) var(--s4);font-size:.82rem;line-height:1.6;color:var(--muted)}
+.table-caption b{color:var(--body)}
+.dual-tables{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--s5)}
+/* kpi strip */
+.kpi-strip{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;margin-top:var(--s5);
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+.kpi{padding:var(--s4) var(--s5);background:var(--surface-raised)}
+.kpi-label{display:block;font-size:.72rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)}
+.kpi-to{display:block;margin-top:6px;font-family:var(--font-mono);font-size:1.66rem;font-weight:700;color:var(--accent-deep)}
+.kpi-sub{display:block;margin-top:4px;font-size:.78rem;color:var(--muted)}
+/* bar charts (pure HTML/CSS, direct-labeled) */
+.chart-card{margin-top:var(--s5);padding:var(--s4) var(--s5) var(--s5);background:var(--surface-raised);
+  border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.chart-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px;margin-bottom:var(--s4)}
+.chart-title{font-family:var(--font-serif);font-size:1.02rem;font-weight:700;color:var(--ink2);
+  padding-left:var(--s3);border-left:2px solid var(--accent)}
+.chart-note{font-size:.8rem;color:var(--muted)}
+.hbar-row{display:grid;grid-template-columns:190px 1fr 64px;align-items:center;gap:12px;padding:5px 0}
+.hbar-name{font-size:.84rem;color:var(--body);text-align:right;line-height:1.3}
+.hbar-row.ours .hbar-name{color:var(--ink2);font-weight:650}
+.hbar-track{position:relative;height:16px;border-radius:4px;background:var(--surface-inset)}
+.hbar-fill{position:absolute;left:0;top:2px;bottom:2px;width:var(--w);border-radius:0 4px 4px 0;background:var(--bar-base)}
+.hbar-row.ours .hbar-fill{background:var(--bar-ours)}
+.hbar-val{font-family:var(--font-mono);font-variant-numeric:tabular-nums;font-size:.84rem;font-weight:650;color:var(--body)}
+.hbar-row.ours .hbar-val{color:var(--accent-deep)}
+.chart-legend{display:flex;gap:18px;margin-top:var(--s3);font-size:.76rem;color:var(--muted)}
+.chart-legend i{display:inline-block;width:14px;height:8px;border-radius:2px;margin-right:6px;vertical-align:baseline}
+.chart-legend .lg-ours i{background:var(--bar-ours)}
+.chart-legend .lg-base i{background:var(--bar-base)}
+/* finding cards (ablations) */
+.finding-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s6);padding-top:var(--s5);
+  border-top:1px solid var(--line);margin-top:var(--s5)}
+.finding h3{margin:0 0 6px;font-size:.92rem;font-weight:700}
+.finding-value{display:block;font-family:var(--font-serif);font-size:2.1rem;font-weight:700;
+  line-height:1.05;letter-spacing:-.02em;color:var(--ink2);margin-bottom:8px}
+.finding-value .fv-dir{font-size:.5em;font-family:var(--font-sans);font-weight:600;color:var(--muted);margin-left:2px}
+.finding-value.bad{color:var(--loss)}
+.finding p{margin:0;font-size:.85rem;line-height:1.62;color:var(--body)}
+/* practice: modes */
+.mode-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s5);margin-top:var(--s5)}
+.mode-card{padding:var(--s4);background:var(--surface-raised);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.mode-card h4{margin:0 0 2px;font-size:1rem;font-weight:700}
+.mode-card h4 code{font-size:.85em}
+.mode-when{margin:0 0 8px;font-family:var(--font-mono);font-size:.7rem;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase;color:var(--accent-text)}
+.mode-card p{margin:0;font-size:.86rem;line-height:1.65;color:var(--body)}
+.callout{margin-top:var(--s5);padding:var(--s4) var(--s5);border-radius:var(--r-md);
+  border:1px solid color-mix(in srgb,var(--vcol,var(--accent)) 35%,var(--line));
+  background:color-mix(in srgb,var(--vcol,var(--accent)) 6%,transparent);
+  font-size:.88rem;line-height:1.7;color:var(--body)}
+.callout b,.callout strong{color:var(--ink2)}
+.callout.warn{--vcol:var(--v-drop)}
+.callout.info{--vcol:var(--v-author)}
+.callout p{margin:0}
+.callout p+p{margin-top:6px}
+/* dogfood band */
+.dogfood{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:var(--s6);margin-top:var(--s6);
+  padding:var(--s5);background:var(--surface-raised);border:1px solid var(--line);
+  border-radius:var(--r-lg);box-shadow:var(--shadow-sm)}
+.dogfood h3{margin:0 0 8px;font-family:var(--font-serif);font-size:1.2rem;font-weight:700}
+.dogfood p{margin:0 0 10px;font-size:.9rem;line-height:1.7;color:var(--body)}
+.dogfood-links{display:flex;flex-wrap:wrap;gap:10px}
+.df-stats{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;align-self:start}
+.df-cell{padding:12px 14px;background:var(--surface-raised)}
+.df-num{display:block;font-family:var(--font-mono);font-size:1.3rem;font-weight:700;color:var(--ink2)}
+.df-cap{display:block;margin-top:2px;font-size:.72rem;color:var(--muted);line-height:1.45}
+/* install */
+.install-grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--s5);margin-top:var(--s5)}
+.install-col h4{margin:0 0 8px;font-size:.95rem;font-weight:700}
+.install-col pre{margin:0;padding:14px 16px;background:var(--bib-bg);border:1px solid var(--line);
+  border-radius:var(--r-md);overflow-x:auto;font-family:var(--font-mono);font-size:.8rem;line-height:1.8;color:var(--ink2)}
+.install-notes{margin:var(--s4) 0 0;padding:0 0 0 18px;font-size:.86rem;line-height:1.75;color:var(--body)}
+.install-notes li{margin-bottom:4px}
+.install-notes code{font-size:.85em}
+/* bibtex */
+.bibtex{position:relative;background:var(--bib-bg);border:1px solid var(--line);border-radius:var(--r-lg);
+  overflow:hidden;box-shadow:var(--shadow-sm);margin-top:var(--s5)}
+.bibtex pre{margin:0;padding:22px 24px;overflow-x:auto;font-family:var(--font-mono);
+  font-size:.84rem;line-height:1.7;color:var(--ink2)}
+.bib-copy{position:absolute;top:12px;right:12px;padding:6px 12px;cursor:pointer;
+  background:var(--surface-raised);border:1px solid var(--line);border-radius:var(--r-pill);
+  color:var(--body);font-family:var(--font-mono);font-size:.74rem}
+.bib-copy.copied{background:var(--accent);border-color:var(--accent);color:#fff}
+.cite-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:var(--s4)}
+/* footer */
+.footer{max-width:var(--content-w);margin:32px auto 0;padding:36px 24px 56px;text-align:center;border-top:1px solid var(--line)}
+.footer p{margin:0 0 8px;font-size:.85rem;color:var(--muted)}
+.footer a{color:var(--muted);text-decoration:underline;text-decoration-color:var(--line2);text-underline-offset:3px}
+.footer a:hover{color:var(--accent-text)}
+/* ============ responsive ============ */
+@media (max-width:1080px){
+  .baseline-list{grid-template-columns:repeat(2,1fr)}
+  .baseline-list li:nth-child(2){border-right:0;padding-right:0}
+  .baseline-list li:nth-child(n+3){border-top:1px solid var(--line)}
+  .baseline-list li:nth-child(3){padding-left:0}
+}
+@media (max-width:980px){
+  .hero-inner{grid-template-columns:1fr}
+  .section-header{grid-template-columns:1fr}
+  .section-eyebrow{grid-row:auto;flex-direction:row;align-items:baseline;gap:10px}
+  .eyebrow-num{font-size:1.6rem}
+  .section h2,.section-lede{grid-column:1}
+  .problem-row,.idea-panels,.pipe,.verdicts,.eval-grid,.dual-tables,.finding-grid,.mode-grid,
+  .install-grid,.pipe-foot,.dogfood{grid-template-columns:1fr}
+  .trial-flow{grid-template-columns:1fr}
+  .trial-vs{padding:2px 0}
+  .takeaway{grid-template-columns:1fr}
+  .kpi-strip{grid-template-columns:1fr}
+  .hbar-row{grid-template-columns:120px 1fr 58px}
+  .hbar-name{text-align:left}
+}
+@media (max-width:860px){.sb-list{grid-template-columns:1fr}}
+@media (max-width:680px){
+  .nav>a{display:none}
+  .navmenu-label{display:none}
+  .section{padding:44px 16px}
+  .hero{padding:36px 16px 24px}
+  .hero-actions,.hero-artifacts{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:2.5rem}
+  .hero h1::after{display:none}
+  .navmenu-pop{position:fixed;top:54px;left:12px;right:12px;max-height:calc(100dvh - 78px);overflow-y:auto}
+}
+</style>
 </head>
 <body>
-<p>Redirecting to <a href="./overview.html">overview.html</a> &hellip;</p>
-<script>location.replace('./overview.html' + (location.search || ''));</script>
+<header class="topbar" id="topbar" aria-label="Page navigation">
+  <div class="topbar-brand">
+    <a class="brand" href="#top">
+      <img class="brand-logo" src="paperjury-mark.png" alt="" width="28" height="28" />
+      <span class="brand-name">PaperJury</span>
+    </a>
+  </div>
+  <nav class="nav" aria-label="Sections">
+    <a href="#top"><span class="zh">首页</span><span class="en">Home</span></a>
+    <div class="navmenu">
+      <button class="navmenu-btn" id="toc-btn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="toc-menu">
+        <span class="navmenu-num" id="toc-num" aria-hidden="true">01</span>
+        <span class="navmenu-label" id="toc-label"><span class="zh">目录</span><span class="en">Contents</span></span>
+        <svg class="navmenu-caret" viewBox="0 0 12 12" aria-hidden="true"><path d="M2.5 4.5 6 8l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <div class="navmenu-pop" id="toc-menu" role="menu" hidden>
+        <a role="menuitem" href="#idea"><span class="tocnum" aria-hidden="true">01</span><span><span class="zh">核心想法</span><span class="en">Core Idea</span></span></a>
+        <a role="menuitem" href="#method"><span class="tocnum" aria-hidden="true">02</span><span><span class="zh">方法</span><span class="en">Method</span></span></a>
+        <a role="menuitem" href="#trial"><span class="tocnum" aria-hidden="true">03</span><span><span class="zh">正当程序</span><span class="en">Due Process</span></span></a>
+        <a role="menuitem" href="#evaluation"><span class="tocnum" aria-hidden="true">04</span><span><span class="zh">评测设计</span><span class="en">Evaluation</span></span></a>
+        <a role="menuitem" href="#results"><span class="tocnum" aria-hidden="true">05</span><span><span class="zh">结果</span><span class="en">Results</span></span></a>
+        <a role="menuitem" href="#cost"><span class="tocnum" aria-hidden="true">06</span><span><span class="zh">安全与成本</span><span class="en">Safety &amp; Cost</span></span></a>
+        <a role="menuitem" href="#ablations"><span class="tocnum" aria-hidden="true">07</span><span><span class="zh">消融实验</span><span class="en">Ablations</span></span></a>
+        <a role="menuitem" href="#practice"><span class="tocnum" aria-hidden="true">08</span><span><span class="zh">上手使用</span><span class="en">In Practice</span></span></a>
+        <a role="menuitem" href="#citation"><span class="tocnum" aria-hidden="true">09</span><span>BibTeX</span></a>
+      </div>
+    </div>
+    <a href="overview.html"><span class="zh">交互总览</span><span class="en">Overview</span></a>
+    <a href="https://github.com/Spark-To-Paper-Skills/paperjury" target="_blank" rel="noopener"><span class="zh">代码</span><span class="en">Code</span></a>
+    <button class="icon-btn lang-toggle" id="lang-toggle" type="button" title="切换语言 / Switch language" aria-label="Switch language">
+      <span class="lang-label" id="lang-label">EN</span>
+    </button>
+    <button class="icon-btn theme-toggle" id="theme-toggle" type="button" data-theme-choice="system" title="Theme: system" aria-label="Color theme: follow system">
+      <svg class="icon-system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="4" width="19" height="13" rx="2"/><path d="M8.5 20.5h7M12 17v3.5"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.4"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M5 5l1.7 1.7M17.3 17.3 19 19M19 5l-1.7 1.7M6.7 17.3 5 19"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 1 0 10.7 10.7Z"/></svg>
+    </button>
+  </nav>
+</header>
+
+<section class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-lead">
+      <div class="hero-head">
+        <p class="hero-kicker"><b>arXiv 2606.16322</b> · <span class="zh">Claude Code skill · MIT</span><span class="en">Claude Code skill · MIT</span></p>
+        <h1>PaperJury</h1>
+        <p class="hero-paper-title">Due-Process Review for Bounded LaTeX Revision</p>
+      </div>
+      <p class="hero-subtitle">
+        <span class="zh">投稿前把稿子交给<strong>闭环的「审稿 → 裁定 → 修改 → 复查」系统</strong>:先像 reviewer 一样对全文对抗式挑错,再对每条意见走完正当程序——不成立的驳回,能安全修的落成最小补丁,需要作者判断的原样交回。<em>模型只负责读和想;落槌和改稿的权力在确定性代码手里。</em></span>
+        <span class="en">A closed-loop <strong>review &rarr; verdict &rarr; revise &rarr; verify</strong> system for pre-submission hardening of LaTeX papers. Adversarial whole-paper review first; then every complaint gets due process &mdash; invalid ones are dropped, safely fixable ones become minimal patches, and anything needing the author&rsquo;s judgment is handed back untouched. <em>The model still does the hard reading; it no longer holds the gavel or the eraser.</em></span>
+      </p>
+      <p class="hero-authors">
+        Yiran Wang<sup>*</sup> · Ruixuan An<sup>*</sup> · Biao Wu · Wenhao Wang &nbsp;—&nbsp; Vast Intelligence Lab
+      </p>
+      <div class="hero-actions">
+        <a class="button primary" href="#results"><span class="zh">看结果</span><span class="en">See Results</span></a>
+        <a class="button ghost" href="#method"><span class="zh">工作机制</span><span class="en">How It Works</span></a>
+        <a class="button ghost" href="#practice"><span class="zh">真实一跑</span><span class="en">Real Run</span></a>
+      </div>
+      <div class="hero-artifacts">
+        <a class="button ghost brand" style="--brand:#b31b1b;" href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M6 3h9l3 3v15H6zM15 3v3h3"/><path d="M9 12h6M9 16h6"/></svg>
+          <span>arXiv</span></a>
+        <a class="button ghost brand" style="--brand:#57606a;" href="https://github.com/Spark-To-Paper-Skills/paperjury" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-3.16 19.49c.5.09.68-.22.68-.48v-1.7c-2.78.6-3.37-1.34-3.37-1.34-.45-1.16-1.11-1.47-1.11-1.47-.9-.62.07-.6.07-.6 1 .07 1.53 1.03 1.53 1.03.9 1.52 2.34 1.08 2.91.83.09-.65.35-1.09.63-1.34-2.22-.25-4.56-1.11-4.56-4.94 0-1.09.39-1.98 1.03-2.68-.1-.25-.45-1.27.1-2.64 0 0 .84-.27 2.75 1.02a9.56 9.56 0 0 1 5 0c1.91-1.3 2.75-1.02 2.75-1.02.55 1.37.2 2.39.1 2.64.64.7 1.03 1.59 1.03 2.68 0 3.84-2.34 4.68-4.57 4.93.36.31.68.92.68 1.85V21c0 .27.18.58.69.48A10 10 0 0 0 12 2Z"/></svg>
+          <span>GitHub</span></a>
+        <a class="button ghost brand" style="--brand:#b07d2a;" href="overview.html">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M8 14.5 10.5 8l5.5-2-2.5 6.5z"/></svg>
+          <span class="zh">交互总览</span><span class="en">Overview</span></a>
+      </div>
+    </div>
+    <div class="hero-side">
+      <figure class="verdict-board" aria-label="Verdict board from a real dogfood run">
+        <div class="vb-head">
+          <span class="vb-title"><span class="zh">裁定板 · 一次真实运行</span><span class="en">The verdict board &middot; one real run</span></span>
+          <span class="vb-sub"><span class="zh">55 个问题</span><span class="en">55 issues</span></span>
+        </div>
+        <div class="vb-grid">
+          <div class="vb-cell" data-v="fix"><span class="vb-num">26</span><span class="vb-tag">valid-fixable</span></div>
+          <div class="vb-cell" data-v="author"><span class="vb-num">10</span><span class="vb-tag">author-required</span></div>
+          <div class="vb-cell" data-v="drop"><span class="vb-num">19</span><span class="vb-tag">invalid-drop</span></div>
+        </div>
+        <p class="vb-note">
+          <span class="zh">对一篇 21 页真实草稿的 dogfood 运行:152 条 reviewer 意见去重成 55 个问题;26 处安全落稿、10 个交回作者、19 条驳回。<a href="https://github.com/Spark-To-Paper-Skills/paperjury/tree/main/samples/dogfood" target="_blank" rel="noopener">修改前后 PDF 与运行报告 →</a></span>
+          <span class="en">A dogfood run on a real 21-page draft: 152 reviewer complaints deduped into 55 issues &mdash; 26 safely applied, 10 handed back to the author, 19 dropped as invalid. <a href="https://github.com/Spark-To-Paper-Skills/paperjury/tree/main/samples/dogfood" target="_blank" rel="noopener">Before/after PDFs &amp; run report &rarr;</a></span>
+        </p>
+      </figure>
+      <div class="quickstart" id="quickstart">
+        <div class="qs-tabs">
+          <button class="qs-tab is-on" id="qs-tab-1" type="button" aria-pressed="true" aria-controls="qs-pane-1">
+            <span class="qs-step">1</span><span class="zh">安装</span><span class="en">Install</span></button>
+          <button class="qs-tab" id="qs-tab-2" type="button" aria-pressed="false" aria-controls="qs-pane-2">
+            <span class="qs-step">2</span><span class="zh">开口即用</span><span class="en">First run</span></button>
+          <button class="qs-copy" id="qs-copy" type="button" aria-label="Copy commands">Copy</button>
+        </div>
+        <div class="qs-pane is-on" id="qs-pane-1">
+          <pre class="qs-code" id="qs-code-1"><span class="ln">/plugin marketplace add Spark-To-Paper-Skills/paperjury</span><span class="ln">/plugin install paperjury@Spark-To-Paper-Skills</span></pre>
+        </div>
+        <div class="qs-pane" id="qs-pane-2">
+          <pre class="qs-code" id="qs-code-2"><span class="ln">审稿,重点看实验和 claim 是否站得住。</span><span class="ln cm"># or, in English:</span><span class="ln">Review this paper. Focus on whether the experiments support the claims.</span></pre>
+        </div>
+        <p class="qs-hint">
+          <span class="zh">在 Claude Code 里安装,然后到论文项目里直接说需求——不用背命令。落稿前补丁都会先交给你确认。</span>
+          <span class="en">Install inside Claude Code, then just say what you need in your paper project &mdash; no commands to memorize. Every patch waits for your confirmation before it lands.</span>
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="scoreboard" aria-label="Headline results">
+  <div class="sb-inner">
+    <div class="sb-lead">
+      <span class="sb-kicker"><span class="zh">12 篇 held-out 论文 · Vision / NLP / ML · 盲审专家审计</span><span class="en">12 held-out papers &middot; Vision / NLP / ML &middot; blinded expert audit</span></span>
+      <p class="sb-copy">
+        <span class="zh">同一批论文、同一套预算与日志口径下,对比四个 baseline。删除线灰字是其中<strong>最强的 baseline(LLM-as-judge 循环)</strong>;金色是 PaperJury。</span>
+        <span class="en">Against four baselines on the same papers, budget envelope, and logging. The struck-through gray number is the <strong>strongest baseline (the LLM-as-judge loop)</strong>; brass is PaperJury.</span>
+      </p>
+    </div>
+    <ol class="sb-list">
+      <li class="sb-item" style="--base:51.9%;--now:65.6%;">
+        <span class="sb-name"><span class="zh">问题质量</span><span class="en">Issue quality</span></span>
+        <span class="sb-metric">Panel-relative F1 &uarr;</span>
+        <span class="sb-figure">
+          <span class="sb-from">0.519</span>
+          <svg class="sb-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          <b class="sb-now">0.656</b>
+        </span>
+        <span class="sb-track" aria-hidden="true"><i class="sb-bar-now"></i><i class="sb-bar-base"></i></span>
+        <span class="sb-delta">+0.137</span>
+      </li>
+      <li class="sb-item" style="--base:66.3%;--now:84.7%;">
+        <span class="sb-name"><span class="zh">审计精度</span><span class="en">Audited precision</span></span>
+        <span class="sb-metric">P<sub>verified</sub> &uarr; · n=98</span>
+        <span class="sb-figure">
+          <span class="sb-from">0.663</span>
+          <svg class="sb-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          <b class="sb-now">0.847</b>
+        </span>
+        <span class="sb-track" aria-hidden="true"><i class="sb-bar-now"></i><i class="sb-bar-base"></i></span>
+        <span class="sb-delta">+0.184</span>
+      </li>
+      <li class="sb-item" style="--base:44%;--now:10%;">
+        <span class="sb-name"><span class="zh">不安全编辑率</span><span class="en">Unsafe-edit rate</span></span>
+        <span class="sb-metric">ESVR &darr;</span>
+        <span class="sb-figure">
+          <span class="sb-from">0.110</span>
+          <svg class="sb-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+          <b class="sb-now">0.025</b>
+        </span>
+        <span class="sb-track" aria-hidden="true"><i class="sb-bar-now"></i><i class="sb-bar-base"></i></span>
+        <span class="sb-delta"><span class="zh">低 4.4&times;</span><span class="en">4.4&times; lower</span></span>
+      </li>
+    </ol>
+    <p class="sb-note">
+      <span class="zh">Baseline <span class="sb-key sb-key-base"></span> 为 LLM-as-judge 循环(四个 baseline 中综合最强);PaperJury <span class="sb-key sb-key-now"></span> 同时以 3.08 &plusmn; 0.67 轮确定性收敛(从未触到五轮上限)。全部数字来自 <a href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv&nbsp;2606.16322</a> 的双臂专家评审,置信区间为 Wilson 95% CI。</span>
+      <span class="en">Baseline <span class="sb-key sb-key-base"></span> is the LLM-as-judge loop, the strongest of the four; PaperJury <span class="sb-key sb-key-now"></span> also terminates deterministically in 3.08 &plusmn; 0.67 rounds, never hitting the five-round cap. All numbers from the two-arm expert study in <a href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv&nbsp;2606.16322</a>; intervals are Wilson 95% CIs.</span>
+    </p>
+  </div>
+</section>
+
+<div class="band">
+<section class="section" id="idea">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">01</span>
+      <span class="eyebrow-name"><span class="zh">核心想法</span><span class="en">Core Idea</span></span>
+    </div>
+    <h2><span class="zh">难的不是写出批评,而是管住批评之后发生的事。</span><span class="en">The hard part is not writing the critique &mdash; it is governing what follows from it.</span></h2>
+    <p class="section-lede">
+      <span class="zh">一篇论文可以在论证还站不住的时候就「看起来写完了」:claim 比实验多说了半步、两节之间互相矛盾、一个数字暗示了没测过的东西。这些毛病读起来很流畅,只有把全文放在一起对抗式地读才会现形。真正的困难在后面——AI 挑出的问题里混着幻觉,真问题里又有相当一部分机器根本修不了。</span>
+      <span class="en">A paper can look finished long before its arguments are sound: a claim half a step ahead of the experiments, two sections that quietly contradict each other, a number that implies something never measured. These flaws read fluently and only surface under adversarial whole-paper reading. The real difficulty comes after &mdash; machine-generated complaints mix in hallucinations, and many genuine issues are simply not machine-fixable.</span>
+    </p>
+  </div>
+  <div class="problem-row">
+    <article class="problem-card">
+      <span class="problem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.8 19h18.4Z"/><path d="M12 10v4M12 17.2v0"/></svg></span>
+      <h3><span class="zh">照单全收会写坏好论文</span><span class="en">Acting on everything corrupts sound papers</span></h3>
+      <p><span class="zh">机器批评里有相当一部分是错的——比如凭空「发现」两段其实一致的文字互相矛盾。一个听见什么就改什么的循环,会把没病的稿子改出病来。</span><span class="en">Many machine complaints are wrong &mdash; a hallucinated contradiction between two passages that in fact agree. A loop that acts on everything it hears rewrites a sound paper into a broken one.</span></p>
+    </article>
+    <article class="problem-card">
+      <span class="problem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M12 12v3"/></svg></span>
+      <h3><span class="zh">「修 / 不修」是错误的二分</span><span class="en">Fix-or-ignore is the wrong shape</span></h3>
+      <p><span class="zh">很多成立的批评需要补实验、补数据——软件做不了,也不该替作者做。裁定空间必须容得下「问题成立,但只能交回作者」这个出口。</span><span class="en">Many correct complaints require new experiments or data &mdash; things software cannot and should not do for the author. The verdict space must include &ldquo;valid, but hand it back.&rdquo;</span></p>
+    </article>
+    <article class="problem-card">
+      <span class="problem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 12.5l2 2 4-5"/></svg></span>
+      <h3><span class="zh">提议改动的人不能自己盖章</span><span class="en">The proposer is the worst certifier</span></h3>
+      <p><span class="zh">被问「改完了吗」的模型倾向于回答「改完了」;放开手改稿的模型也控制不住自己的波及范围——一个只想收紧措辞的补丁,可能悄悄改掉隔壁的 claim。</span><span class="en">A model asked whether it is finished tends to say yes; a model editing free-hand cannot bound its own blast radius &mdash; a wording patch can silently mutate the claim next door.</span></p>
+    </article>
+  </div>
+  <div class="idea-statement">
+    <h3><span class="zh">「模型仍然做最难的阅读;但它不再握着法槌,也不再握着橡皮。」</span><span class="en">&ldquo;The model still does the hard reading; it no longer holds the gavel or the eraser.&rdquo;</span></h3>
+    <p><span class="zh">—— PaperJury 的设计原则:确定性与语义严格分工(arXiv 2606.16322,&sect;1)</span><span class="en">&mdash; The deterministic-versus-semantic split, arXiv 2606.16322, &sect;1</span></p>
+  </div>
+  <div class="idea-panels">
+    <article class="idea-panel" data-side="before">
+      <span class="idea-panel-tag"><span class="zh">现状 · judge 中心的循环</span><span class="en">Today &middot; judge-centered loops</span></span>
+      <h4><span class="zh">模型自己审、自己判、自己改、自己喊停</span><span class="en">One model reviews, judges, edits, and stops itself</span></h4>
+      <p><span class="zh">哪些意见算数、什么时候结束,都押在单个语义判断上——而这种判断换个 prompt 就会变。结果是:该驳回的幻觉照样落成补丁,该停的循环停不下来。</span><span class="en">Which complaints count and when to stop both ride on a single semantic judgment &mdash; one that shifts when the prompt is rephrased. Hallucinated charges become patches; loops that should stop, don&rsquo;t.</span></p>
+    </article>
+    <article class="idea-panel" data-side="after">
+      <span class="idea-panel-tag"><span class="zh">PaperJury · 确定性 vs 语义分工</span><span class="en">PaperJury &middot; the deterministic-versus-semantic split</span></span>
+      <h4><span class="zh">状态、路由、停止、落补丁,全部收进确定性代码</span><span class="en">State, routing, stopping, and patching live in deterministic code</span></h4>
+      <p><span class="zh">durable ledger 给每个问题跨轮次的稳定身份;可争议性路由决定谁上庭;裁定按法定人数在代码里算出来;补丁经护栏链核验后 exact-once 落稿、可回滚。模型只做需要阅读与判断的有界子任务。</span><span class="en">A durable ledger gives every issue a stable cross-round identity; contestability routing decides what goes to trial; verdicts are computed in code under quorum rules; patches pass a guard chain, then apply exactly once, journaled and revertible. Models handle only bounded reading, judging, and drafting.</span></p>
+    </article>
+  </div>
+</section>
+
+<section class="section" id="method">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">02</span>
+      <span class="eyebrow-name"><span class="zh">方法</span><span class="en">Method</span></span>
+    </div>
+    <h2><span class="zh">确定性代码掌管状态机;模型只读、只判、只起草。</span><span class="en">Deterministic code owns the state machine; models only read, judge, and draft.</span></h2>
+    <p class="section-lede">
+      <span class="zh">整条流水线分三段:先用确定性分解把稿子变成可寻址的单元并冻结 claim spine;再做有界的全文评审与裁定;最后只对判为 valid-fixable 的问题做带护栏的修订。贯穿始终的是 durable ledger 和一个查账即得的停止谓词 <code>&tau;</code>。</span>
+      <span class="en">Three stages: deterministic decomposition turns the manuscript into addressable units and freezes the claim spine; bounded whole-paper review and adjudication follow; only issues ruled valid-fixable reach guarded revision. A durable ledger and a ledger-query stopping predicate <code>&tau;</code> run through all of it.</span>
+    </p>
+  </div>
+  <div class="pipe">
+    <article class="pipe-stage" data-st="1">
+      <div class="pipe-head"><span class="pipe-no">1</span><span class="pipe-title"><span class="zh">确定性准备</span><span class="en">Deterministic setup</span></span></div>
+      <ul class="pipe-list">
+        <li><span class="zh"><b>分解 + 锚点。</b>把 LaTeX 稿切成章节、段落、交叉引用目标,后续一切都挂在持久锚点上,不再用随手的文本片段。</span><span class="en"><b>Decompose + anchor.</b> The manuscript becomes sections, passages, and cross-reference targets; everything downstream binds to persistent anchors, not ad hoc spans.</span></li>
+        <li><span class="zh"><b>冻结 claim spine。</b>抽出论文的核心主张并冻结成受保护的骨架:修订可以修支撑、修措辞,但不许悄悄改写 claim。</span><span class="en"><b>Freeze the claim spine.</b> The paper&rsquo;s central assertions become a protected backbone: edits may repair support or wording, never silently rewrite a claim.</span></li>
+        <li><span class="zh"><b>初始化 durable ledger。</b>问题、证据、裁定、补丁历史,全部机器可读、跨轮次、跨会话。</span><span class="en"><b>Initialize the durable ledger.</b> Issues, evidence, verdicts, and patch history &mdash; machine-readable, across rounds and sessions.</span></li>
+      </ul>
+    </article>
+    <article class="pipe-stage" data-st="2">
+      <div class="pipe-head"><span class="pipe-no">2</span><span class="pipe-title"><span class="zh">评审 + 裁定</span><span class="en">Review + adjudication</span></span></div>
+      <ul class="pipe-list">
+        <li><span class="zh"><b>有界全文评审。</b>N = 2&ndash;4 位(默认 3)领域 reviewer 各通读全文一遍,输出带证据锚点的弱点;反略读检查不过关才触发定向重读。</span><span class="en"><b>Bounded holistic review.</b> N = 2&ndash;4 domain reviewers (default 3) each read the full paper once, emitting evidence-anchored weaknesses; targeted re-reads fire only when anti-skim checks fail.</span></li>
+        <li><span class="zh"><b>合并去重。</b>重复意见并成一个问题,保留证据来源,问题身份跨轮稳定。</span><span class="en"><b>Merge + dedupe.</b> Duplicates collapse into one issue with provenance kept; identity stays stable across rounds.</span></li>
+        <li><span class="zh"><b>可争议性路由。</b>确定性规则决定走向:机械/轻微问题走低成本 polish;有争议的重大问题上庭。</span><span class="en"><b>Contestability routing.</b> A deterministic rule sends mechanical/minor issues down the cheap polish path and contestable substantive-major ones to trial.</span></li>
+        <li><span class="zh"><b>正当程序审理。</b>全文视角的辩方对阵去相关的局部证据陪审团;分歧过大升级更大合议庭;裁定按法定人数与多数规则在代码里算出。</span><span class="en"><b>Due-process trial.</b> A whole-paper defense argues against a decorrelated local-context jury; insufficient agreement escalates the panel; the verdict is computed in code under quorum and majority rules.</span></li>
+      </ul>
+    </article>
+    <article class="pipe-stage" data-st="3">
+      <div class="pipe-head"><span class="pipe-no">3</span><span class="pipe-title"><span class="zh">带护栏修订 + 复查</span><span class="en">Guarded revision + verification</span></span></div>
+      <ul class="pipe-list">
+        <li><span class="zh"><b>只修 valid-fixable。</b>起草最小补丁,按结构信号定风险等级(LOW / RISKY),风险越高审计越强。</span><span class="en"><b>Valid-fixable only.</b> Minimal patches are drafted and risk-rated (LOW / RISKY) from structural signals; higher risk triggers stronger audits.</span></li>
+        <li><span class="zh"><b>护栏链。</b>锚点约束 diff、交叉引用检查、含义/编辑审计、编译检查——任何一关不过就拦下或升级。</span><span class="en"><b>Guard chain.</b> Anchor-bounded diff, cross-reference, meaning/edit audits, compile checks &mdash; fail any and the patch is blocked or escalated.</span></li>
+        <li><span class="zh"><b>Exact-once 落稿 + 日志。</b>补丁原子应用、全程记账,随时可回滚。</span><span class="en"><b>Exact-once apply + journal.</b> Patches apply atomically, fully journaled, always revertible.</span></li>
+        <li><span class="zh"><b>干净复查。</b>下一轮只读当前稿件,不接着上一轮的输出续写,避免旧批评的惯性。</span><span class="en"><b>Clean re-review.</b> The next round reads the current manuscript only &mdash; never continues from earlier model outputs.</span></li>
+      </ul>
+    </article>
+  </div>
+  <div class="pipe-foot">
+    <div class="pipe-rail">
+      <h4><span class="zh">Durable ledger:问题的户口本</span><span class="en">The durable ledger: issue identity that survives</span></h4>
+      <p><span class="zh">每个问题以稳定身份跨轮存续——周围的模型可以重跑,问题本身不漂移。路由、闭合、exact-once 修订全都查它。</span><span class="en">Each issue persists as the same tracked object while the models around it are re-run. Routing, closure, and exact-once revision all query it.</span></p>
+    </div>
+    <div class="pipe-rail">
+      <h4><span class="zh">停止谓词 <code>&tau;</code>:查账说了算</span><span class="en">Stopping predicate <code>&tau;</code>: the ledger decides</span></h4>
+      <p><span class="zh">无人值守循环在 <code>&tau;(L, U<sub>r</sub>, C<sub>r</sub>, r)</code> 为真时停:看新增问题、闭合问题和硬性上限,而不是问模型「你写完了吗」。</span><span class="en">The unattended loop halts when <code>&tau;(L, U<sub>r</sub>, C<sub>r</sub>, r)</code> holds &mdash; new issues, closed issues, hard limits. Never by asking the model whether it feels done.</span></p>
+    </div>
+  </div>
+  <div class="takeaway">
+    <span class="takeaway-kicker"><span class="zh">要点</span><span class="en">Takeaway</span></span>
+    <p class="takeaway-lead"><span class="zh">凡是必须跨轮一致的操作,都不交给模型的临场发挥。</span><span class="en">Anything that must behave consistently across runs is taken out of model discretion.</span></p>
+    <p class="takeaway-body"><span class="zh">分解、账本、路由、裁定计算、停止、落补丁——这些承重决定全部跑在确定性代码里;语义 agent 只承接真正需要阅读、推理和起草的有界子任务。</span><span class="en">Decomposition, the ledger, routing, verdict computation, stopping, patching &mdash; every load-bearing call runs in deterministic code, while semantic agents take only the bounded subtasks that genuinely need reading, reasoning, and drafting.</span></p>
+  </div>
+</section>
+
+<section class="section" id="trial">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">03</span>
+      <span class="eyebrow-name"><span class="zh">正当程序</span><span class="en">Due Process</span></span>
+    </div>
+    <h2><span class="zh">每个问题都终结于三种裁定之一——由代码算出,而不是由某个模型拍板。</span><span class="en">Every issue terminates in one of three verdicts &mdash; computed in code, not decreed by a model.</span></h2>
+    <p class="section-lede">
+      <span class="zh">单个 LLM judge 的判断会随 prompt 措辞漂移,所以 PaperJury 不给任何单一语义裁判最终权力。有争议的问题要经过一场结构化的「庭审」:辩方与陪审团相互隔离、视角不同,谁也污染不了谁。</span>
+      <span class="en">A single LLM judge shifts with prompt phrasing, so no lone semantic judge gets final authority. Contested issues go through a structured trial where defense and jury are isolated from each other, seeing the paper from deliberately different angles.</span>
+    </p>
+  </div>
+  <div class="trial-flow">
+    <div class="trial-box">
+      <span class="label"><span class="zh">辩方</span><span class="en">The defense</span></span>
+      <h4><span class="zh">全文视角,为论文辩护</span><span class="en">Whole-paper context, arguing against the charge</span></h4>
+      <p><span class="zh">拿着整篇稿子反驳指控:如果「矛盾」其实在别处有解释、「过强的 claim」其实有支撑,就在这一步把它讲清楚。</span><span class="en">Armed with the full manuscript, it pushes back: if the &ldquo;contradiction&rdquo; is explained elsewhere or the &ldquo;overclaim&rdquo; is actually supported, this is where that gets said.</span></p>
+    </div>
+    <div class="trial-vs">vs</div>
+    <div class="trial-box">
+      <span class="label"><span class="zh">陪审团</span><span class="en">The jury</span></span>
+      <h4><span class="zh">去相关的局部证据评审</span><span class="en">Decorrelated, local-context evaluation</span></h4>
+      <p><span class="zh">只看局部证据、刻意摆脱最初 reviewer 的措辞框架来评估指控;分歧太大时升级到更大的合议庭。</span><span class="en">It weighs localized evidence with reduced dependence on the original reviewer&rsquo;s framing; insufficient agreement escalates to a larger panel.</span></p>
+    </div>
+  </div>
+  <p class="trial-note">
+    <span class="zh">最终裁定 <code>v<sub>i</sub> = Verdict(T(i), q, m)</code> 由法定人数阈值 <code>q</code> 与多数阈值 <code>m</code> 在代码里算出。关键在于:<b>问题成立不等于机器可修</b>——所以裁定天生就有三种出口。</span>
+    <span class="en">The terminal verdict <code>v<sub>i</sub> = Verdict(T(i), q, m)</code> is computed in code from quorum threshold <code>q</code> and majority threshold <code>m</code>. The crux: <b>issue validity does not imply machine editability</b> &mdash; which is why the verdict space is three-way by construction.</span>
+  </p>
+  <div class="verdicts">
+    <article class="verdict-card" data-v="drop">
+      <span class="verdict-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>invalid-drop</span>
+      <h4><span class="zh">指控不成立,驳回</span><span class="en">The charge fails &mdash; dropped</span></h4>
+      <p><span class="zh">reviewer 误读了论文,或者提了不该改的问题。驳回并记录在案,不进入修订。</span><span class="en">The reviewer misread the paper or raised something that should not change. Rejected on the record; never reaches revision.</span></p>
+      <p class="vc-acc"><span class="zh">盲审专家复核一致率 <b>0.872</b></span><span class="en">Blinded expert agreement <b>0.872</b></span></p>
+    </article>
+    <article class="verdict-card" data-v="fix">
+      <span class="verdict-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5 10 18 19.5 7"/></svg>valid-fixable</span>
+      <h4><span class="zh">成立,且能安全地修</span><span class="en">Valid, and safely machine-editable</span></h4>
+      <p><span class="zh">表达不清、claim 过强、结构不顺——不用补实验、不会改偏原意的问题,起草最小补丁进护栏链。</span><span class="en">Unclear wording, overreaching claims, broken structure &mdash; issues needing no new experiments. A minimal patch is drafted and sent through the guard chain.</span></p>
+      <p class="vc-acc"><span class="zh">盲审专家复核一致率 <b>0.913</b></span><span class="en">Blinded expert agreement <b>0.913</b></span></p>
+    </article>
+    <article class="verdict-card" data-v="author">
+      <span class="verdict-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>author-required</span>
+      <h4><span class="zh">成立,但必须交回作者</span><span class="en">Valid, but the author must decide</span></h4>
+      <p><span class="zh">缺实验、缺 ablation、缺数据,或者需要作者的私有知识与研究判断。原样交回,绝不代笔。</span><span class="en">Missing experiments, ablations, or data &mdash; anything needing the author&rsquo;s own knowledge or judgment. Handed back untouched, never ghost-written.</span></p>
+      <p class="vc-acc"><span class="zh">盲审专家复核一致率 <b>0.860</b></span><span class="en">Blinded expert agreement <b>0.860</b></span></p>
+    </article>
+  </div>
+  <div class="takeaway">
+    <span class="takeaway-kicker"><span class="zh">要点</span><span class="en">Takeaway</span></span>
+    <p class="takeaway-lead"><span class="zh">裁定错误集中在 valid-fixable 与 author-required 的边界上——那正是合理分歧所在。</span><span class="en">Verdict errors concentrate on the valid-fixable / author-required boundary &mdash; exactly where reasonable people disagree.</span></p>
+    <p class="takeaway-body"><span class="zh">三类裁定的盲审一致率都在 0.86 以上;争议最大的 author-required 也有最高的「无法判断」占比(15.7%),说明剩下的分歧是讲得出道理的判断差异,而不是裁定机制失灵。</span><span class="en">All three classes hold above 0.86 blinded agreement; the boundary class author-required also has the highest cannot-tell rate (15.7%) &mdash; defensible disagreement, not adjudication failure.</span></p>
+  </div>
+</section>
+
+<section class="section" id="evaluation">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">04</span>
+      <span class="eyebrow-name"><span class="zh">评测设计</span><span class="en">Evaluation</span></span>
+    </div>
+    <h2><span class="zh">双臂专家评审:先对问题,再审裁定。</span><span class="en">Two arms of expert review: match the issues, then audit the verdicts.</span></h2>
+    <p class="section-lede">
+      <span class="zh">在 12 篇 held-out 的 LaTeX 论文(Vision / NLP / ML 各 4 篇)上,与四个 baseline 在同一套稿件、预算口径和日志下对比。问题发现质量与下游裁定质量分开度量,避免互相混淆。</span>
+      <span class="en">On 12 held-out LaTeX papers (4 each from Vision, NLP, and ML), against four baselines under the same manuscripts, budget accounting, and logging. Issue discovery and downstream adjudication are measured separately so neither contaminates the other.</span>
+    </p>
+  </div>
+  <div class="eval-grid">
+    <article class="eval-card">
+      <h3><span class="zh">第一臂 · 问题匹配</span><span class="en">Arm 1 &middot; Issue matching</span></h3>
+      <p><span class="zh">系统发现的问题与独立的专家问题清单做段落级 + 语义匹配(按 fix-equivalence 判等),得到 panel-relative 的精度、召回与 F1。</span><span class="en">System-discovered issues are matched against independent expert issue panels at passage level and semantically, under fix-equivalence &mdash; yielding panel-relative precision, recall, and F1.</span></p>
+    </article>
+    <article class="eval-card">
+      <h3><span class="zh">第二臂 · 盲审审计</span><span class="en">Arm 2 &middot; Blinded audit</span></h3>
+      <p><span class="zh">同一批专家在看不到系统裁定的情况下重新标注抽样问题,并审计路由决定、已应用的编辑和停止行为——得到裁定正确率、路由正确率和编辑安全性。</span><span class="en">The same experts relabel sampled issues without seeing the system&rsquo;s verdicts, and audit routing decisions, applied edits, and stopping behavior &mdash; yielding verdict accuracy, routing accuracy, and edit safety.</span></p>
+    </article>
+  </div>
+  <ul class="baseline-list">
+    <li><b><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></b><span><span class="zh">不出问题清单,直接从头到尾改写。快,但没有裁定,编辑最不安全。</span><span class="en">No issue list; just rewrites straight through. Fast, no adjudication, least safe edits.</span></span></li>
+    <li><b><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></b><span><span class="zh">只生成批评,不裁定、不修改。</span><span class="en">Generates critique only; no verdicts, no edits.</span></span></li>
+    <li><b><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></b><span><span class="zh">最接近的对照:批评、裁定、停止全押在模型判断上。</span><span class="en">The closest comparator: critique, judgment, and stopping all ride on model discretion.</span></span></li>
+    <li><b><span class="zh">朴素无界生成器</span><span class="en">Naive unbounded generator</span></b><span><span class="zh">按「单元 &times; 视角」穷举批评的高召回、高成本参照。</span><span class="en">Exhaustive per-(unit&times;lens) critique &mdash; the high-recall, high-cost reference.</span></span></li>
+  </ul>
+</section>
+</div>
+<section class="section" id="results">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">05</span>
+      <span class="eyebrow-name"><span class="zh">结果</span><span class="en">Results</span></span>
+    </div>
+    <h2><span class="zh">最高的问题质量、最高的审计精度、最安全的编辑,同时确定性收敛。</span><span class="en">Best issue quality, highest audited precision, safest edits &mdash; while terminating deterministically.</span></h2>
+    <p class="section-lede">
+      <span class="zh">关键不在单项指标,而在能否<strong>同时</strong>守住问题质量、受治理的裁定、不伤稿件的安全修订(artifact-safe)和实际可用的成本。逐篇配对比较里,PaperJury 的 F1 在全部 12 篇上胜过每一个会出问题清单的 baseline;paper-cluster paired-bootstrap 的 &Delta;F1 95% 下界分别为 +0.200(vs 批评器)、+0.127(vs judge 循环)、+0.188(vs 朴素生成器),满足预注册的主要终点。</span>
+      <span class="en">The point is not any single metric but sustaining <strong>all of it at once</strong>: issue quality, governed adjudication, artifact-safe revision, practical cost. Per-paper paired F1 favors PaperJury on all 12 papers against every issue-producing baseline; paper-cluster paired-bootstrap 95% lower bounds on &Delta;F1 are +0.200 (vs critic), +0.127 (vs judge loop), and +0.188 (vs naive generator) &mdash; satisfying the preregistered primary endpoint.</span>
+    </p>
+  </div>
+  <div class="table-wrap">
+    <div class="table-title"><span class="zh">表 1 · 端到端主结果(12 篇论文,双臂专家评审)</span><span class="en">Table 1 &middot; Main end-to-end results (12 papers, two-arm expert review)</span></div>
+    <div class="table-scroll">
+      <table class="results-table">
+        <thead><tr>
+          <th class="th-text"><span class="zh">方法</span><span class="en">Method</span></th>
+          <th>P<sub>panel</sub> / P<sub>verified</sub></th><th>n</th><th>95% CI</th>
+          <th>R &uarr;</th><th>F1 &uarr;</th><th>Acc<sub>v</sub> &uarr;</th><th>Acc<sub>r</sub> &uarr;</th>
+          <th>ESVR &darr;</th><th>K</th><th>W (h)</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="model-cell"><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></td>
+            <td class="na">n/a</td><td class="na">n/a</td><td class="na">n/a</td><td class="na">n/a</td><td class="col-key na">n/a</td>
+            <td class="na">n/a</td><td class="na">n/a</td><td>0.240</td><td>1</td><td>0.31</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></td>
+            <td>0.437 / 0.577</td><td>78</td><td>[0.466, 0.680]</td><td>0.462</td><td class="col-key">0.446</td>
+            <td class="na">n/a</td><td class="na">n/a</td><td class="na">n/a</td><td>1</td><td>0.51</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></td>
+            <td>0.512 / 0.663</td><td>92</td><td>[0.562, 0.751]</td><td>0.533</td><td class="col-key">0.519</td>
+            <td>0.681</td><td class="na">n/a</td><td>0.110</td><td>3.33 &plusmn; 1.07 (2/12)</td><td>2.06</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">朴素无界生成器</span><span class="en">Naive unbounded generator</span></td>
+            <td>0.341 / 0.511</td><td>92</td><td>[0.410, 0.611]</td><td><b>0.721</b></td><td class="col-key">0.459</td>
+            <td class="na">n/a</td><td class="na">n/a</td><td class="na">n/a</td><td>1</td><td>8.37</td>
+          </tr>
+          <tr class="best-row">
+            <td class="model-cell"><b>PaperJury</b> <span class="zh">(本文)</span><span class="en">(ours)</span></td>
+            <td><b>0.684 / 0.847</b></td><td>98</td><td>[0.763, 0.905]</td><td>0.637</td><td class="col-key"><b>0.656</b></td>
+            <td><b>0.887</b></td><td><b>0.913</b></td><td><b>0.025</b></td><td>3.08 &plusmn; 0.67 (0/12)</td><td>2.47</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <span class="zh"><b>P<sub>panel</sub></b>:相对专家清单的重大问题精度(fix-equivalence 匹配);<b>P<sub>verified</sub></b>:经专家审计、把系统独有的成立问题计入后的修正精度(从不参与 F1);<b>Acc<sub>v</sub> / Acc<sub>r</sub></b>:盲审专家对终局裁定 / 路由决定的一致率;<b>ESVR</b>:已应用编辑中违反安全的比例(需与表 3 的编辑量合读);<b>K</b>:收敛轮数,括号内为触到五轮上限的论文数;<b>W</b>:每篇小时数。n/a 表示该方法没有这项能力。95% CI 为 P<sub>verified</sub> 的 Wilson 区间。</span>
+      <span class="en"><b>P<sub>panel</sub></b>: panel-relative precision of major issues under fix-equivalence matching. <b>P<sub>verified</sub></b>: audit-corrected precision crediting expert-validated system-only issues (never used inside F1). <b>Acc<sub>v</sub> / Acc<sub>r</sub></b>: blinded expert agreement with terminal verdicts / routing. <b>ESVR</b>: safety-violating share of applied edits (read with Table&nbsp;3&rsquo;s edit volumes). <b>K</b>: rounds to termination, with papers hitting the five-round cap in parentheses. <b>W</b>: wall-clock hours per paper. n/a marks capabilities a method does not have. CIs are Wilson intervals on P<sub>verified</sub>.</span>
+    </p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-head">
+      <span class="chart-title"><span class="zh">问题质量:panel-relative F1</span><span class="en">Issue quality: panel-relative F1</span></span>
+      <span class="chart-note"><span class="zh">越长越好 · Forward-only 重写器不出问题清单,无 F1</span><span class="en">Longer is better &middot; the forward-only rewriter produces no issue list, hence no F1</span></span>
+    </div>
+    <div class="hbar" role="img" aria-label="F1 bars: critic 0.446, judge loop 0.519, naive generator 0.459, PaperJury 0.656">
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:68%"></i></span><span class="hbar-val">0.446</span></div>
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:79.1%"></i></span><span class="hbar-val">0.519</span></div>
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">朴素无界生成器</span><span class="en">Naive unbounded generator</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:70%"></i></span><span class="hbar-val">0.459</span></div>
+      <div class="hbar-row ours"><span class="hbar-name">PaperJury</span><span class="hbar-track"><i class="hbar-fill" style="--w:100%"></i></span><span class="hbar-val">0.656</span></div>
+    </div>
+    <div class="chart-legend"><span class="lg-ours"><i></i>PaperJury</span><span class="lg-base"><i></i><span class="zh">baseline</span><span class="en">Baselines</span></span></div>
+  </div>
+  <div class="kpi-strip">
+    <div class="kpi"><span class="kpi-label"><span class="zh">裁定一致率</span><span class="en">Verdict agreement</span></span><span class="kpi-to">0.887</span><span class="kpi-sub"><span class="zh">judge 循环:0.681</span><span class="en">Judge loop: 0.681</span></span></div>
+    <div class="kpi"><span class="kpi-label"><span class="zh">路由一致率</span><span class="en">Routing agreement</span></span><span class="kpi-to">0.913</span><span class="kpi-sub"><span class="zh">baseline 均无路由</span><span class="en">No baseline has routing</span></span></div>
+    <div class="kpi"><span class="kpi-label"><span class="zh">收敛轮数</span><span class="en">Rounds to termination</span></span><span class="kpi-to">3.08 &plusmn; 0.67</span><span class="kpi-sub"><span class="zh">从未触到五轮上限;judge 循环 2/12 触顶</span><span class="en">Never hits the five-round cap; judge loop caps on 2/12</span></span></div>
+  </div>
+  <div class="dual-tables">
+    <div class="table-wrap">
+      <div class="table-title"><span class="zh">表 2a · 分裁定类的盲审复核</span><span class="en">Table 2a &middot; Verdict audit by terminal class</span></div>
+      <div class="table-scroll">
+        <table class="results-table">
+          <thead><tr><th class="th-text"><span class="zh">裁定类</span><span class="en">Class</span></th><th>n</th><th>Acc<sub>v</sub></th><th>95% CI</th><th><span class="zh">无法判断</span><span class="en">Cannot-tell</span></th></tr></thead>
+          <tbody>
+            <tr><td class="model-cell">invalid-drop</td><td>43</td><td class="col-key">0.872</td><td>[0.733, 0.944]</td><td>4 (9.3%)</td></tr>
+            <tr><td class="model-cell">valid-fixable</td><td>73</td><td class="col-key">0.913</td><td>[0.823, 0.960]</td><td>4 (5.5%)</td></tr>
+            <tr><td class="model-cell">author-required</td><td>51</td><td class="col-key">0.860</td><td>[0.727, 0.934]</td><td>8 (15.7%)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-caption"><span class="zh">盲审专家在不知道系统裁定的情况下重新标注;误判集中在 valid-fixable &harr; author-required 边界。</span><span class="en">Blinded experts relabel without seeing the system&rsquo;s verdict; confusions concentrate on the valid-fixable &harr; author-required boundary.</span></p>
+    </div>
+    <div class="table-wrap">
+      <div class="table-title"><span class="zh">表 2b · 分领域切片(每个领域 4 篇;仅作诊断)</span><span class="en">Table 2b &middot; Per-domain slices (4 papers each; diagnostic)</span></div>
+      <div class="table-scroll">
+        <table class="results-table">
+          <thead><tr><th class="th-text"><span class="zh">领域</span><span class="en">Domain</span></th><th>F1</th><th>Acc<sub>v</sub></th><th>Acc<sub>r</sub></th><th>ESVR</th></tr></thead>
+          <tbody>
+            <tr><td class="model-cell">Vision</td><td class="col-key">0.646</td><td>0.881</td><td>0.904</td><td>0.028</td></tr>
+            <tr><td class="model-cell">NLP</td><td class="col-key">0.671</td><td>0.902</td><td>0.929</td><td>0.021</td></tr>
+            <tr><td class="model-cell">ML</td><td class="col-key">0.651</td><td>0.878</td><td>0.906</td><td>0.026</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="table-caption"><span class="zh">三个切片的全部指标与合并值相差不超过 0.03——质量不是靠某个子领域撑起来的。</span><span class="en">Every metric stays within 0.03 of the pooled values &mdash; quality is not carried by one subcommunity.</span></p>
+    </div>
+  </div>
+</section>
+
+<div class="band">
+<section class="section" id="cost">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">06</span>
+      <span class="eyebrow-name"><span class="zh">安全与成本</span><span class="en">Safety &amp; Cost</span></span>
+    </div>
+    <h2><span class="zh">编辑量相当,不安全编辑少 4.4 倍——护栏链的成本自己就赚回来了。</span><span class="en">Similar edit volume, 4.4&times; fewer unsafe edits &mdash; the guard chain pays for itself.</span></h2>
+    <p class="section-lede">
+      <span class="zh">ESVR 只有和编辑量、覆盖率放在一起才可解读:一个几乎不动稿子的系统「安全」得毫无意义。PaperJury 与 judge 循环的编辑量相当(每篇 13.4 vs 14.3 处),差别在于护栏链在落稿前拦下了 <strong>17.0%</strong> 的候选补丁(judge 循环只拦 3.4%),换来单位编辑违规率低 4.4 倍。</span>
+      <span class="en">ESVR is only interpretable next to edit volume and coverage &mdash; a system that barely touches the paper is &ldquo;safe&rdquo; in a useless way. PaperJury applies about as many edits as the judge loop (13.4 vs 14.3 per paper); the difference is a guard chain that blocks <strong>17.0%</strong> of proposed patches before application (vs 3.4%), buying a 4.4&times; lower per-edit violation rate.</span>
+    </p>
+  </div>
+  <div class="table-wrap">
+    <div class="table-title"><span class="zh">表 3 · 编辑安全(ESVR 的必备伴读)</span><span class="en">Table 3 &middot; Edit safety (the mandatory companion to ESVR)</span></div>
+    <div class="table-scroll">
+      <table class="results-table">
+        <thead><tr>
+          <th class="th-text"><span class="zh">方法</span><span class="en">Method</span></th>
+          <th><span class="zh">已应用(每篇)</span><span class="en">Applied (per paper)</span></th>
+          <th><span class="zh">VF 终局</span><span class="en">VF terminals</span></th>
+          <th><span class="zh">候选补丁</span><span class="en">Proposed</span></th>
+          <th><span class="zh">覆盖率</span><span class="en">Coverage</span></th>
+          <th><span class="zh">护栏拦截</span><span class="en">Guard-block</span></th>
+          <th><span class="zh">不安全</span><span class="en">Unsafe</span></th>
+          <th>ESVR &darr;</th>
+        </tr></thead>
+        <tbody>
+          <tr>
+            <td class="model-cell"><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></td>
+            <td>254 (21.2)</td><td class="na">n/a</td><td class="na">n/a</td><td class="na">n/a</td><td class="na">n/a</td><td>61</td><td class="col-key">0.240</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></td>
+            <td>172 (14.3)</td><td>204</td><td>178</td><td>0.843</td><td>0.034</td><td>19</td><td class="col-key">0.110</td>
+          </tr>
+          <tr class="best-row">
+            <td class="model-cell"><b>PaperJury</b> <span class="zh">(本文)</span><span class="en">(ours)</span></td>
+            <td>161 (13.4)</td><td>196</td><td>194</td><td>0.821</td><td><b>0.170</b></td><td><b>4</b></td><td class="col-key"><b>0.025</b></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption">
+      <span class="zh">批评器与朴素生成器不做修改,不在此表。重写器改得最多(每篇 21.2 处)也错得最狠(ESVR 0.240)。PaperJury 覆盖率略低于 judge 循环(0.821 vs 0.843)——用这一点覆盖率,换来 12 篇合计的不安全编辑从 19 处降到 4 处。</span>
+      <span class="en">The critic-only and naive baselines apply no edits. The rewriter edits the most (21.2 per paper) and worst (ESVR 0.240). PaperJury&rsquo;s coverage runs slightly below the judge loop (0.821 vs 0.843) &mdash; the price of dropping unsafe edits from 19 to 4 pooled across papers.</span>
+    </p>
+  </div>
+  <div class="chart-card">
+    <div class="chart-head">
+      <span class="chart-title"><span class="zh">每篇耗时(小时)</span><span class="en">Wall-clock hours per paper</span></span>
+      <span class="chart-note"><span class="zh">越短越好 · token 成本:PaperJury 每篇 6.76M;朴素生成器 31.4M</span><span class="en">Shorter is better &middot; token cost: PaperJury 6.76M per paper; naive generator 31.4M</span></span>
+    </div>
+    <div class="hbar" role="img" aria-label="Hours per paper: rewriter 0.31, critic 0.51, judge loop 2.06, naive generator 8.37, PaperJury 2.47">
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:3.7%"></i></span><span class="hbar-val">0.31</span></div>
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:6.1%"></i></span><span class="hbar-val">0.51</span></div>
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:24.6%"></i></span><span class="hbar-val">2.06</span></div>
+      <div class="hbar-row"><span class="hbar-name"><span class="zh">朴素无界生成器</span><span class="en">Naive unbounded generator</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:100%"></i></span><span class="hbar-val">8.37</span></div>
+      <div class="hbar-row ours"><span class="hbar-name">PaperJury</span><span class="hbar-track"><i class="hbar-fill" style="--w:29.5%"></i></span><span class="hbar-val">2.47</span></div>
+    </div>
+    <div class="chart-legend"><span class="lg-ours"><i></i>PaperJury</span><span class="lg-base"><i></i><span class="zh">baseline</span><span class="en">Baselines</span></span></div>
+  </div>
+  <div class="takeaway">
+    <span class="takeaway-kicker"><span class="zh">要点</span><span class="en">Takeaway</span></span>
+    <p class="takeaway-lead"><span class="zh">治理的代价并不高:2.47 小时、6.76M token,换回可审计的全流程。</span><span class="en">Governance costs little: 2.47 hours and 6.76M tokens buy a fully auditable loop.</span></p>
+    <p class="takeaway-body"><span class="zh">token 比穷举式批评省 4 倍多、时间快 3 倍多,用一些召回换来精度与安全的大幅提升;比便宜的单遍系统多花的时间,花在了裁定与护栏上。</span><span class="en">Over 4&times; cheaper in tokens and over 3&times; faster than exhaustive critique, trading some recall for large gains in precision and safety; the hours beyond the cheap single-pass systems are spent exactly on adjudication and guards.</span></p>
+  </div>
+</section>
+
+<section class="section" id="ablations">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">07</span>
+      <span class="eyebrow-name"><span class="zh">消融实验</span><span class="en">Ablations</span></span>
+    </div>
+    <h2><span class="zh">拆掉哪个部件,系统就恰好坏在那个部件的职责上。</span><span class="en">Remove a component, and the system fails exactly where that component&rsquo;s job was.</span></h2>
+    <p class="section-lede">
+      <span class="zh">在预注册的、领域均衡的 6 篇子集上逐个拆部件。消融有说服力的标准不是「拆了还能跑」,而是退化方向要与被拆部件的功能对得上——五个部件全部对上了。</span>
+      <span class="en">Each component is removed on a preregistered, domain-balanced six-paper subset. The bar for an informative ablation is not &ldquo;it still runs&rdquo; but that the degradation aligns with the removed component&rsquo;s function &mdash; and all five align.</span>
+    </p>
+  </div>
+  <div class="table-wrap">
+    <div class="table-title"><span class="zh">表 4 · 消融(6 篇子集;&Delta; 相对同子集重跑的完整系统)</span><span class="en">Table 4 &middot; Ablations (six-paper subset; &Delta; vs Full PaperJury re-executed on the same subset)</span></div>
+    <div class="table-scroll">
+      <table class="results-table">
+        <thead><tr>
+          <th class="th-text"><span class="zh">变体</span><span class="en">Variant</span></th>
+          <th>F1</th><th>&Delta;F1</th><th>Acc<sub>v</sub></th><th>&Delta;Acc<sub>v</sub></th>
+          <th>ESVR</th><th>&Delta;ESVR</th><th>K</th><th>W (h)</th>
+        </tr></thead>
+        <tbody>
+          <tr class="best-row">
+            <td class="model-cell"><b>Full PaperJury</b></td>
+            <td class="col-key">0.649</td><td>&mdash;</td><td>0.881</td><td>&mdash;</td><td>0.029</td><td>&mdash;</td><td>3.00 &plusmn; 0.63 (0/6)</td><td>2.43</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">去掉有界评审</span><span class="en">w/o bounded review</span></td>
+            <td class="col-key">0.572</td><td><span class="delta down">&minus;0.077</span></td><td>0.868</td><td><span class="delta down">&minus;0.013</span></td><td>0.042</td><td><span class="delta down">+0.013</span></td><td>3.67 &plusmn; 0.52</td><td>4.81</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">去掉确定性路由</span><span class="en">w/o routing</span></td>
+            <td class="col-key">0.636</td><td><span class="delta down">&minus;0.013</span></td><td>0.806</td><td><span class="delta down">&minus;0.075</span></td><td>0.047</td><td><span class="delta down">+0.018</span></td><td>3.33 &plusmn; 0.52 (0/6)</td><td>3.49</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">去掉庭审</span><span class="en">w/o trial</span></td>
+            <td class="col-key">0.642</td><td><span class="delta down">&minus;0.007</span></td><td>0.728</td><td><span class="delta down">&minus;0.153</span></td><td>0.052</td><td><span class="delta down">+0.023</span></td><td>3.17 &plusmn; 0.75 (0/6)</td><td>2.18</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">去掉 claim spine</span><span class="en">w/o claim spine</span></td>
+            <td class="col-key">0.632</td><td><span class="delta down">&minus;0.017</span></td><td>0.857</td><td><span class="delta down">&minus;0.024</span></td><td>0.112</td><td><span class="delta down">+0.083</span></td><td>3.00 &plusmn; 0.63 (0/6)</td><td>2.37</td>
+          </tr>
+          <tr>
+            <td class="model-cell"><span class="zh">去掉护栏链</span><span class="en">w/o guard chain</span></td>
+            <td class="col-key">0.627</td><td><span class="delta down">&minus;0.022</span></td><td>0.859</td><td><span class="delta down">&minus;0.022</span></td><td>0.181</td><td><span class="delta down">+0.152</span></td><td>2.83 &plusmn; 0.75 (0/6)</td><td>1.94</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="table-caption"><span class="zh">同一子集上完整系统重跑的 F1 与主实验相差在运行随机性内。「去掉有界评审」同时取消了轮数上限,故 K 无触顶口径。</span><span class="en">The full system&rsquo;s subset re-execution differs from the main run within run stochasticity. &ldquo;w/o bounded review&rdquo; also removes the round cap, so its K has no cap fraction.</span></p>
+  </div>
+  <div class="finding-grid">
+    <article class="finding">
+      <h3><span class="zh">拆有界评审 &rarr; 发现能力掉最狠</span><span class="en">Drop bounded review &rarr; discovery falls hardest</span></h3>
+      <span class="finding-value bad">&minus;0.077<span class="fv-dir">F1</span></span>
+      <p><span class="zh">同时耗时翻倍(2.43 &rarr; 4.81 小时):没有边界的评审既漏得多、又跑得慢。</span><span class="en">Runtime also doubles (2.43 &rarr; 4.81 h): unbounded review misses more and runs slower.</span></p>
+    </article>
+    <article class="finding">
+      <h3><span class="zh">拆庭审 &rarr; 裁定质量掉最狠</span><span class="en">Drop the trial &rarr; verdicts fall hardest</span></h3>
+      <span class="finding-value bad">&minus;0.153<span class="fv-dir">Acc<sub>v</sub></span></span>
+      <p><span class="zh">换成单遍语义判断后,恰恰是边界案例最先失守——它们正需要全文语境才能稳定裁定。</span><span class="en">With single-pass semantic judgment, borderline cases fail first &mdash; exactly the ones needing manuscript-wide context.</span></p>
+    </article>
+    <article class="finding">
+      <h3><span class="zh">拆护栏链 &rarr; 安全崩得最狠</span><span class="en">Drop the guard chain &rarr; safety collapses</span></h3>
+      <span class="finding-value bad">+0.152<span class="fv-dir">ESVR</span></span>
+      <p><span class="zh">ESVR 冲到 0.181,还「最快跑完」(1.94 小时)——不设防落稿的典型特征,而不是修订变好了。</span><span class="en">ESVR jumps to 0.181 while terminating fastest (1.94 h) &mdash; the signature of unchecked application, not better revision.</span></p>
+    </article>
+    <article class="finding">
+      <h3><span class="zh">拆 claim spine &rarr; 主张开始漂移</span><span class="en">Drop the claim spine &rarr; claims drift</span></h3>
+      <span class="finding-value bad">+0.083<span class="fv-dir">ESVR</span></span>
+      <p><span class="zh">没有被冻结的主张骨架,更多补丁越过局部修补、动到 claim 层——初筛拦不住它们。</span><span class="en">Without the frozen backbone, more patches slip past screening into claim-level alteration.</span></p>
+    </article>
+    <article class="finding">
+      <h3><span class="zh">拆确定性路由 &rarr; 判得更差、花得更多</span><span class="en">Drop routing &rarr; worse verdicts, higher cost</span></h3>
+      <span class="finding-value bad">&minus;0.075<span class="fv-dir">Acc<sub>v</sub></span></span>
+      <p><span class="zh">耗时 2.43 &rarr; 3.49 小时而 F1 几乎不动:所有问题都涌进昂贵的语义裁定,分配失灵。</span><span class="en">Hours rise 2.43 &rarr; 3.49 while F1 barely moves: everything floods into expensive semantic adjudication.</span></p>
+    </article>
+    <article class="finding">
+      <h3><span class="zh">合起来读</span><span class="en">Read together</span></h3>
+      <span class="finding-value">5 / 5</span>
+      <p><span class="zh">五个部件的退化方向全部与其功能对齐——护栏链和 claim spine 是修订不伤稿件的必要条件,不是保守的摆设。</span><span class="en">All five degradations align with component function &mdash; the guard chain and claim spine are necessary conditions for artifact-safe revision, not conservative overhead.</span></p>
+    </article>
+  </div>
+</section>
+</div>
+
+<section class="section" id="practice">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">08</span>
+      <span class="eyebrow-name"><span class="zh">上手使用</span><span class="en">In Practice</span></span>
+    </div>
+    <h2><span class="zh">三种模式,一次真实 dogfood,一套诚实的降级。</span><span class="en">Three modes, one real dogfood run, and honest degradation.</span></h2>
+    <p class="section-lede">
+      <span class="zh">PaperJury 以 Claude Code skill 的形式发布。不用背命令:直接描述需求,它会自己选模式;真正落稿前,补丁都先交给你确认。也有 <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex" target="_blank" rel="noopener">Codex 版</a>。</span>
+      <span class="en">PaperJury ships as a Claude Code skill. No commands to memorize: describe what you need and it picks the mode; every patch waits for your confirmation before landing. A <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex" target="_blank" rel="noopener">Codex port</a> exists too.</span>
+    </p>
+  </div>
+  <div class="mode-grid">
+    <article class="mode-card">
+      <h4><code>direct-edit</code></h4>
+      <p class="mode-when"><span class="zh">最常用 · 只改一处</span><span class="en">Most common &middot; one spot</span></p>
+      <p><span class="zh">「把这段改紧一点,但别改 claim。」不开评审面板,直接起草补丁,你确认后应用。</span><span class="en">&ldquo;Tighten this paragraph, but don&rsquo;t change the claim.&rdquo; No review panel &mdash; a patch is drafted and applied after you confirm.</span></p>
+    </article>
+    <article class="mode-card">
+      <h4><code>review</code></h4>
+      <p class="mode-when"><span class="zh">想被挑刺时</span><span class="en">When you want the jury</span></p>
+      <p><span class="zh">「审稿」「mock review」「只看第 4 节」。启动对抗式评审引擎,先判问题成立与否,改动逐一确认。</span><span class="en">&ldquo;Review this,&rdquo; &ldquo;mock review,&rdquo; &ldquo;just Section 4.&rdquo; The adversarial engine runs; issues are adjudicated first, and every change is confirmed one by one.</span></p>
+    </article>
+    <article class="mode-card">
+      <h4><code>auto</code></h4>
+      <p class="mode-when"><span class="zh">无人值守 · 须显式开启</span><span class="en">Unattended &middot; explicit opt-in</span></p>
+      <p><span class="zh">用 <code>/goal</code> 或配置 <code>mode: auto</code> 显式授权后,多轮跑到可验证的目标;安全修改可自动落稿,高风险仍交回作者。</span><span class="en">With explicit <code>/goal</code> or <code>mode: auto</code> authorization, it iterates to a verifiable target; safe fixes may auto-apply, high-risk items still return to the author.</span></p>
+    </article>
+  </div>
+  <div class="callout warn">
+    <p><span class="zh"><strong>auto 不靠猜,必须显式开启。</strong>只放开工具权限、发普通 prompt,只会跑一轮就停。要多轮无人值守,必须 <code>/goal</code> 或 <code>mode: auto</code>,原因见 <a href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/AGENT-GUIDE.md" target="_blank" rel="noopener">AGENT-GUIDE &sect;3</a>。</span><span class="en"><strong>Auto is never inferred.</strong> Opening tool permissions and sending an ordinary prompt runs one round and stops. Unattended multi-round work requires <code>/goal</code> or <code>mode: auto</code> &mdash; see <a href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/AGENT-GUIDE.md" target="_blank" rel="noopener">AGENT-GUIDE &sect;3</a>.</span></p>
+  </div>
+  <div class="dogfood" id="dogfood">
+    <div>
+      <h3><span class="zh">真实一跑:21 页草稿,11 个埋好的缺陷</span><span class="en">The real run: a 21-page draft with 11 planted defects</span></h3>
+      <p><span class="zh">一篇真实草稿的完整 auto 模式评审:152 条 reviewer 意见去重成 55 个问题——26 处安全落稿、10 个交回作者、19 条驳回;改后稿件编译 0 error / 0 warning。仓库里放着修改前后 PDF 和一份人工核对过的运行报告,先看样例,再决定要不要把自己的论文交给它。</span><span class="en">A full auto-mode pass over a real draft: 152 reviewer complaints deduped into 55 issues &mdash; 26 safely applied, 10 handed to the author, 19 dropped; the revised manuscript compiles with 0 errors and 0 warnings. Before/after PDFs and a hand-verified run report live in the repo &mdash; read the sample before trusting it with your own paper.</span></p>
+      <div class="dogfood-links">
+        <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/samples/dogfood/original_draft.pdf" target="_blank" rel="noopener"><span class="zh">改前 PDF</span><span class="en">Before PDF</span></a>
+        <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/samples/dogfood/revised_draft.pdf" target="_blank" rel="noopener"><span class="zh">改后 PDF</span><span class="en">After PDF</span></a>
+        <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/samples/dogfood/RUN_REPORT.md" target="_blank" rel="noopener"><span class="zh">运行报告</span><span class="en">Run report</span></a>
+        <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/showcase/SHOWCASE.md" target="_blank" rel="noopener">Showcase</a>
+      </div>
+    </div>
+    <div class="df-stats">
+      <div class="df-cell"><span class="df-num">152 &rarr; 55</span><span class="df-cap"><span class="zh">意见去重成问题</span><span class="en">Complaints deduped into issues</span></span></div>
+      <div class="df-cell"><span class="df-num">26 / 10 / 19</span><span class="df-cap"><span class="zh">落稿 / 交回作者 / 驳回</span><span class="en">Applied / author / dropped</span></span></div>
+      <div class="df-cell"><span class="df-num">0 / 0</span><span class="df-cap"><span class="zh">改后编译 error / warning</span><span class="en">Errors / warnings after revision</span></span></div>
+      <div class="df-cell"><span class="df-num">1 <span class="zh">轮</span><span class="en">round</span></span><span class="df-cap"><span class="zh">auto 模式完整闭环</span><span class="en">One full auto-mode loop</span></span></div>
+    </div>
+  </div>
+  <div class="install-grid">
+    <div class="install-col">
+      <h4><span class="zh">方式 A · Claude Code plugin(推荐)</span><span class="en">Option A &middot; Claude Code plugin (recommended)</span></h4>
+      <pre>/plugin marketplace add Spark-To-Paper-Skills/paperjury
+/plugin install paperjury@Spark-To-Paper-Skills</pre>
+    </div>
+    <div class="install-col">
+      <h4><span class="zh">方式 B · clone 成 skill</span><span class="en">Option B &middot; clone as a skill</span></h4>
+      <pre># macOS / Linux
+git clone https://github.com/Spark-To-Paper-Skills/paperjury ~/.claude/skills/paperjury
+# Windows (PowerShell)
+git clone https://github.com/Spark-To-Paper-Skills/paperjury "$env:USERPROFILE\.claude\skills\paperjury"</pre>
+    </div>
+  </div>
+  <ul class="install-notes">
+    <li><span class="zh">需要 <code>node</code>(确定性检查跑在 Node 上);装完可在 skill 目录跑 <code>npm run doctor</code> 自检。</span><span class="en">Requires <code>node</code> (deterministic checks run on Node); run <code>npm run doctor</code> in the skill directory to self-check.</span></li>
+    <li><span class="zh">LaTeX 工具链可选:有就真实编译并查版面;没有就明说哪些检查做不了——<code>compile-guard</code> 从不假装验证过,无法编译时会退到结构检查并报告 <code>compiled:null</code>。</span><span class="en">A LaTeX toolchain is optional: with one, it really compiles and checks layout; without, it says which checks are unavailable &mdash; <code>compile-guard</code> never pretends, falling back to structural lint and reporting <code>compiled:null</code>.</span></li>
+    <li><span class="zh">启动时对稳定版 tag 做软更新检查,只提示不打断;<code>PAPERJURY_DISABLE_UPDATE_CHECK=1</code> 可关闭。</span><span class="en">A soft update check against stable release tags runs at startup &mdash; notify-only; disable with <code>PAPERJURY_DISABLE_UPDATE_CHECK=1</code>.</span></li>
+    <li><span class="zh">隐私:你的稿件、ledger、journal、补丁都留在本地论文项目里。PaperJury 没有自己的后端;评审走你自己的 Claude Code 会话。</span><span class="en">Privacy: your manuscript, ledger, journal, and patches stay in your local project. PaperJury has no backend of its own; review runs through your own Claude Code session.</span></li>
+  </ul>
+  <div class="callout info">
+    <p><span class="zh"><strong>边界写在最前面:</strong>PaperJury 是投稿前的自查工具,不能替代作者的科学判断,也不能替代 peer review。它不会编造实验、伪造结果、添加没有证据的 claim 或掩盖论文局限;凡是需要新实验、新证据或作者研究判断的问题,一律交回作者处理。</span><span class="en"><strong>Scope, stated up front:</strong> PaperJury is a pre-submission self-check &mdash; not a substitute for your scientific judgment or for peer review. It will not invent experiments, fabricate results, add unsupported claims, or paper over limitations; anything needing new experiments, new evidence, or research judgment goes back to the author.</span></p>
+  </div>
+</section>
+
+<section class="section" id="citation">
+  <div class="section-header">
+    <div class="section-eyebrow">
+      <span class="eyebrow-num" aria-hidden="true">09</span>
+      <span class="eyebrow-name">BibTeX</span>
+    </div>
+    <h2><span class="zh">引用这项工作。</span><span class="en">Cite this work.</span></h2>
+    <p class="section-lede">
+      <span class="zh">如果 PaperJury 对你的研究或写作流程有帮助,欢迎引用这篇 arXiv 论文。</span>
+      <span class="en">If PaperJury helps your research or writing workflow, please cite the arXiv paper.</span>
+    </p>
+  </div>
+  <div class="bibtex">
+    <button class="bib-copy" id="bib-copy" type="button" aria-label="Copy BibTeX">Copy</button>
+<pre id="bibtex-code"><code>@misc{wang2026paperjurydueprocessreviewbounded,
+  title={PaperJury: Due-Process Review for Bounded LaTeX Revision},
+  author={Yiran Wang and Ruixuan An and Biao Wu and Wenhao Wang},
+  year={2026},
+  eprint={2606.16322},
+  archivePrefix={arXiv},
+  primaryClass={cs.CL},
+  url={https://arxiv.org/abs/2606.16322},
+}</code></pre>
+  </div>
+  <div class="cite-links">
+    <a class="button ghost brand" style="--brand:#b31b1b;" href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv:2606.16322</a>
+    <a class="button ghost" href="paperjury-paper.pdf" target="_blank" rel="noopener"><span class="zh">论文 PDF</span><span class="en">Paper PDF</span></a>
+    <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/CITATION.bib" target="_blank" rel="noopener">CITATION.bib</a>
+  </div>
+</section>
+
+<footer class="footer">
+  <p>&copy; 2026 PaperJury &middot; Vast Intelligence Lab &middot; MIT License</p>
+  <p>
+    <a href="https://github.com/Spark-To-Paper-Skills/paperjury" target="_blank" rel="noopener">GitHub</a> &middot;
+    <a href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv</a> &middot;
+    <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex" target="_blank" rel="noopener"><span class="zh">Codex 版</span><span class="en">Codex port</span></a> &middot;
+    <a href="overview.html"><span class="zh">交互总览</span><span class="en">Interactive overview</span></a> &middot;
+    <span class="zh">spine 与防漂移设计受 <a href="https://github.com/WUBING2023/PaperSpine" target="_blank" rel="noopener">PaperSpine</a> 启发</span><span class="en">Spine &amp; anti-drift design inspired by <a href="https://github.com/WUBING2023/PaperSpine" target="_blank" rel="noopener">PaperSpine</a></span>
+  </p>
+</footer>
+
+<script>
+(function () {
+  var doc = document.documentElement;
+
+  /* ---- theme toggle: system → light → dark → system ---- */
+  var themeBtn = document.getElementById("theme-toggle");
+  var mq = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
+  function systemTheme() { return mq && mq.matches ? "dark" : "light"; }
+  function applyChoice(choice) {
+    themeBtn.setAttribute("data-theme-choice", choice);
+    var resolved = choice === "system" ? systemTheme() : choice;
+    doc.setAttribute("data-theme", resolved);
+    themeBtn.title = "Theme: " + choice;
+  }
+  var forcedTheme = /[?&]theme=(dark|light)\b/.exec(location.search);
+  var storedTheme = null;
+  try { storedTheme = localStorage.getItem("prl-theme"); } catch (e) {}
+  applyChoice(forcedTheme ? forcedTheme[1]
+    : storedTheme === "light" || storedTheme === "dark" ? storedTheme : "system");
+  themeBtn.addEventListener("click", function () {
+    var cur = themeBtn.getAttribute("data-theme-choice");
+    var next = cur === "system" ? "light" : cur === "light" ? "dark" : "system";
+    try {
+      if (next === "system") localStorage.removeItem("prl-theme");
+      else localStorage.setItem("prl-theme", next);
+    } catch (e) {}
+    applyChoice(next);
+  });
+  try {
+    if (mq) mq.addEventListener("change", function () {
+      if (themeBtn.getAttribute("data-theme-choice") === "system") applyChoice("system");
+    });
+  } catch (e) {}
+
+  /* ---- language toggle (label shows the OTHER language) ---- */
+  var langBtn = document.getElementById("lang-toggle");
+  var langLabel = document.getElementById("lang-label");
+  function applyLang(l, persist) {
+    doc.setAttribute("data-lang", l);
+    doc.setAttribute("lang", l === "zh" ? "zh-CN" : "en");
+    langLabel.textContent = l === "zh" ? "EN" : "中文";
+    /* keep sibling-page links in the same language */
+    document.querySelectorAll('a[href^="overview.html"]').forEach(function (a) {
+      a.setAttribute("href", "overview.html?lang=" + l);
+    });
+    if (persist) { try { localStorage.setItem("prl-lang", l); } catch (e) {} }
+  }
+  applyLang(doc.getAttribute("data-lang") === "zh" ? "zh" : "en", false);
+  langBtn.addEventListener("click", function () {
+    applyLang(doc.getAttribute("data-lang") === "zh" ? "en" : "zh", true);
+  });
+
+  /* ---- topbar: scrolled state + reading progress ---- */
+  var topbar = document.getElementById("topbar");
+  function onScroll() {
+    topbar.classList.toggle("scrolled", window.scrollY > 8);
+    var h = doc.scrollHeight - window.innerHeight;
+    topbar.style.setProperty("--progress", h > 0 ? Math.min(1, window.scrollY / h) : 0);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  onScroll();
+
+  /* ---- contents dropdown + active-section tracking ---- */
+  var tocBtn = document.getElementById("toc-btn");
+  var tocMenu = document.getElementById("toc-menu");
+  var tocNum = document.getElementById("toc-num");
+  tocBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    var open = tocMenu.hasAttribute("hidden");
+    if (open) tocMenu.removeAttribute("hidden"); else tocMenu.setAttribute("hidden", "");
+    tocBtn.setAttribute("aria-expanded", open ? "true" : "false");
+  });
+  function closeToc() {
+    tocMenu.setAttribute("hidden", "");
+    tocBtn.setAttribute("aria-expanded", "false");
+  }
+  document.addEventListener("click", function (e) {
+    if (!tocMenu.hasAttribute("hidden") && !tocMenu.contains(e.target)) closeToc();
+  });
+  tocMenu.addEventListener("click", function (e) {
+    if (e.target.closest("a")) closeToc();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !tocMenu.hasAttribute("hidden")) { closeToc(); tocBtn.focus(); }
+  });
+  var tocLinks = Array.prototype.slice.call(tocMenu.querySelectorAll("a"));
+  var sectionIds = tocLinks.map(function (a) { return a.getAttribute("href").slice(1); });
+  var numFor = {};
+  tocLinks.forEach(function (a) {
+    numFor[a.getAttribute("href").slice(1)] = a.querySelector(".tocnum").textContent;
+  });
+  if ("IntersectionObserver" in window) {
+    var current = sectionIds[0];
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) current = en.target.id; });
+      tocNum.textContent = numFor[current] || "01";
+      tocLinks.forEach(function (a) {
+        a.classList.toggle("current", a.getAttribute("href") === "#" + current);
+      });
+    }, { rootMargin: "-20% 0px -70% 0px" });
+    sectionIds.forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) io.observe(el);
+    });
+  }
+
+  /* ---- reveal on scroll (JS-added, so no-JS never hides content) ---- */
+  var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!reduceMotion && "IntersectionObserver" in window) {
+    var targets = document.querySelectorAll(
+      ".section-header,.problem-card,.idea-statement,.idea-panel,.pipe-stage,.pipe-rail,.trial-box,.trial-note," +
+      ".verdict-card,.eval-card,.baseline-list li,.table-wrap,.chart-card,.kpi-strip,.finding,.mode-card," +
+      ".callout,.dogfood,.install-grid,.install-notes,.bibtex,.takeaway,.sb-item"
+    );
+    var rio = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) { en.target.classList.add("visible"); rio.unobserve(en.target); }
+      });
+    }, { rootMargin: "0px 0px -8% 0px" });
+    targets.forEach(function (el) { el.classList.add("reveal"); rio.observe(el); });
+  }
+
+  /* ---- quickstart tabs + copy ---- */
+  var qsTabs = [document.getElementById("qs-tab-1"), document.getElementById("qs-tab-2")];
+  var qsPanes = [document.getElementById("qs-pane-1"), document.getElementById("qs-pane-2")];
+  qsTabs.forEach(function (tab, i) {
+    tab.addEventListener("click", function () {
+      qsTabs.forEach(function (t, j) {
+        t.classList.toggle("is-on", i === j);
+        t.setAttribute("aria-pressed", i === j ? "true" : "false");
+        qsPanes[j].classList.toggle("is-on", i === j);
+      });
+    });
+  });
+  function wireCopy(btnId, getText) {
+    var btn = document.getElementById(btnId);
+    if (!btn) return;
+    var timer = null;
+    btn.addEventListener("click", function () {
+      var text = getText();
+      function flash(label) {
+        btn.classList.toggle("copied", label === "Copied");
+        btn.textContent = label;
+        if (timer) clearTimeout(timer);
+        timer = setTimeout(function () { btn.classList.remove("copied"); btn.textContent = "Copy"; }, 1400);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () { flash("Copied"); }, function () { flash("Failed"); });
+      } else {
+        var ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.cssText = "position:fixed;opacity:0";
+        document.body.appendChild(ta);
+        ta.select();
+        var ok = false;
+        try { ok = document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta);
+        flash(ok ? "Copied" : "Failed");
+      }
+    });
+  }
+  wireCopy("qs-copy", function () {
+    var active = qsPanes[0].classList.contains("is-on") ? "qs-code-1" : "qs-code-2";
+    return Array.prototype.map.call(
+      document.getElementById(active).querySelectorAll(".ln"),
+      function (ln) { return ln.textContent; }
+    ).filter(function (t) { return t.indexOf("#") !== 0; }).join("\n");
+  });
+  wireCopy("bib-copy", function () {
+    return document.getElementById("bibtex-code").textContent;
+  });
+})();
+</script>
 </body>
 </html>
