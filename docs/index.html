@@ -585,7 +585,7 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
         <p class="hero-paper-title">Due-Process Review for Bounded LaTeX Revision</p>
       </div>
       <p class="hero-subtitle">
-        <span class="zh">投稿前把稿子交给<strong>闭环的「审稿 → 裁定 → 修改 → 复查」系统</strong>:先像 reviewer 一样对全文对抗式挑错,再对每条意见走完正当程序——不成立的驳回,能安全修的落成最小补丁,需要作者判断的原样交回。<em>模型只负责读和想;落槌和改稿的权力在确定性代码手里。</em></span>
+        <span class="zh">投稿前，把稿件交给<strong>闭环的「审稿 → 裁定 → 修改 → 复查」系统</strong>：先由领域 reviewer 通读全文并提出问题，再对每条意见执行完整的裁定流程。不成立的意见会被驳回；可安全修复的问题会生成最小补丁；需要研究判断的问题会交回作者。<em>模型负责阅读、判断和起草；状态管理、投票规则、补丁应用与停止条件由确定性代码控制。</em></span>
         <span class="en">A closed-loop <strong>review &rarr; verdict &rarr; revise &rarr; verify</strong> system for pre-submission hardening of LaTeX papers. Adversarial whole-paper review first; then every complaint gets due process &mdash; invalid ones are dropped, safely fixable ones become minimal patches, and anything needing the author&rsquo;s judgment is handed back untouched. <em>The model still does the hard reading; it no longer holds the gavel or the eraser.</em></span>
       </p>
       <p class="hero-authors">
@@ -594,7 +594,7 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <div class="hero-actions">
         <a class="button primary" href="#results"><span class="zh">看结果</span><span class="en">See Results</span></a>
         <a class="button ghost" href="#method"><span class="zh">工作机制</span><span class="en">How It Works</span></a>
-        <a class="button ghost" href="#practice"><span class="zh">真实一跑</span><span class="en">Real Run</span></a>
+        <a class="button ghost" href="#practice"><span class="zh">完整运行样例</span><span class="en">Real Run</span></a>
       </div>
       <div class="hero-artifacts">
         <a class="button ghost brand" style="--brand:#b31b1b;" href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">
@@ -620,7 +620,7 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
           <div class="vb-cell" data-v="drop"><span class="vb-num">19</span><span class="vb-tag">invalid-drop</span></div>
         </div>
         <p class="vb-note">
-          <span class="zh">对一篇 21 页真实草稿的 dogfood 运行:152 条 reviewer 意见去重成 55 个问题;26 处安全落稿、10 个交回作者、19 条驳回。<a href="https://github.com/Spark-To-Paper-Skills/paperjury/tree/main/samples/dogfood" target="_blank" rel="noopener">修改前后 PDF 与运行报告 →</a></span>
+          <span class="zh">对一篇 21 页真实草稿执行 dogfood 测试：152 条 reviewer 意见去重为 55 个问题；其中 26 处安全应用、10 个交回作者、19 条驳回。<a href="https://github.com/Spark-To-Paper-Skills/paperjury/tree/main/samples/dogfood" target="_blank" rel="noopener">查看修改前后的 PDF 与运行报告 →</a></span>
           <span class="en">A dogfood run on a real 21-page draft: 152 reviewer complaints deduped into 55 issues &mdash; 26 safely applied, 10 handed back to the author, 19 dropped as invalid. <a href="https://github.com/Spark-To-Paper-Skills/paperjury/tree/main/samples/dogfood" target="_blank" rel="noopener">Before/after PDFs &amp; run report &rarr;</a></span>
         </p>
       </figure>
@@ -629,17 +629,17 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
           <button class="qs-tab is-on" id="qs-tab-1" type="button" aria-pressed="true" aria-controls="qs-pane-1">
             <span class="qs-step">1</span><span class="zh">安装</span><span class="en">Install</span></button>
           <button class="qs-tab" id="qs-tab-2" type="button" aria-pressed="false" aria-controls="qs-pane-2">
-            <span class="qs-step">2</span><span class="zh">开口即用</span><span class="en">First run</span></button>
+            <span class="qs-step">2</span><span class="zh">开始使用</span><span class="en">First run</span></button>
           <button class="qs-copy" id="qs-copy" type="button" aria-label="Copy commands">Copy</button>
         </div>
         <div class="qs-pane is-on" id="qs-pane-1">
           <pre class="qs-code" id="qs-code-1"><span class="ln">/plugin marketplace add Spark-To-Paper-Skills/paperjury</span><span class="ln">/plugin install paperjury@Spark-To-Paper-Skills</span></pre>
         </div>
         <div class="qs-pane" id="qs-pane-2">
-          <pre class="qs-code" id="qs-code-2"><span class="ln">审稿,重点看实验和 claim 是否站得住。</span><span class="ln cm"># or, in English:</span><span class="ln">Review this paper. Focus on whether the experiments support the claims.</span></pre>
+          <pre class="qs-code" id="qs-code-2"><span class="ln">审稿，重点看实验和 claim 是否站得住。</span><span class="ln cm"># or, in English:</span><span class="ln">Review this paper. Focus on whether the experiments support the claims.</span></pre>
         </div>
         <p class="qs-hint">
-          <span class="zh">在 Claude Code 里安装,然后到论文项目里直接说需求——不用背命令。落稿前补丁都会先交给你确认。</span>
+          <span class="zh">在 Claude Code 中安装后，进入论文项目并直接说明需求，无需记忆命令。在 direct-edit 和 review 模式下，补丁应用前都会先交给你确认。</span>
           <span class="en">Install inside Claude Code, then just say what you need in your paper project &mdash; no commands to memorize. Every patch waits for your confirmation before it lands.</span>
         </p>
       </div>
@@ -652,7 +652,7 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
     <div class="sb-lead">
       <span class="sb-kicker"><span class="zh">12 篇 held-out 论文 · Vision / NLP / ML · 盲审专家审计</span><span class="en">12 held-out papers &middot; Vision / NLP / ML &middot; blinded expert audit</span></span>
       <p class="sb-copy">
-        <span class="zh">同一批论文、同一套预算与日志口径下,对比四个 baseline。删除线灰字是其中<strong>最强的 baseline(LLM-as-judge 循环)</strong>;金色是 PaperJury。</span>
+        <span class="zh">在同一批论文、同一套预算与日志口径下，对比四个 baseline。删除线灰字是其中<strong>最强的 baseline（LLM-as-judge 循环）</strong>；金色是 PaperJury。</span>
         <span class="en">Against four baselines on the same papers, budget envelope, and logging. The struck-through gray number is the <strong>strongest baseline (the LLM-as-judge loop)</strong>; brass is PaperJury.</span>
       </p>
     </div>
@@ -692,7 +692,7 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       </li>
     </ol>
     <p class="sb-note">
-      <span class="zh">Baseline <span class="sb-key sb-key-base"></span> 为 LLM-as-judge 循环(四个 baseline 中综合最强);PaperJury <span class="sb-key sb-key-now"></span> 同时以 3.08 &plusmn; 0.67 轮确定性收敛(从未触到五轮上限)。全部数字来自 <a href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv&nbsp;2606.16322</a> 的双臂专家评审,置信区间为 Wilson 95% CI。</span>
+      <span class="zh">Baseline <span class="sb-key sb-key-base"></span> 为 LLM-as-judge 循环（四个 baseline 中综合最强）；PaperJury <span class="sb-key sb-key-now"></span> 同时以 3.08 &plusmn; 0.67 轮确定性收敛（从未触到五轮上限）。全部数字来自 <a href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv&nbsp;2606.16322</a> 的双臂专家评审，置信区间为 Wilson 95% CI。</span>
       <span class="en">Baseline <span class="sb-key sb-key-base"></span> is the LLM-as-judge loop, the strongest of the four; PaperJury <span class="sb-key sb-key-now"></span> also terminates deterministically in 3.08 &plusmn; 0.67 rounds, never hitting the five-round cap. All numbers from the two-arm expert study in <a href="https://arxiv.org/abs/2606.16322" target="_blank" rel="noopener">arXiv&nbsp;2606.16322</a>; intervals are Wilson 95% CIs.</span>
     </p>
   </div>
@@ -705,43 +705,43 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">01</span>
       <span class="eyebrow-name"><span class="zh">核心想法</span><span class="en">Core Idea</span></span>
     </div>
-    <h2><span class="zh">难的不是写出批评,而是管住批评之后发生的事。</span><span class="en">The hard part is not writing the critique &mdash; it is governing what follows from it.</span></h2>
+    <h2><span class="zh">难的不是写出批评，而是管住批评之后发生的事。</span><span class="en">The hard part is not writing the critique &mdash; it is governing what follows from it.</span></h2>
     <p class="section-lede">
-      <span class="zh">一篇论文可以在论证还站不住的时候就「看起来写完了」:claim 比实验多说了半步、两节之间互相矛盾、一个数字暗示了没测过的东西。这些毛病读起来很流畅,只有把全文放在一起对抗式地读才会现形。真正的困难在后面——AI 挑出的问题里混着幻觉,真问题里又有相当一部分机器根本修不了。</span>
+      <span class="zh">一篇论文可以在论证还站不住的时候就“看起来写完了”：claim 比实验多说了半步、两节之间互相矛盾、一个数字暗示了没测过的东西。这些毛病读起来很流畅，只有把全文放在一起对抗式地读才会现形。真正的困难在后面——AI 挑出的问题里混着幻觉，真问题里又有相当一部分机器根本修不了。</span>
       <span class="en">A paper can look finished long before its arguments are sound: a claim half a step ahead of the experiments, two sections that quietly contradict each other, a number that implies something never measured. These flaws read fluently and only surface under adversarial whole-paper reading. The real difficulty comes after &mdash; machine-generated complaints mix in hallucinations, and many genuine issues are simply not machine-fixable.</span>
     </p>
   </div>
   <div class="problem-row">
     <article class="problem-card">
       <span class="problem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 2.8 19h18.4Z"/><path d="M12 10v4M12 17.2v0"/></svg></span>
-      <h3><span class="zh">照单全收会写坏好论文</span><span class="en">Acting on everything corrupts sound papers</span></h3>
-      <p><span class="zh">机器批评里有相当一部分是错的——比如凭空「发现」两段其实一致的文字互相矛盾。一个听见什么就改什么的循环,会把没病的稿子改出病来。</span><span class="en">Many machine complaints are wrong &mdash; a hallucinated contradiction between two passages that in fact agree. A loop that acts on everything it hears rewrites a sound paper into a broken one.</span></p>
+      <h3><span class="zh">不能直接采用所有 AI 意见</span><span class="en">Acting on everything corrupts sound papers</span></h3>
+      <p><span class="zh">机器批评里有相当一部分是错的——比如凭空“发现”两段其实一致的文字互相矛盾。一个听见什么就改什么的循环，会把没病的稿子改出病来。</span><span class="en">Many machine complaints are wrong &mdash; a hallucinated contradiction between two passages that in fact agree. A loop that acts on everything it hears rewrites a sound paper into a broken one.</span></p>
     </article>
     <article class="problem-card">
       <span class="problem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 7V5a4 4 0 0 1 8 0v2"/><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M12 12v3"/></svg></span>
-      <h3><span class="zh">「修 / 不修」是错误的二分</span><span class="en">Fix-or-ignore is the wrong shape</span></h3>
-      <p><span class="zh">很多成立的批评需要补实验、补数据——软件做不了,也不该替作者做。裁定空间必须容得下「问题成立,但只能交回作者」这个出口。</span><span class="en">Many correct complaints require new experiments or data &mdash; things software cannot and should not do for the author. The verdict space must include &ldquo;valid, but hand it back.&rdquo;</span></p>
+      <h3><span class="zh">“修 / 不修”是错误的二分</span><span class="en">Fix-or-ignore is the wrong shape</span></h3>
+      <p><span class="zh">很多成立的批评需要补实验、补数据——软件做不了，也不该替作者做。裁定空间必须容得下“问题成立，但只能交回作者”这个出口。</span><span class="en">Many correct complaints require new experiments or data &mdash; things software cannot and should not do for the author. The verdict space must include &ldquo;valid, but hand it back.&rdquo;</span></p>
     </article>
     <article class="problem-card">
       <span class="problem-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9 12.5l2 2 4-5"/></svg></span>
       <h3><span class="zh">提议改动的人不能自己盖章</span><span class="en">The proposer is the worst certifier</span></h3>
-      <p><span class="zh">被问「改完了吗」的模型倾向于回答「改完了」;放开手改稿的模型也控制不住自己的波及范围——一个只想收紧措辞的补丁,可能悄悄改掉隔壁的 claim。</span><span class="en">A model asked whether it is finished tends to say yes; a model editing free-hand cannot bound its own blast radius &mdash; a wording patch can silently mutate the claim next door.</span></p>
+      <p><span class="zh">被问“改完了吗”的模型倾向于回答“改完了”；放开手改稿的模型也控制不住自己的波及范围——一个只想收紧措辞的补丁，可能悄悄改掉隔壁的 claim。</span><span class="en">A model asked whether it is finished tends to say yes; a model editing free-hand cannot bound its own blast radius &mdash; a wording patch can silently mutate the claim next door.</span></p>
     </article>
   </div>
   <div class="idea-statement">
-    <h3><span class="zh">「模型仍然做最难的阅读;但它不再握着法槌,也不再握着橡皮。」</span><span class="en">&ldquo;The model still does the hard reading; it no longer holds the gavel or the eraser.&rdquo;</span></h3>
-    <p><span class="zh">—— PaperJury 的设计原则:确定性与语义严格分工(arXiv 2606.16322,&sect;1)</span><span class="en">&mdash; The deterministic-versus-semantic split, arXiv 2606.16322, &sect;1</span></p>
+    <h3><span class="zh">“模型仍然做最难的阅读；但它不再握着法槌，也不再握着橡皮。”</span><span class="en">&ldquo;The model still does the hard reading; it no longer holds the gavel or the eraser.&rdquo;</span></h3>
+    <p><span class="zh">—— PaperJury 的设计原则：确定性与语义严格分工（arXiv 2606.16322，&sect;1）</span><span class="en">&mdash; The deterministic-versus-semantic split, arXiv 2606.16322, &sect;1</span></p>
   </div>
   <div class="idea-panels">
     <article class="idea-panel" data-side="before">
       <span class="idea-panel-tag"><span class="zh">现状 · judge 中心的循环</span><span class="en">Today &middot; judge-centered loops</span></span>
       <h4><span class="zh">模型自己审、自己判、自己改、自己喊停</span><span class="en">One model reviews, judges, edits, and stops itself</span></h4>
-      <p><span class="zh">哪些意见算数、什么时候结束,都押在单个语义判断上——而这种判断换个 prompt 就会变。结果是:该驳回的幻觉照样落成补丁,该停的循环停不下来。</span><span class="en">Which complaints count and when to stop both ride on a single semantic judgment &mdash; one that shifts when the prompt is rephrased. Hallucinated charges become patches; loops that should stop, don&rsquo;t.</span></p>
+      <p><span class="zh">哪些意见算数、什么时候结束，都押在单个语义判断上——而这种判断换个 prompt 就会变。结果是：该驳回的幻觉照样落成补丁，该停的循环停不下来。</span><span class="en">Which complaints count and when to stop both ride on a single semantic judgment &mdash; one that shifts when the prompt is rephrased. Hallucinated charges become patches; loops that should stop, don&rsquo;t.</span></p>
     </article>
     <article class="idea-panel" data-side="after">
       <span class="idea-panel-tag"><span class="zh">PaperJury · 确定性 vs 语义分工</span><span class="en">PaperJury &middot; the deterministic-versus-semantic split</span></span>
-      <h4><span class="zh">状态、路由、停止、落补丁,全部收进确定性代码</span><span class="en">State, routing, stopping, and patching live in deterministic code</span></h4>
-      <p><span class="zh">durable ledger 给每个问题跨轮次的稳定身份;可争议性路由决定谁上庭;裁定按法定人数在代码里算出来;补丁经护栏链核验后 exact-once 落稿、可回滚。模型只做需要阅读与判断的有界子任务。</span><span class="en">A durable ledger gives every issue a stable cross-round identity; contestability routing decides what goes to trial; verdicts are computed in code under quorum rules; patches pass a guard chain, then apply exactly once, journaled and revertible. Models handle only bounded reading, judging, and drafting.</span></p>
+      <h4><span class="zh">状态、争议程度分流、停止和补丁应用，全部收进确定性代码</span><span class="en">State, routing, stopping, and patching live in deterministic code</span></h4>
+      <p><span class="zh">durable ledger 为每个问题提供跨轮次的稳定标识；争议程度分流决定哪些问题进入庭审；代码按照法定人数和多数规则判断指控是否成立；成立后，judge agent 再决定是安全修复还是交回作者。预应用检查通过后，apply-patch 会原子应用补丁并写入 journal；随后运行 compile-guard，失败则回滚并记录回滚。模型只处理需要阅读、判断和起草的有界子任务。</span><span class="en">A durable ledger gives every issue a stable cross-round identity; contestability routing decides what goes to trial; verdicts are computed in code under quorum rules; patches pass a guard chain, then apply exactly once, journaled and revertible. Models handle only bounded reading, judging, and drafting.</span></p>
     </article>
   </div>
 </section>
@@ -752,9 +752,9 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">02</span>
       <span class="eyebrow-name"><span class="zh">方法</span><span class="en">Method</span></span>
     </div>
-    <h2><span class="zh">确定性代码掌管状态机;模型只读、只判、只起草。</span><span class="en">Deterministic code owns the state machine; models only read, judge, and draft.</span></h2>
+    <h2><span class="zh">确定性代码负责状态机；模型负责阅读、判断和起草。</span><span class="en">Deterministic code owns the state machine; models only read, judge, and draft.</span></h2>
     <p class="section-lede">
-      <span class="zh">整条流水线分三段:先用确定性分解把稿子变成可寻址的单元并冻结 claim spine;再做有界的全文评审与裁定;最后只对判为 valid-fixable 的问题做带护栏的修订。贯穿始终的是 durable ledger 和一个查账即得的停止谓词 <code>&tau;</code>。</span>
+      <span class="zh">整个流程分为三段：先通过确定性分解把稿件转换为可寻址的单元，并冻结 claim spine；再执行有界的全文评审与裁定；最后只修改被判为 valid-fixable 的问题。durable ledger 贯穿整个流程，停止谓词 <code>&tau;</code> 根据其中的状态决定是否结束。</span>
       <span class="en">Three stages: deterministic decomposition turns the manuscript into addressable units and freezes the claim spine; bounded whole-paper review and adjudication follow; only issues ruled valid-fixable reach guarded revision. A durable ledger and a ledger-query stopping predicate <code>&tau;</code> run through all of it.</span>
     </p>
   </div>
@@ -762,44 +762,44 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
     <article class="pipe-stage" data-st="1">
       <div class="pipe-head"><span class="pipe-no">1</span><span class="pipe-title"><span class="zh">确定性准备</span><span class="en">Deterministic setup</span></span></div>
       <ul class="pipe-list">
-        <li><span class="zh"><b>分解 + 锚点。</b>把 LaTeX 稿切成章节、段落、交叉引用目标,后续一切都挂在持久锚点上,不再用随手的文本片段。</span><span class="en"><b>Decompose + anchor.</b> The manuscript becomes sections, passages, and cross-reference targets; everything downstream binds to persistent anchors, not ad hoc spans.</span></li>
-        <li><span class="zh"><b>冻结 claim spine。</b>抽出论文的核心主张并冻结成受保护的骨架:修订可以修支撑、修措辞,但不许悄悄改写 claim。</span><span class="en"><b>Freeze the claim spine.</b> The paper&rsquo;s central assertions become a protected backbone: edits may repair support or wording, never silently rewrite a claim.</span></li>
-        <li><span class="zh"><b>初始化 durable ledger。</b>问题、证据、裁定、补丁历史,全部机器可读、跨轮次、跨会话。</span><span class="en"><b>Initialize the durable ledger.</b> Issues, evidence, verdicts, and patch history &mdash; machine-readable, across rounds and sessions.</span></li>
+        <li><span class="zh"><b>分解 + 锚点。</b>把 LaTeX 稿切成章节、段落、交叉引用目标，后续一切都挂在持久锚点上，不再用随手的文本片段。</span><span class="en"><b>Decompose + anchor.</b> The manuscript becomes sections, passages, and cross-reference targets; everything downstream binds to persistent anchors, not ad hoc spans.</span></li>
+        <li><span class="zh"><b>冻结 claim spine。</b>抽出论文的核心主张并冻结成受保护的骨架：修订可以修支撑、修措辞，但不许悄悄改写 claim。</span><span class="en"><b>Freeze the claim spine.</b> The paper&rsquo;s central assertions become a protected backbone: edits may repair support or wording, never silently rewrite a claim.</span></li>
+        <li><span class="zh"><b>初始化 durable ledger。</b>问题、证据、裁定、补丁历史，全部机器可读、跨轮次、跨会话。</span><span class="en"><b>Initialize the durable ledger.</b> Issues, evidence, verdicts, and patch history &mdash; machine-readable, across rounds and sessions.</span></li>
       </ul>
     </article>
     <article class="pipe-stage" data-st="2">
       <div class="pipe-head"><span class="pipe-no">2</span><span class="pipe-title"><span class="zh">评审 + 裁定</span><span class="en">Review + adjudication</span></span></div>
       <ul class="pipe-list">
-        <li><span class="zh"><b>有界全文评审。</b>N = 2&ndash;4 位(默认 3)领域 reviewer 各通读全文一遍,输出带证据锚点的弱点;反略读检查不过关才触发定向重读。</span><span class="en"><b>Bounded holistic review.</b> N = 2&ndash;4 domain reviewers (default 3) each read the full paper once, emitting evidence-anchored weaknesses; targeted re-reads fire only when anti-skim checks fail.</span></li>
-        <li><span class="zh"><b>合并去重。</b>重复意见并成一个问题,保留证据来源,问题身份跨轮稳定。</span><span class="en"><b>Merge + dedupe.</b> Duplicates collapse into one issue with provenance kept; identity stays stable across rounds.</span></li>
-        <li><span class="zh"><b>可争议性路由。</b>确定性规则决定走向:机械/轻微问题走低成本 polish;有争议的重大问题上庭。</span><span class="en"><b>Contestability routing.</b> A deterministic rule sends mechanical/minor issues down the cheap polish path and contestable substantive-major ones to trial.</span></li>
-        <li><span class="zh"><b>正当程序审理。</b>全文视角的辩方对阵去相关的局部证据陪审团;分歧过大升级更大合议庭;裁定按法定人数与多数规则在代码里算出。</span><span class="en"><b>Due-process trial.</b> A whole-paper defense argues against a decorrelated local-context jury; insufficient agreement escalates the panel; the verdict is computed in code under quorum and majority rules.</span></li>
+        <li><span class="zh"><b>有界全文评审。</b>N = 2&ndash;4 位（默认 3）领域 reviewer 各通读全文一遍，输出带证据锚点的弱点；反略读检查不过关才触发定向重读。</span><span class="en"><b>Bounded holistic review.</b> N = 2&ndash;4 domain reviewers (default 3) each read the full paper once, emitting evidence-anchored weaknesses; targeted re-reads fire only when anti-skim checks fail.</span></li>
+        <li><span class="zh"><b>合并去重。</b>重复意见并成一个问题，保留证据来源，问题身份跨轮稳定。</span><span class="en"><b>Merge + dedupe.</b> Duplicates collapse into one issue with provenance kept; identity stays stable across rounds.</span></li>
+        <li><span class="zh"><b>可争议性路由。</b>确定性规则决定走向：机械/轻微问题走低成本 polish；有争议的重大问题上庭。</span><span class="en"><b>Contestability routing.</b> A deterministic rule sends mechanical/minor issues down the cheap polish path and contestable substantive-major ones to trial.</span></li>
+        <li><span class="zh"><b>正当程序审理。</b>全文视角的辩方对阵去相关的局部证据陪审团；没有明显多数时通常升级到更大合议庭，但全员都因上下文不足而无法判断时直接交回作者。代码按法定人数和多数规则判断指控是否成立；成立后由 judge agent 完成后续路由。</span><span class="en"><b>Due-process trial.</b> A whole-paper defense argues against a decorrelated local-context jury; insufficient agreement escalates the panel; the verdict is computed in code under quorum and majority rules.</span></li>
       </ul>
     </article>
     <article class="pipe-stage" data-st="3">
       <div class="pipe-head"><span class="pipe-no">3</span><span class="pipe-title"><span class="zh">带护栏修订 + 复查</span><span class="en">Guarded revision + verification</span></span></div>
       <ul class="pipe-list">
-        <li><span class="zh"><b>只修 valid-fixable。</b>起草最小补丁,按结构信号定风险等级(LOW / RISKY),风险越高审计越强。</span><span class="en"><b>Valid-fixable only.</b> Minimal patches are drafted and risk-rated (LOW / RISKY) from structural signals; higher risk triggers stronger audits.</span></li>
-        <li><span class="zh"><b>护栏链。</b>锚点约束 diff、交叉引用检查、含义/编辑审计、编译检查——任何一关不过就拦下或升级。</span><span class="en"><b>Guard chain.</b> Anchor-bounded diff, cross-reference, meaning/edit audits, compile checks &mdash; fail any and the patch is blocked or escalated.</span></li>
-        <li><span class="zh"><b>Exact-once 落稿 + 日志。</b>补丁原子应用、全程记账,随时可回滚。</span><span class="en"><b>Exact-once apply + journal.</b> Patches apply atomically, fully journaled, always revertible.</span></li>
-        <li><span class="zh"><b>干净复查。</b>下一轮只读当前稿件,不接着上一轮的输出续写,避免旧批评的惯性。</span><span class="en"><b>Clean re-review.</b> The next round reads the current manuscript only &mdash; never continues from earlier model outputs.</span></li>
+        <li><span class="zh"><b>只修 valid-fixable。</b>起草最小补丁，按结构信号定风险等级（LOW / RISKY），风险越高审计越强。</span><span class="en"><b>Valid-fixable only.</b> Minimal patches are drafted and risk-rated (LOW / RISKY) from structural signals; higher risk triggers stronger audits.</span></li>
+        <li><span class="zh"><b>预应用检查。</b>先执行锚点约束 diff 和交叉引用检查；RISKY 修改还要通过含义审计或编辑审计。检查失败的补丁会被拦截或升级处理。</span><span class="en"><b>Guard chain.</b> Anchor-bounded diff, cross-reference, meaning/edit audits, compile checks &mdash; fail any and the patch is blocked or escalated.</span></li>
+        <li><span class="zh"><b>Exact-once 应用、日志与编译检查。</b>apply-patch 原子应用补丁并写入 journal，随后运行 compile-guard；失败则回滚，并在 journal 中记录回滚。</span><span class="en"><b>Exact-once apply + journal.</b> Patches apply atomically, fully journaled, always revertible.</span></li>
+        <li><span class="zh"><b>独立复查。</b>下一轮只读取当前稿件，不延续上一轮的模型输出，从而减少旧批评形成的惯性。</span><span class="en"><b>Clean re-review.</b> The next round reads the current manuscript only &mdash; never continues from earlier model outputs.</span></li>
       </ul>
     </article>
   </div>
   <div class="pipe-foot">
     <div class="pipe-rail">
-      <h4><span class="zh">Durable ledger:问题的户口本</span><span class="en">The durable ledger: issue identity that survives</span></h4>
-      <p><span class="zh">每个问题以稳定身份跨轮存续——周围的模型可以重跑,问题本身不漂移。路由、闭合、exact-once 修订全都查它。</span><span class="en">Each issue persists as the same tracked object while the models around it are re-run. Routing, closure, and exact-once revision all query it.</span></p>
+      <h4><span class="zh">Durable ledger：跨轮次的问题记录</span><span class="en">The durable ledger: issue identity that survives</span></h4>
+      <p><span class="zh">每个问题以稳定身份跨轮存续——周围的模型可以重跑，问题本身不漂移。路由、闭合、exact-once 修订全都查它。</span><span class="en">Each issue persists as the same tracked object while the models around it are re-run. Routing, closure, and exact-once revision all query it.</span></p>
     </div>
     <div class="pipe-rail">
-      <h4><span class="zh">停止谓词 <code>&tau;</code>:查账说了算</span><span class="en">Stopping predicate <code>&tau;</code>: the ledger decides</span></h4>
-      <p><span class="zh">无人值守循环在 <code>&tau;(L, U<sub>r</sub>, C<sub>r</sub>, r)</code> 为真时停:看新增问题、闭合问题和硬性上限,而不是问模型「你写完了吗」。</span><span class="en">The unattended loop halts when <code>&tau;(L, U<sub>r</sub>, C<sub>r</sub>, r)</code> holds &mdash; new issues, closed issues, hard limits. Never by asking the model whether it feels done.</span></p>
+      <h4><span class="zh">停止谓词 <code>&tau;</code>：由 ledger 状态决定</span><span class="en">Stopping predicate <code>&tau;</code>: the ledger decides</span></h4>
+      <p><span class="zh">无人值守循环在 <code>&tau;(L, U<sub>r</sub>, C<sub>r</sub>, r)</code> 为真时停：看新增问题、闭合问题和硬性上限，而不是问模型「你写完了吗」。</span><span class="en">The unattended loop halts when <code>&tau;(L, U<sub>r</sub>, C<sub>r</sub>, r)</code> holds &mdash; new issues, closed issues, hard limits. Never by asking the model whether it feels done.</span></p>
     </div>
   </div>
   <div class="takeaway">
     <span class="takeaway-kicker"><span class="zh">要点</span><span class="en">Takeaway</span></span>
-    <p class="takeaway-lead"><span class="zh">凡是必须跨轮一致的操作,都不交给模型的临场发挥。</span><span class="en">Anything that must behave consistently across runs is taken out of model discretion.</span></p>
-    <p class="takeaway-body"><span class="zh">分解、账本、路由、裁定计算、停止、落补丁——这些承重决定全部跑在确定性代码里;语义 agent 只承接真正需要阅读、推理和起草的有界子任务。</span><span class="en">Decomposition, the ledger, routing, verdict computation, stopping, patching &mdash; every load-bearing call runs in deterministic code, while semantic agents take only the bounded subtasks that genuinely need reading, reasoning, and drafting.</span></p>
+    <p class="takeaway-lead"><span class="zh">所有需要跨轮保持一致的操作，都由确定性代码执行。</span><span class="en">Anything that must behave consistently across runs is taken out of model discretion.</span></p>
+    <p class="takeaway-body"><span class="zh">分解、ledger、争议程度分流、投票结果计算、停止判断和补丁应用由确定性代码处理；语义 agent 负责阅读、推理和起草。多数票判定指控成立后，judge agent 再将其路由为 valid-fixable 或 author-required。</span><span class="en">Decomposition, the ledger, routing, verdict computation, stopping, patching &mdash; every load-bearing call runs in deterministic code, while semantic agents take only the bounded subtasks that genuinely need reading, reasoning, and drafting.</span></p>
   </div>
 </section>
 
@@ -809,53 +809,53 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">03</span>
       <span class="eyebrow-name"><span class="zh">正当程序</span><span class="en">Due Process</span></span>
     </div>
-    <h2><span class="zh">每个问题都终结于三种裁定之一——由代码算出,而不是由某个模型拍板。</span><span class="en">Every issue terminates in one of three verdicts &mdash; computed in code, not decreed by a model.</span></h2>
+    <h2><span class="zh">每个问题最终都会进入三种结果之一：代码先按投票规则判断指控是否成立，成立后再由 judge agent 决定后续路由。</span><span class="en">Every issue terminates in one of three verdicts &mdash; computed in code, not decreed by a model.</span></h2>
     <p class="section-lede">
-      <span class="zh">单个 LLM judge 的判断会随 prompt 措辞漂移,所以 PaperJury 不给任何单一语义裁判最终权力。有争议的问题要经过一场结构化的「庭审」:辩方与陪审团相互隔离、视角不同,谁也污染不了谁。</span>
+      <span class="zh">单个 LLM judge 的判断会随 prompt 措辞漂移，所以 PaperJury 不给任何单一语义裁判最终权力。有争议的问题要经过一场结构化的「庭审」：辩方与陪审团相互隔离、视角不同，谁也污染不了谁。</span>
       <span class="en">A single LLM judge shifts with prompt phrasing, so no lone semantic judge gets final authority. Contested issues go through a structured trial where defense and jury are isolated from each other, seeing the paper from deliberately different angles.</span>
     </p>
   </div>
   <div class="trial-flow">
     <div class="trial-box">
       <span class="label"><span class="zh">辩方</span><span class="en">The defense</span></span>
-      <h4><span class="zh">全文视角,为论文辩护</span><span class="en">Whole-paper context, arguing against the charge</span></h4>
-      <p><span class="zh">拿着整篇稿子反驳指控:如果「矛盾」其实在别处有解释、「过强的 claim」其实有支撑,就在这一步把它讲清楚。</span><span class="en">Armed with the full manuscript, it pushes back: if the &ldquo;contradiction&rdquo; is explained elsewhere or the &ldquo;overclaim&rdquo; is actually supported, this is where that gets said.</span></p>
+      <h4><span class="zh">全文视角，为论文辩护</span><span class="en">Whole-paper context, arguing against the charge</span></h4>
+      <p><span class="zh">拿着整篇稿子反驳指控：如果「矛盾」其实在别处有解释、「过强的 claim」其实有支撑，就在这一步把它讲清楚。</span><span class="en">Armed with the full manuscript, it pushes back: if the &ldquo;contradiction&rdquo; is explained elsewhere or the &ldquo;overclaim&rdquo; is actually supported, this is where that gets said.</span></p>
     </div>
     <div class="trial-vs">vs</div>
     <div class="trial-box">
       <span class="label"><span class="zh">陪审团</span><span class="en">The jury</span></span>
       <h4><span class="zh">去相关的局部证据评审</span><span class="en">Decorrelated, local-context evaluation</span></h4>
-      <p><span class="zh">只看局部证据、刻意摆脱最初 reviewer 的措辞框架来评估指控;分歧太大时升级到更大的合议庭。</span><span class="en">It weighs localized evidence with reduced dependence on the original reviewer&rsquo;s framing; insufficient agreement escalates to a larger panel.</span></p>
+      <p><span class="zh">只看局部证据、刻意摆脱最初 reviewer 的措辞框架来评估指控；没有明显多数时通常升级到更大的合议庭，但全员都因上下文不足而无法判断时直接交回作者。</span><span class="en">It weighs localized evidence with reduced dependence on the original reviewer&rsquo;s framing; insufficient agreement escalates to a larger panel.</span></p>
     </div>
   </div>
   <p class="trial-note">
-    <span class="zh">最终裁定 <code>v<sub>i</sub> = Verdict(T(i), q, m)</code> 由法定人数阈值 <code>q</code> 与多数阈值 <code>m</code> 在代码里算出。关键在于:<b>问题成立不等于机器可修</b>——所以裁定天生就有三种出口。</span>
+    <span class="zh">庭审结果 <code>o<sub>i</sub> = TrialOutcome(T(i), q, m)</code> 由代码根据法定人数阈值 <code>q</code> 与多数阈值 <code>m</code> 算出。指控成立后，judge agent 再决定是 valid-fixable 还是 author-required。关键在于：<b>问题成立不等于机器可修</b>。</span>
     <span class="en">The terminal verdict <code>v<sub>i</sub> = Verdict(T(i), q, m)</code> is computed in code from quorum threshold <code>q</code> and majority threshold <code>m</code>. The crux: <b>issue validity does not imply machine editability</b> &mdash; which is why the verdict space is three-way by construction.</span>
   </p>
   <div class="verdicts">
     <article class="verdict-card" data-v="drop">
       <span class="verdict-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>invalid-drop</span>
-      <h4><span class="zh">指控不成立,驳回</span><span class="en">The charge fails &mdash; dropped</span></h4>
-      <p><span class="zh">reviewer 误读了论文,或者提了不该改的问题。驳回并记录在案,不进入修订。</span><span class="en">The reviewer misread the paper or raised something that should not change. Rejected on the record; never reaches revision.</span></p>
+      <h4><span class="zh">指控不成立，驳回</span><span class="en">The charge fails &mdash; dropped</span></h4>
+      <p><span class="zh">reviewer 误读了论文，或者提了不该改的问题。驳回并记录在案，不进入修订。</span><span class="en">The reviewer misread the paper or raised something that should not change. Rejected on the record; never reaches revision.</span></p>
       <p class="vc-acc"><span class="zh">盲审专家复核一致率 <b>0.872</b></span><span class="en">Blinded expert agreement <b>0.872</b></span></p>
     </article>
     <article class="verdict-card" data-v="fix">
       <span class="verdict-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4.5 12.5 10 18 19.5 7"/></svg>valid-fixable</span>
-      <h4><span class="zh">成立,且能安全地修</span><span class="en">Valid, and safely machine-editable</span></h4>
-      <p><span class="zh">表达不清、claim 过强、结构不顺——不用补实验、不会改偏原意的问题,起草最小补丁进护栏链。</span><span class="en">Unclear wording, overreaching claims, broken structure &mdash; issues needing no new experiments. A minimal patch is drafted and sent through the guard chain.</span></p>
+      <h4><span class="zh">成立，且能安全地修</span><span class="en">Valid, and safely machine-editable</span></h4>
+      <p><span class="zh">表达不清、claim 过强、结构不顺——不用补实验、不会改偏原意的问题，起草最小补丁进护栏链。</span><span class="en">Unclear wording, overreaching claims, broken structure &mdash; issues needing no new experiments. A minimal patch is drafted and sent through the guard chain.</span></p>
       <p class="vc-acc"><span class="zh">盲审专家复核一致率 <b>0.913</b></span><span class="en">Blinded expert agreement <b>0.913</b></span></p>
     </article>
     <article class="verdict-card" data-v="author">
       <span class="verdict-chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="3.6"/><path d="M5 20c.8-3.6 3.6-5.5 7-5.5s6.2 1.9 7 5.5"/></svg>author-required</span>
-      <h4><span class="zh">成立,但必须交回作者</span><span class="en">Valid, but the author must decide</span></h4>
-      <p><span class="zh">缺实验、缺 ablation、缺数据,或者需要作者的私有知识与研究判断。原样交回,绝不代笔。</span><span class="en">Missing experiments, ablations, or data &mdash; anything needing the author&rsquo;s own knowledge or judgment. Handed back untouched, never ghost-written.</span></p>
+      <h4><span class="zh">成立，但必须交回作者</span><span class="en">Valid, but the author must decide</span></h4>
+      <p><span class="zh">缺实验、缺 ablation、缺数据，或者需要作者的私有知识与研究判断。原样交回，绝不代笔。</span><span class="en">Missing experiments, ablations, or data &mdash; anything needing the author&rsquo;s own knowledge or judgment. Handed back untouched, never ghost-written.</span></p>
       <p class="vc-acc"><span class="zh">盲审专家复核一致率 <b>0.860</b></span><span class="en">Blinded expert agreement <b>0.860</b></span></p>
     </article>
   </div>
   <div class="takeaway">
     <span class="takeaway-kicker"><span class="zh">要点</span><span class="en">Takeaway</span></span>
     <p class="takeaway-lead"><span class="zh">裁定错误集中在 valid-fixable 与 author-required 的边界上——那正是合理分歧所在。</span><span class="en">Verdict errors concentrate on the valid-fixable / author-required boundary &mdash; exactly where reasonable people disagree.</span></p>
-    <p class="takeaway-body"><span class="zh">三类裁定的盲审一致率都在 0.86 以上;争议最大的 author-required 也有最高的「无法判断」占比(15.7%),说明剩下的分歧是讲得出道理的判断差异,而不是裁定机制失灵。</span><span class="en">All three classes hold above 0.86 blinded agreement; the boundary class author-required also has the highest cannot-tell rate (15.7%) &mdash; defensible disagreement, not adjudication failure.</span></p>
+    <p class="takeaway-body"><span class="zh">三类裁定的盲审一致率都在 0.86 以上；争议最大的 author-required 也有最高的「无法判断」占比（15.7%），说明剩下的分歧是讲得出道理的判断差异，而不是裁定机制失灵。</span><span class="en">All three classes hold above 0.86 blinded agreement; the boundary class author-required also has the highest cannot-tell rate (15.7%) &mdash; defensible disagreement, not adjudication failure.</span></p>
   </div>
 </section>
 
@@ -865,26 +865,26 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">04</span>
       <span class="eyebrow-name"><span class="zh">评测设计</span><span class="en">Evaluation</span></span>
     </div>
-    <h2><span class="zh">双臂专家评审:先对问题,再审裁定。</span><span class="en">Two arms of expert review: match the issues, then audit the verdicts.</span></h2>
+    <h2><span class="zh">双臂专家评审：先对问题，再审裁定。</span><span class="en">Two arms of expert review: match the issues, then audit the verdicts.</span></h2>
     <p class="section-lede">
-      <span class="zh">在 12 篇 held-out 的 LaTeX 论文(Vision / NLP / ML 各 4 篇)上,与四个 baseline 在同一套稿件、预算口径和日志下对比。问题发现质量与下游裁定质量分开度量,避免互相混淆。</span>
+      <span class="zh">在 12 篇 held-out 的 LaTeX 论文（Vision / NLP / ML 各 4 篇）上，与四个 baseline 在同一套稿件、预算口径和日志下对比。问题发现质量与下游裁定质量分开度量，避免互相混淆。</span>
       <span class="en">On 12 held-out LaTeX papers (4 each from Vision, NLP, and ML), against four baselines under the same manuscripts, budget accounting, and logging. Issue discovery and downstream adjudication are measured separately so neither contaminates the other.</span>
     </p>
   </div>
   <div class="eval-grid">
     <article class="eval-card">
       <h3><span class="zh">第一臂 · 问题匹配</span><span class="en">Arm 1 &middot; Issue matching</span></h3>
-      <p><span class="zh">系统发现的问题与独立的专家问题清单做段落级 + 语义匹配(按 fix-equivalence 判等),得到 panel-relative 的精度、召回与 F1。</span><span class="en">System-discovered issues are matched against independent expert issue panels at passage level and semantically, under fix-equivalence &mdash; yielding panel-relative precision, recall, and F1.</span></p>
+      <p><span class="zh">系统发现的问题与独立的专家问题清单做段落级 + 语义匹配（按 fix-equivalence 判等），得到 panel-relative 的精度、召回与 F1。</span><span class="en">System-discovered issues are matched against independent expert issue panels at passage level and semantically, under fix-equivalence &mdash; yielding panel-relative precision, recall, and F1.</span></p>
     </article>
     <article class="eval-card">
       <h3><span class="zh">第二臂 · 盲审审计</span><span class="en">Arm 2 &middot; Blinded audit</span></h3>
-      <p><span class="zh">同一批专家在看不到系统裁定的情况下重新标注抽样问题,并审计路由决定、已应用的编辑和停止行为——得到裁定正确率、路由正确率和编辑安全性。</span><span class="en">The same experts relabel sampled issues without seeing the system&rsquo;s verdicts, and audit routing decisions, applied edits, and stopping behavior &mdash; yielding verdict accuracy, routing accuracy, and edit safety.</span></p>
+      <p><span class="zh">同一批专家在看不到系统裁定的情况下重新标注抽样问题，并审计路由决定、已应用的编辑和停止行为——得到裁定正确率、路由正确率和编辑安全性。</span><span class="en">The same experts relabel sampled issues without seeing the system&rsquo;s verdicts, and audit routing decisions, applied edits, and stopping behavior &mdash; yielding verdict accuracy, routing accuracy, and edit safety.</span></p>
     </article>
   </div>
   <ul class="baseline-list">
-    <li><b><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></b><span><span class="zh">不出问题清单,直接从头到尾改写。快,但没有裁定,编辑最不安全。</span><span class="en">No issue list; just rewrites straight through. Fast, no adjudication, least safe edits.</span></span></li>
-    <li><b><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></b><span><span class="zh">只生成批评,不裁定、不修改。</span><span class="en">Generates critique only; no verdicts, no edits.</span></span></li>
-    <li><b><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></b><span><span class="zh">最接近的对照:批评、裁定、停止全押在模型判断上。</span><span class="en">The closest comparator: critique, judgment, and stopping all ride on model discretion.</span></span></li>
+    <li><b><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></b><span><span class="zh">不出问题清单，直接从头到尾改写。快，但没有裁定，编辑最不安全。</span><span class="en">No issue list; just rewrites straight through. Fast, no adjudication, least safe edits.</span></span></li>
+    <li><b><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></b><span><span class="zh">只生成批评，不裁定、不修改。</span><span class="en">Generates critique only; no verdicts, no edits.</span></span></li>
+    <li><b><span class="zh">LLM-as-judge 循环</span><span class="en">LLM-as-judge loop</span></b><span><span class="zh">最接近的对照：批评、裁定、停止全押在模型判断上。</span><span class="en">The closest comparator: critique, judgment, and stopping all ride on model discretion.</span></span></li>
     <li><b><span class="zh">朴素无界生成器</span><span class="en">Naive unbounded generator</span></b><span><span class="zh">按「单元 &times; 视角」穷举批评的高召回、高成本参照。</span><span class="en">Exhaustive per-(unit&times;lens) critique &mdash; the high-recall, high-cost reference.</span></span></li>
   </ul>
 </section>
@@ -895,14 +895,14 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">05</span>
       <span class="eyebrow-name"><span class="zh">结果</span><span class="en">Results</span></span>
     </div>
-    <h2><span class="zh">最高的问题质量、最高的审计精度、最安全的编辑,同时确定性收敛。</span><span class="en">Best issue quality, highest audited precision, safest edits &mdash; while terminating deterministically.</span></h2>
+    <h2><span class="zh">最高的问题质量、最高的审计精度、最安全的编辑，同时确定性收敛。</span><span class="en">Best issue quality, highest audited precision, safest edits &mdash; while terminating deterministically.</span></h2>
     <p class="section-lede">
-      <span class="zh">关键不在单项指标,而在能否<strong>同时</strong>守住问题质量、受治理的裁定、不伤稿件的安全修订(artifact-safe)和实际可用的成本。逐篇配对比较里,PaperJury 的 F1 在全部 12 篇上胜过每一个会出问题清单的 baseline;paper-cluster paired-bootstrap 的 &Delta;F1 95% 下界分别为 +0.200(vs 批评器)、+0.127(vs judge 循环)、+0.188(vs 朴素生成器),满足预注册的主要终点。</span>
+      <span class="zh">关键不在单项指标，而在能否<strong>同时</strong>守住问题质量、受治理的裁定、不伤稿件的安全修订（artifact-safe）和实际可用的成本。逐篇配对比较里，PaperJury 的 F1 在全部 12 篇上胜过每一个会出问题清单的 baseline；paper-cluster paired-bootstrap 的 &Delta;F1 95% 下界分别为 +0.200（vs 批评器）、+0.127（vs judge 循环）、+0.188（vs 朴素生成器），满足预注册的主要终点。</span>
       <span class="en">The point is not any single metric but sustaining <strong>all of it at once</strong>: issue quality, governed adjudication, artifact-safe revision, practical cost. Per-paper paired F1 favors PaperJury on all 12 papers against every issue-producing baseline; paper-cluster paired-bootstrap 95% lower bounds on &Delta;F1 are +0.200 (vs critic), +0.127 (vs judge loop), and +0.188 (vs naive generator) &mdash; satisfying the preregistered primary endpoint.</span>
     </p>
   </div>
   <div class="table-wrap">
-    <div class="table-title"><span class="zh">表 1 · 端到端主结果(12 篇论文,双臂专家评审)</span><span class="en">Table 1 &middot; Main end-to-end results (12 papers, two-arm expert review)</span></div>
+    <div class="table-title"><span class="zh">表 1 · 端到端主结果（12 篇论文，双臂专家评审）</span><span class="en">Table 1 &middot; Main end-to-end results (12 papers, two-arm expert review)</span></div>
     <div class="table-scroll">
       <table class="results-table">
         <thead><tr>
@@ -941,14 +941,14 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       </table>
     </div>
     <p class="table-caption">
-      <span class="zh"><b>P<sub>panel</sub></b>:相对专家清单的重大问题精度(fix-equivalence 匹配);<b>P<sub>verified</sub></b>:经专家审计、把系统独有的成立问题计入后的修正精度(从不参与 F1);<b>Acc<sub>v</sub> / Acc<sub>r</sub></b>:盲审专家对终局裁定 / 路由决定的一致率;<b>ESVR</b>:已应用编辑中违反安全的比例(需与表 3 的编辑量合读);<b>K</b>:收敛轮数,括号内为触到五轮上限的论文数;<b>W</b>:每篇小时数。n/a 表示该方法没有这项能力。95% CI 为 P<sub>verified</sub> 的 Wilson 区间。</span>
+      <span class="zh"><b>P<sub>panel</sub></b>：相对专家清单的重大问题精度（fix-equivalence 匹配）；<b>P<sub>verified</sub></b>：经专家审计、把系统独有的成立问题计入后的修正精度（从不参与 F1）；<b>Acc<sub>v</sub> / Acc<sub>r</sub></b>：盲审专家对终局裁定 / 路由决定的一致率；<b>ESVR</b>：已应用编辑中违反安全的比例（需与表 3 的编辑量合读）；<b>K</b>：收敛轮数，括号内为触到五轮上限的论文数；<b>W</b>：每篇小时数。n/a 表示该方法没有这项能力。95% CI 为 P<sub>verified</sub> 的 Wilson 区间。</span>
       <span class="en"><b>P<sub>panel</sub></b>: panel-relative precision of major issues under fix-equivalence matching. <b>P<sub>verified</sub></b>: audit-corrected precision crediting expert-validated system-only issues (never used inside F1). <b>Acc<sub>v</sub> / Acc<sub>r</sub></b>: blinded expert agreement with terminal verdicts / routing. <b>ESVR</b>: safety-violating share of applied edits (read with Table&nbsp;3&rsquo;s edit volumes). <b>K</b>: rounds to termination, with papers hitting the five-round cap in parentheses. <b>W</b>: wall-clock hours per paper. n/a marks capabilities a method does not have. CIs are Wilson intervals on P<sub>verified</sub>.</span>
     </p>
   </div>
   <div class="chart-card">
     <div class="chart-head">
-      <span class="chart-title"><span class="zh">问题质量:panel-relative F1</span><span class="en">Issue quality: panel-relative F1</span></span>
-      <span class="chart-note"><span class="zh">越长越好 · Forward-only 重写器不出问题清单,无 F1</span><span class="en">Longer is better &middot; the forward-only rewriter produces no issue list, hence no F1</span></span>
+      <span class="chart-title"><span class="zh">问题质量：panel-relative F1</span><span class="en">Issue quality: panel-relative F1</span></span>
+      <span class="chart-note"><span class="zh">越长越好 · Forward-only 重写器不出问题清单，无 F1</span><span class="en">Longer is better &middot; the forward-only rewriter produces no issue list, hence no F1</span></span>
     </div>
     <div class="hbar" role="img" aria-label="F1 bars: critic 0.446, judge loop 0.519, naive generator 0.459, PaperJury 0.656">
       <div class="hbar-row"><span class="hbar-name"><span class="zh">LLM 批评器</span><span class="en">LLM critic only</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:68%"></i></span><span class="hbar-val">0.446</span></div>
@@ -959,9 +959,9 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
     <div class="chart-legend"><span class="lg-ours"><i></i>PaperJury</span><span class="lg-base"><i></i><span class="zh">baseline</span><span class="en">Baselines</span></span></div>
   </div>
   <div class="kpi-strip">
-    <div class="kpi"><span class="kpi-label"><span class="zh">裁定一致率</span><span class="en">Verdict agreement</span></span><span class="kpi-to">0.887</span><span class="kpi-sub"><span class="zh">judge 循环:0.681</span><span class="en">Judge loop: 0.681</span></span></div>
+    <div class="kpi"><span class="kpi-label"><span class="zh">裁定一致率</span><span class="en">Verdict agreement</span></span><span class="kpi-to">0.887</span><span class="kpi-sub"><span class="zh">judge 循环：0.681</span><span class="en">Judge loop: 0.681</span></span></div>
     <div class="kpi"><span class="kpi-label"><span class="zh">路由一致率</span><span class="en">Routing agreement</span></span><span class="kpi-to">0.913</span><span class="kpi-sub"><span class="zh">baseline 均无路由</span><span class="en">No baseline has routing</span></span></div>
-    <div class="kpi"><span class="kpi-label"><span class="zh">收敛轮数</span><span class="en">Rounds to termination</span></span><span class="kpi-to">3.08 &plusmn; 0.67</span><span class="kpi-sub"><span class="zh">从未触到五轮上限;judge 循环 2/12 触顶</span><span class="en">Never hits the five-round cap; judge loop caps on 2/12</span></span></div>
+    <div class="kpi"><span class="kpi-label"><span class="zh">收敛轮数</span><span class="en">Rounds to termination</span></span><span class="kpi-to">3.08 &plusmn; 0.67</span><span class="kpi-sub"><span class="zh">从未触到五轮上限；judge 循环 2/12 触顶</span><span class="en">Never hits the five-round cap; judge loop caps on 2/12</span></span></div>
   </div>
   <div class="dual-tables">
     <div class="table-wrap">
@@ -976,10 +976,10 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
           </tbody>
         </table>
       </div>
-      <p class="table-caption"><span class="zh">盲审专家在不知道系统裁定的情况下重新标注;误判集中在 valid-fixable &harr; author-required 边界。</span><span class="en">Blinded experts relabel without seeing the system&rsquo;s verdict; confusions concentrate on the valid-fixable &harr; author-required boundary.</span></p>
+      <p class="table-caption"><span class="zh">盲审专家在不知道系统裁定的情况下重新标注；误判集中在 valid-fixable &harr; author-required 边界。</span><span class="en">Blinded experts relabel without seeing the system&rsquo;s verdict; confusions concentrate on the valid-fixable &harr; author-required boundary.</span></p>
     </div>
     <div class="table-wrap">
-      <div class="table-title"><span class="zh">表 2b · 分领域切片(每个领域 4 篇;仅作诊断)</span><span class="en">Table 2b &middot; Per-domain slices (4 papers each; diagnostic)</span></div>
+      <div class="table-title"><span class="zh">表 2b · 分领域切片（每个领域 4 篇；仅作诊断）</span><span class="en">Table 2b &middot; Per-domain slices (4 papers each; diagnostic)</span></div>
       <div class="table-scroll">
         <table class="results-table">
           <thead><tr><th class="th-text"><span class="zh">领域</span><span class="en">Domain</span></th><th>F1</th><th>Acc<sub>v</sub></th><th>Acc<sub>r</sub></th><th>ESVR</th></tr></thead>
@@ -1002,14 +1002,14 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">06</span>
       <span class="eyebrow-name"><span class="zh">安全与成本</span><span class="en">Safety &amp; Cost</span></span>
     </div>
-    <h2><span class="zh">编辑量相当,不安全编辑少 4.4 倍——护栏链的成本自己就赚回来了。</span><span class="en">Similar edit volume, 4.4&times; fewer unsafe edits &mdash; the guard chain pays for itself.</span></h2>
+    <h2><span class="zh">编辑量相当，不安全编辑率相差 4.4 倍，PaperJury 约为 judge 循环的四分之一，说明护栏链带来了明确的安全收益。</span><span class="en">Similar edit volume, 4.4&times; fewer unsafe edits &mdash; the guard chain pays for itself.</span></h2>
     <p class="section-lede">
-      <span class="zh">ESVR 只有和编辑量、覆盖率放在一起才可解读:一个几乎不动稿子的系统「安全」得毫无意义。PaperJury 与 judge 循环的编辑量相当(每篇 13.4 vs 14.3 处),差别在于护栏链在落稿前拦下了 <strong>17.0%</strong> 的候选补丁(judge 循环只拦 3.4%),换来单位编辑违规率低 4.4 倍。</span>
+      <span class="zh">ESVR 必须结合编辑量和覆盖率解读；如果系统几乎不修改稿件，低 ESVR 本身没有解释力。PaperJury 与 judge 循环的编辑量相当（每篇 13.4 vs 14.3 处），但护栏链在应用前拦截了 <strong>17.0%</strong> 的候选补丁（judge 循环为 3.4%）。两者的单位编辑违规率相差 4.4 倍，PaperJury 约为 judge 循环的四分之一。</span>
       <span class="en">ESVR is only interpretable next to edit volume and coverage &mdash; a system that barely touches the paper is &ldquo;safe&rdquo; in a useless way. PaperJury applies about as many edits as the judge loop (13.4 vs 14.3 per paper); the difference is a guard chain that blocks <strong>17.0%</strong> of proposed patches before application (vs 3.4%), buying a 4.4&times; lower per-edit violation rate.</span>
     </p>
   </div>
   <div class="table-wrap">
-    <div class="table-title"><span class="zh">表 3 · 编辑安全(ESVR 的必备伴读)</span><span class="en">Table 3 &middot; Edit safety (the mandatory companion to ESVR)</span></div>
+    <div class="table-title"><span class="zh">表 3 · 编辑安全（ESVR 的必备伴读）</span><span class="en">Table 3 &middot; Edit safety (the mandatory companion to ESVR)</span></div>
     <div class="table-scroll">
       <table class="results-table">
         <thead><tr>
@@ -1039,14 +1039,14 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       </table>
     </div>
     <p class="table-caption">
-      <span class="zh">批评器与朴素生成器不做修改,不在此表。重写器改得最多(每篇 21.2 处)也错得最狠(ESVR 0.240)。PaperJury 覆盖率略低于 judge 循环(0.821 vs 0.843)——用这一点覆盖率,换来 12 篇合计的不安全编辑从 19 处降到 4 处。</span>
+      <span class="zh">批评器与朴素生成器不做修改，不在此表。重写器改得最多（每篇 21.2 处）也错得最狠（ESVR 0.240）。PaperJury 覆盖率略低于 judge 循环（0.821 vs 0.843）——用这一点覆盖率，换来 12 篇合计的不安全编辑从 19 处降到 4 处。</span>
       <span class="en">The critic-only and naive baselines apply no edits. The rewriter edits the most (21.2 per paper) and worst (ESVR 0.240). PaperJury&rsquo;s coverage runs slightly below the judge loop (0.821 vs 0.843) &mdash; the price of dropping unsafe edits from 19 to 4 pooled across papers.</span>
     </p>
   </div>
   <div class="chart-card">
     <div class="chart-head">
-      <span class="chart-title"><span class="zh">每篇耗时(小时)</span><span class="en">Wall-clock hours per paper</span></span>
-      <span class="chart-note"><span class="zh">越短越好 · token 成本:PaperJury 每篇 6.76M;朴素生成器 31.4M</span><span class="en">Shorter is better &middot; token cost: PaperJury 6.76M per paper; naive generator 31.4M</span></span>
+      <span class="chart-title"><span class="zh">每篇耗时（小时）</span><span class="en">Wall-clock hours per paper</span></span>
+      <span class="chart-note"><span class="zh">越短越好 · token 成本：PaperJury 每篇 6.76M；朴素生成器 31.4M</span><span class="en">Shorter is better &middot; token cost: PaperJury 6.76M per paper; naive generator 31.4M</span></span>
     </div>
     <div class="hbar" role="img" aria-label="Hours per paper: rewriter 0.31, critic 0.51, judge loop 2.06, naive generator 8.37, PaperJury 2.47">
       <div class="hbar-row"><span class="hbar-name"><span class="zh">Forward-only 重写器</span><span class="en">Forward-only rewriter</span></span><span class="hbar-track"><i class="hbar-fill" style="--w:3.7%"></i></span><span class="hbar-val">0.31</span></div>
@@ -1059,8 +1059,8 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
   </div>
   <div class="takeaway">
     <span class="takeaway-kicker"><span class="zh">要点</span><span class="en">Takeaway</span></span>
-    <p class="takeaway-lead"><span class="zh">治理的代价并不高:2.47 小时、6.76M token,换回可审计的全流程。</span><span class="en">Governance costs little: 2.47 hours and 6.76M tokens buy a fully auditable loop.</span></p>
-    <p class="takeaway-body"><span class="zh">token 比穷举式批评省 4 倍多、时间快 3 倍多,用一些召回换来精度与安全的大幅提升;比便宜的单遍系统多花的时间,花在了裁定与护栏上。</span><span class="en">Over 4&times; cheaper in tokens and over 3&times; faster than exhaustive critique, trading some recall for large gains in precision and safety; the hours beyond the cheap single-pass systems are spent exactly on adjudication and guards.</span></p>
+    <p class="takeaway-lead"><span class="zh">治理的代价并不高：2.47 小时、6.76M token，换回可审计的全流程。</span><span class="en">Governance costs little: 2.47 hours and 6.76M tokens buy a fully auditable loop.</span></p>
+    <p class="takeaway-body"><span class="zh">token 比穷举式批评省 4 倍多、时间快 3 倍多，用一些召回换来精度与安全的大幅提升；比便宜的单遍系统多花的时间，花在了裁定与护栏上。</span><span class="en">Over 4&times; cheaper in tokens and over 3&times; faster than exhaustive critique, trading some recall for large gains in precision and safety; the hours beyond the cheap single-pass systems are spent exactly on adjudication and guards.</span></p>
   </div>
 </section>
 
@@ -1070,14 +1070,14 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">07</span>
       <span class="eyebrow-name"><span class="zh">消融实验</span><span class="en">Ablations</span></span>
     </div>
-    <h2><span class="zh">拆掉哪个部件,系统就恰好坏在那个部件的职责上。</span><span class="en">Remove a component, and the system fails exactly where that component&rsquo;s job was.</span></h2>
+    <h2><span class="zh">拆掉哪个部件，系统就恰好坏在那个部件的职责上。</span><span class="en">Remove a component, and the system fails exactly where that component&rsquo;s job was.</span></h2>
     <p class="section-lede">
-      <span class="zh">在预注册的、领域均衡的 6 篇子集上逐个拆部件。消融有说服力的标准不是「拆了还能跑」,而是退化方向要与被拆部件的功能对得上——五个部件全部对上了。</span>
+      <span class="zh">在预注册的、领域均衡的 6 篇子集上逐个拆部件。消融有说服力的标准不是“拆了还能跑”，而是退化方向要与被拆部件的功能对得上——五个部件全部对上了。</span>
       <span class="en">Each component is removed on a preregistered, domain-balanced six-paper subset. The bar for an informative ablation is not &ldquo;it still runs&rdquo; but that the degradation aligns with the removed component&rsquo;s function &mdash; and all five align.</span>
     </p>
   </div>
   <div class="table-wrap">
-    <div class="table-title"><span class="zh">表 4 · 消融(6 篇子集;&Delta; 相对同子集重跑的完整系统)</span><span class="en">Table 4 &middot; Ablations (six-paper subset; &Delta; vs Full PaperJury re-executed on the same subset)</span></div>
+    <div class="table-title"><span class="zh">表 4 · 消融（6 篇子集；&Delta; 相对同子集重跑的完整系统）</span><span class="en">Table 4 &middot; Ablations (six-paper subset; &Delta; vs Full PaperJury re-executed on the same subset)</span></div>
     <div class="table-scroll">
       <table class="results-table">
         <thead><tr>
@@ -1113,38 +1113,38 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
         </tbody>
       </table>
     </div>
-    <p class="table-caption"><span class="zh">同一子集上完整系统重跑的 F1 与主实验相差在运行随机性内。「去掉有界评审」同时取消了轮数上限,故 K 无触顶口径。</span><span class="en">The full system&rsquo;s subset re-execution differs from the main run within run stochasticity. &ldquo;w/o bounded review&rdquo; also removes the round cap, so its K has no cap fraction.</span></p>
+    <p class="table-caption"><span class="zh">同一子集上完整系统重跑的 F1 与主实验相差在运行随机性内。“去掉有界评审”同时取消了轮数上限，故 K 无触顶口径。</span><span class="en">The full system&rsquo;s subset re-execution differs from the main run within run stochasticity. &ldquo;w/o bounded review&rdquo; also removes the round cap, so its K has no cap fraction.</span></p>
   </div>
   <div class="finding-grid">
     <article class="finding">
       <h3><span class="zh">拆有界评审 &rarr; 发现能力掉最狠</span><span class="en">Drop bounded review &rarr; discovery falls hardest</span></h3>
       <span class="finding-value bad">&minus;0.077<span class="fv-dir">F1</span></span>
-      <p><span class="zh">同时耗时翻倍(2.43 &rarr; 4.81 小时):没有边界的评审既漏得多、又跑得慢。</span><span class="en">Runtime also doubles (2.43 &rarr; 4.81 h): unbounded review misses more and runs slower.</span></p>
+      <p><span class="zh">同时耗时翻倍（2.43 &rarr; 4.81 小时）：没有边界的评审既漏得多、又跑得慢。</span><span class="en">Runtime also doubles (2.43 &rarr; 4.81 h): unbounded review misses more and runs slower.</span></p>
     </article>
     <article class="finding">
       <h3><span class="zh">拆庭审 &rarr; 裁定质量掉最狠</span><span class="en">Drop the trial &rarr; verdicts fall hardest</span></h3>
       <span class="finding-value bad">&minus;0.153<span class="fv-dir">Acc<sub>v</sub></span></span>
-      <p><span class="zh">换成单遍语义判断后,恰恰是边界案例最先失守——它们正需要全文语境才能稳定裁定。</span><span class="en">With single-pass semantic judgment, borderline cases fail first &mdash; exactly the ones needing manuscript-wide context.</span></p>
+      <p><span class="zh">换成单遍语义判断后，恰恰是边界案例最先失守——它们正需要全文语境才能稳定裁定。</span><span class="en">With single-pass semantic judgment, borderline cases fail first &mdash; exactly the ones needing manuscript-wide context.</span></p>
     </article>
     <article class="finding">
       <h3><span class="zh">拆护栏链 &rarr; 安全崩得最狠</span><span class="en">Drop the guard chain &rarr; safety collapses</span></h3>
       <span class="finding-value bad">+0.152<span class="fv-dir">ESVR</span></span>
-      <p><span class="zh">ESVR 冲到 0.181,还「最快跑完」(1.94 小时)——不设防落稿的典型特征,而不是修订变好了。</span><span class="en">ESVR jumps to 0.181 while terminating fastest (1.94 h) &mdash; the signature of unchecked application, not better revision.</span></p>
+      <p><span class="zh">ESVR 升至 0.181，同时以 1.94 小时最早结束。这说明修改缺少安全检查，并不代表修订质量更高。</span><span class="en">ESVR jumps to 0.181 while terminating fastest (1.94 h) &mdash; the signature of unchecked application, not better revision.</span></p>
     </article>
     <article class="finding">
       <h3><span class="zh">拆 claim spine &rarr; 主张开始漂移</span><span class="en">Drop the claim spine &rarr; claims drift</span></h3>
       <span class="finding-value bad">+0.083<span class="fv-dir">ESVR</span></span>
-      <p><span class="zh">没有被冻结的主张骨架,更多补丁越过局部修补、动到 claim 层——初筛拦不住它们。</span><span class="en">Without the frozen backbone, more patches slip past screening into claim-level alteration.</span></p>
+      <p><span class="zh">没有被冻结的主张骨架，更多补丁越过局部修补、动到 claim 层——初筛拦不住它们。</span><span class="en">Without the frozen backbone, more patches slip past screening into claim-level alteration.</span></p>
     </article>
     <article class="finding">
       <h3><span class="zh">拆确定性路由 &rarr; 判得更差、花得更多</span><span class="en">Drop routing &rarr; worse verdicts, higher cost</span></h3>
       <span class="finding-value bad">&minus;0.075<span class="fv-dir">Acc<sub>v</sub></span></span>
-      <p><span class="zh">耗时 2.43 &rarr; 3.49 小时而 F1 几乎不动:所有问题都涌进昂贵的语义裁定,分配失灵。</span><span class="en">Hours rise 2.43 &rarr; 3.49 while F1 barely moves: everything floods into expensive semantic adjudication.</span></p>
+      <p><span class="zh">耗时 2.43 &rarr; 3.49 小时而 F1 几乎不动：所有问题都涌进昂贵的语义裁定，分配失灵。</span><span class="en">Hours rise 2.43 &rarr; 3.49 while F1 barely moves: everything floods into expensive semantic adjudication.</span></p>
     </article>
     <article class="finding">
       <h3><span class="zh">合起来读</span><span class="en">Read together</span></h3>
       <span class="finding-value">5 / 5</span>
-      <p><span class="zh">五个部件的退化方向全部与其功能对齐——护栏链和 claim spine 是修订不伤稿件的必要条件,不是保守的摆设。</span><span class="en">All five degradations align with component function &mdash; the guard chain and claim spine are necessary conditions for artifact-safe revision, not conservative overhead.</span></p>
+      <p><span class="zh">五个部件的退化方向全部与其功能对齐——护栏链和 claim spine 是修订不伤稿件的必要条件，不是保守的摆设。</span><span class="en">All five degradations align with component function &mdash; the guard chain and claim spine are necessary conditions for artifact-safe revision, not conservative overhead.</span></p>
     </article>
   </div>
 </section>
@@ -1156,9 +1156,9 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
       <span class="eyebrow-num" aria-hidden="true">08</span>
       <span class="eyebrow-name"><span class="zh">上手使用</span><span class="en">In Practice</span></span>
     </div>
-    <h2><span class="zh">三种模式,一次真实 dogfood,一套诚实的降级。</span><span class="en">Three modes, one real dogfood run, and honest degradation.</span></h2>
+    <h2><span class="zh">三种模式，一次真实 dogfood，一套诚实的降级。</span><span class="en">Three modes, one real dogfood run, and honest degradation.</span></h2>
     <p class="section-lede">
-      <span class="zh">PaperJury 以 Claude Code skill 的形式发布。不用背命令:直接描述需求,它会自己选模式;真正落稿前,补丁都先交给你确认。也有 <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex" target="_blank" rel="noopener">Codex 版</a>。</span>
+      <span class="zh">PaperJury 以 Claude Code skill 的形式发布。直接描述需求即可，无需记忆命令；系统会在 direct-edit 与 review 之间选择，auto 则必须显式启用。在 direct-edit 和 review 模式下，补丁应用前都会先交给你确认。另有 <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex" target="_blank" rel="noopener">Codex 版</a>。</span>
       <span class="en">PaperJury ships as a Claude Code skill. No commands to memorize: describe what you need and it picks the mode; every patch waits for your confirmation before landing. A <a href="https://github.com/Spark-To-Paper-Skills/paperjury-codex" target="_blank" rel="noopener">Codex port</a> exists too.</span>
     </p>
   </div>
@@ -1166,26 +1166,26 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
     <article class="mode-card">
       <h4><code>direct-edit</code></h4>
       <p class="mode-when"><span class="zh">最常用 · 只改一处</span><span class="en">Most common &middot; one spot</span></p>
-      <p><span class="zh">「把这段改紧一点,但别改 claim。」不开评审面板,直接起草补丁,你确认后应用。</span><span class="en">&ldquo;Tighten this paragraph, but don&rsquo;t change the claim.&rdquo; No review panel &mdash; a patch is drafted and applied after you confirm.</span></p>
+      <p><span class="zh">“把这段改紧一点，但别改 claim。”不开评审面板，直接起草补丁，你确认后应用。</span><span class="en">&ldquo;Tighten this paragraph, but don&rsquo;t change the claim.&rdquo; No review panel &mdash; a patch is drafted and applied after you confirm.</span></p>
     </article>
     <article class="mode-card">
       <h4><code>review</code></h4>
-      <p class="mode-when"><span class="zh">想被挑刺时</span><span class="en">When you want the jury</span></p>
-      <p><span class="zh">「审稿」「mock review」「只看第 4 节」。启动对抗式评审引擎,先判问题成立与否,改动逐一确认。</span><span class="en">&ldquo;Review this,&rdquo; &ldquo;mock review,&rdquo; &ldquo;just Section 4.&rdquo; The adversarial engine runs; issues are adjudicated first, and every change is confirmed one by one.</span></p>
+      <p class="mode-when"><span class="zh">需要全面审稿时</span><span class="en">When you want the jury</span></p>
+      <p><span class="zh">“审稿”“mock review”“只看第 4 节”。启动对抗式评审引擎，先判问题成立与否，改动逐一确认。</span><span class="en">&ldquo;Review this,&rdquo; &ldquo;mock review,&rdquo; &ldquo;just Section 4.&rdquo; The adversarial engine runs; issues are adjudicated first, and every change is confirmed one by one.</span></p>
     </article>
     <article class="mode-card">
       <h4><code>auto</code></h4>
       <p class="mode-when"><span class="zh">无人值守 · 须显式开启</span><span class="en">Unattended &middot; explicit opt-in</span></p>
-      <p><span class="zh">用 <code>/goal</code> 或配置 <code>mode: auto</code> 显式授权后,多轮跑到可验证的目标;安全修改可自动落稿,高风险仍交回作者。</span><span class="en">With explicit <code>/goal</code> or <code>mode: auto</code> authorization, it iterates to a verifiable target; safe fixes may auto-apply, high-risk items still return to the author.</span></p>
+      <p><span class="zh">配置 <code>mode: auto</code> 作为修改策略，并用 <code>/goal</code> 提供可验证目标后，系统会连续运行多轮；安全修改可自动应用，高风险修改仍交回作者。</span><span class="en">With explicit <code>/goal</code> or <code>mode: auto</code> authorization, it iterates to a verifiable target; safe fixes may auto-apply, high-risk items still return to the author.</span></p>
     </article>
   </div>
   <div class="callout warn">
-    <p><span class="zh"><strong>auto 不靠猜,必须显式开启。</strong>只放开工具权限、发普通 prompt,只会跑一轮就停。要多轮无人值守,必须 <code>/goal</code> 或 <code>mode: auto</code>,原因见 <a href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/AGENT-GUIDE.md" target="_blank" rel="noopener">AGENT-GUIDE &sect;3</a>。</span><span class="en"><strong>Auto is never inferred.</strong> Opening tool permissions and sending an ordinary prompt runs one round and stops. Unattended multi-round work requires <code>/goal</code> or <code>mode: auto</code> &mdash; see <a href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/AGENT-GUIDE.md" target="_blank" rel="noopener">AGENT-GUIDE &sect;3</a>.</span></p>
+    <p><span class="zh"><strong>auto 策略和跨轮运行都必须显式启用。</strong><code>mode: auto</code> 决定候选修改是自动应用还是进入待办队列；<code>/goal</code> 负责跨轮继续运行。仅放开工具权限或发送普通 prompt，都不会启动无人值守的多轮循环。详见 <a href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/AGENT-GUIDE.md" target="_blank" rel="noopener">AGENT-GUIDE &sect;3</a>。</span><span class="en"><strong>Auto is never inferred.</strong> Opening tool permissions and sending an ordinary prompt runs one round and stops. Unattended multi-round work requires <code>/goal</code> or <code>mode: auto</code> &mdash; see <a href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/docs/AGENT-GUIDE.md" target="_blank" rel="noopener">AGENT-GUIDE &sect;3</a>.</span></p>
   </div>
   <div class="dogfood" id="dogfood">
     <div>
-      <h3><span class="zh">真实一跑:21 页草稿,11 个埋好的缺陷</span><span class="en">The real run: a 21-page draft with 11 planted defects</span></h3>
-      <p><span class="zh">一篇真实草稿的完整 auto 模式评审:152 条 reviewer 意见去重成 55 个问题——26 处安全落稿、10 个交回作者、19 条驳回;改后稿件编译 0 error / 0 warning。仓库里放着修改前后 PDF 和一份人工核对过的运行报告,先看样例,再决定要不要把自己的论文交给它。</span><span class="en">A full auto-mode pass over a real draft: 152 reviewer complaints deduped into 55 issues &mdash; 26 safely applied, 10 handed to the author, 19 dropped; the revised manuscript compiles with 0 errors and 0 warnings. Before/after PDFs and a hand-verified run report live in the repo &mdash; read the sample before trusting it with your own paper.</span></p>
+      <h3><span class="zh">完整运行样例：21 页草稿，11 个预设缺陷</span><span class="en">The real run: a 21-page draft with 11 planted defects</span></h3>
+      <p><span class="zh">一篇真实草稿完成了一轮 auto 模式评审：152 条 reviewer 意见去重为 55 个问题，其中 26 处安全应用、10 个交回作者、19 条驳回；修改后的稿件编译结果为 0 error / 0 warning。仓库提供修改前后的 PDF 和经过人工核对的运行报告，建议先查看样例，再决定是否用于自己的论文。</span><span class="en">A full auto-mode pass over a real draft: 152 reviewer complaints deduped into 55 issues &mdash; 26 safely applied, 10 handed to the author, 19 dropped; the revised manuscript compiles with 0 errors and 0 warnings. Before/after PDFs and a hand-verified run report live in the repo &mdash; read the sample before trusting it with your own paper.</span></p>
       <div class="dogfood-links">
         <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/samples/dogfood/original_draft.pdf" target="_blank" rel="noopener"><span class="zh">改前 PDF</span><span class="en">Before PDF</span></a>
         <a class="button ghost" href="https://github.com/Spark-To-Paper-Skills/paperjury/blob/main/samples/dogfood/revised_draft.pdf" target="_blank" rel="noopener"><span class="zh">改后 PDF</span><span class="en">After PDF</span></a>
@@ -1195,14 +1195,14 @@ code,.tok{font-family:var(--font-mono);font-size:.88em;padding:1px 5px;border-ra
     </div>
     <div class="df-stats">
       <div class="df-cell"><span class="df-num">152 &rarr; 55</span><span class="df-cap"><span class="zh">意见去重成问题</span><span class="en">Complaints deduped into issues</span></span></div>
-      <div class="df-cell"><span class="df-num">26 / 10 / 19</span><span class="df-cap"><span class="zh">落稿 / 交回作者 / 驳回</span><span class="en">Applied / author / dropped</span></span></div>
+      <div class="df-cell"><span class="df-num">26 / 10 / 19</span><span class="df-cap"><span class="zh">应用 / 交回作者 / 驳回</span><span class="en">Applied / author / dropped</span></span></div>
       <div class="df-cell"><span class="df-num">0 / 0</span><span class="df-cap"><span class="zh">改后编译 error / warning</span><span class="en">Errors / warnings after revision</span></span></div>
       <div class="df-cell"><span class="df-num">1 <span class="zh">轮</span><span class="en">round</span></span><span class="df-cap"><span class="zh">auto 模式完整闭环</span><span class="en">One full auto-mode loop</span></span></div>
     </div>
   </div>
   <div class="install-grid">
     <div class="install-col">
-      <h4><span class="zh">方式 A · Claude Code plugin(推荐)</span><span class="en">Option A &middot; Claude Code plugin (recommended)</span></h4>
+      <h4><span class="zh">方式 A · Claude Code plugin（推荐）</span><span class="en">Option A &middot; Claude Code plugin (recommended)</span></h4>
       <pre>/plugin marketplace add Spark-To-Paper-Skills/paperjury
 /plugin install paperjury@Spark-To-Paper-Skills</pre>
     </div>
@@ -1215,13 +1215,13 @@ git clone https://github.com/Spark-To-Paper-Skills/paperjury "$env:USERPROFILE\.
     </div>
   </div>
   <ul class="install-notes">
-    <li><span class="zh">需要 <code>node</code>(确定性检查跑在 Node 上);装完可在 skill 目录跑 <code>npm run doctor</code> 自检。</span><span class="en">Requires <code>node</code> (deterministic checks run on Node); run <code>npm run doctor</code> in the skill directory to self-check.</span></li>
-    <li><span class="zh">LaTeX 工具链可选:有就真实编译并查版面;没有就明说哪些检查做不了——<code>compile-guard</code> 从不假装验证过,无法编译时会退到结构检查并报告 <code>compiled:null</code>。</span><span class="en">A LaTeX toolchain is optional: with one, it really compiles and checks layout; without, it says which checks are unavailable &mdash; <code>compile-guard</code> never pretends, falling back to structural lint and reporting <code>compiled:null</code>.</span></li>
-    <li><span class="zh">启动时对稳定版 tag 做软更新检查,只提示不打断;<code>PAPERJURY_DISABLE_UPDATE_CHECK=1</code> 可关闭。</span><span class="en">A soft update check against stable release tags runs at startup &mdash; notify-only; disable with <code>PAPERJURY_DISABLE_UPDATE_CHECK=1</code>.</span></li>
-    <li><span class="zh">隐私:你的稿件、ledger、journal、补丁都留在本地论文项目里。PaperJury 没有自己的后端;评审走你自己的 Claude Code 会话。</span><span class="en">Privacy: your manuscript, ledger, journal, and patches stay in your local project. PaperJury has no backend of its own; review runs through your own Claude Code session.</span></li>
+    <li><span class="zh">需要 <code>node</code>（确定性检查跑在 Node 上）；装完可在 skill 目录跑 <code>npm run doctor</code> 自检。</span><span class="en">Requires <code>node</code> (deterministic checks run on Node); run <code>npm run doctor</code> in the skill directory to self-check.</span></li>
+    <li><span class="zh">LaTeX 工具链可选：有就真实编译并查版面；没有就明说哪些检查做不了——<code>compile-guard</code> 从不假装验证过，无法编译时会退到结构检查并报告 <code>compiled:null</code>。</span><span class="en">A LaTeX toolchain is optional: with one, it really compiles and checks layout; without, it says which checks are unavailable &mdash; <code>compile-guard</code> never pretends, falling back to structural lint and reporting <code>compiled:null</code>.</span></li>
+    <li><span class="zh">启动时对稳定版 tag 做软更新检查，只提示不打断；<code>PAPERJURY_DISABLE_UPDATE_CHECK=1</code> 可关闭。</span><span class="en">A soft update check against stable release tags runs at startup &mdash; notify-only; disable with <code>PAPERJURY_DISABLE_UPDATE_CHECK=1</code>.</span></li>
+    <li><span class="zh">隐私：你的稿件、ledger、journal、补丁都留在本地论文项目里。PaperJury 没有自己的后端；评审走你自己的 Claude Code 会话。</span><span class="en">Privacy: your manuscript, ledger, journal, and patches stay in your local project. PaperJury has no backend of its own; review runs through your own Claude Code session.</span></li>
   </ul>
   <div class="callout info">
-    <p><span class="zh"><strong>边界写在最前面:</strong>PaperJury 是投稿前的自查工具,不能替代作者的科学判断,也不能替代 peer review。它不会编造实验、伪造结果、添加没有证据的 claim 或掩盖论文局限;凡是需要新实验、新证据或作者研究判断的问题,一律交回作者处理。</span><span class="en"><strong>Scope, stated up front:</strong> PaperJury is a pre-submission self-check &mdash; not a substitute for your scientific judgment or for peer review. It will not invent experiments, fabricate results, add unsupported claims, or paper over limitations; anything needing new experiments, new evidence, or research judgment goes back to the author.</span></p>
+    <p><span class="zh"><strong>边界写在最前面：</strong>PaperJury 是投稿前的自查工具，不能替代作者的科学判断，也不能替代 peer review。它不会编造实验、伪造结果、添加没有证据的 claim 或掩盖论文局限；凡是需要新实验、新证据或作者研究判断的问题，一律交回作者处理。</span><span class="en"><strong>Scope, stated up front:</strong> PaperJury is a pre-submission self-check &mdash; not a substitute for your scientific judgment or for peer review. It will not invent experiments, fabricate results, add unsupported claims, or paper over limitations; anything needing new experiments, new evidence, or research judgment goes back to the author.</span></p>
   </div>
 </section>
 
@@ -1233,7 +1233,7 @@ git clone https://github.com/Spark-To-Paper-Skills/paperjury "$env:USERPROFILE\.
     </div>
     <h2><span class="zh">引用这项工作。</span><span class="en">Cite this work.</span></h2>
     <p class="section-lede">
-      <span class="zh">如果 PaperJury 对你的研究或写作流程有帮助,欢迎引用这篇 arXiv 论文。</span>
+      <span class="zh">如果 PaperJury 对你的研究或写作流程有帮助，欢迎引用这篇 arXiv 论文。</span>
       <span class="en">If PaperJury helps your research or writing workflow, please cite the arXiv paper.</span>
     </p>
   </div>
